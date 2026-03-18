@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="dashboard_styles.css">
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <h1 id="welcome_text">Welcome, Andre</h1>
+        <div id="main_body" class="layer_1">
+            <div id="profile">
+                <div id="stats" class="layer_2">
+                    <h2>Your Info</h2>
+                    <p id="ninja_name_display">Name: </p>
+                    <p id="ninja_points_display">Points: </p>
+                    <div style="display: flex; gap: 1em; justify-content: center;">
+                        <button onclick="editPoints(-1)" class="layer_2">Remove 1</button>
+                        <button onclick="editPoints(1)" class="layer_2">Add 1</button>
+                    </div>
+                </div>
+                <div id="options" class="layer_2">
+                    <h2>Options</h2>
+                    <button onclick="console.log('Not added yet!!')" class="full_width_button layer_3 danger_button">Transfer Belt</button>
+                </div>
+            </div>
+            <div id="shop" class="layer_2">
+                <h2>Shop</h2>
+            </div>
+        </div>
+        <div id="register_popup">
+            <h2>First time? Register here:</h2>
+            <div>
+                <label for="fname">First Name: </label>
+                <input type="text" id="fname" name="fname">
+            </div>
+            <div>
+                <label for="lname">Last Name: </label>
+                <input type="text" id="lname" name="lname">
+            </div>
+            <div>
+                <label for="belt">Belt ID: </label>
+                <input type="text" id="belt" name="belt">
+            </div>
+            <button onclick="registerNinja()" class="layer_2">Register!</button>
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        <script src="dashboard_app.js"></script>
+    </body>
+</html>

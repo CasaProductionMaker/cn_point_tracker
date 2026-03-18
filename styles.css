@@ -1,0 +1,17 @@
+body {
+    background-color: #222;
+    color: #EEE;
+    font-family: sans-serif;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+
+.invisible_input {
+    position: absolute;
+    opacity: 0;
+}
