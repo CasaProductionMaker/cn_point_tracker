@@ -1,3 +1,6 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD4Ji7FYEOi0IseOh4b8FCGtj5gw1UQu34",
@@ -9,8 +12,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore();
 
 // Consts
 const shopItems = {
@@ -43,15 +46,16 @@ let uid = localStorage.getItem("currentUser");
 console.log("UID: " + uid);
 let myProfile = {};
 
-function loadShop() {
-    Object.keys(shopItems).forEach((key) => {
-        const value = shopItems[key];
+async function loadShop() {
+    const gottenShop = await getDocs(collection(db, "shop"));
+    gottenShop.forEach((doc) => {
+        const shopItem = doc.data();
         let item = document.createElement("div");
         item.classList.add("shop_option", "layer_3");
 
         item.innerHTML = `
-            <h3>${key} (${value.cost} points)</h3>
-            <p>${value.description}</p>
+            <h3>${shopItem.name} (${shopItem.cost} points)</h3>
+            <p>${shopItem.description}</p>
             <button onclick="console.log('Not added yet!!')" class="full_width_button layer_4">Purchase</button>
         `;
 
@@ -61,13 +65,16 @@ function loadShop() {
 
 function showRegisterPopup() {
     registerPopup.style.display = "flex";
+    document.getElementById("register_button").addEventListener("click", (event) => {
+        registerNinja();
+    })
 }
 
 async function loadPage() {
     loadShop();
-    db.collection("ninjas").doc(uid).onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
+    onSnapshot(doc(db, "ninjas", uid), (snapshot) => {
+        if (snapshot.exists) {
+            const data = snapshot.data();
             myProfile = data;
             ninjaNameDisplay.textContent = `Name: ${data.firstname} ${data.lastname[0]}.`;
             welcomeText.textContent = `Welcome, ${data.firstname}`;
@@ -75,22 +82,20 @@ async function loadPage() {
         } else {
             console.log("Ninja not registered!");
         }
-    }, (error) => {
-        console.error("Error:", error);
     });
 }
 
-function editPoints(amount) {
-    db.collection("ninjas").doc(uid).update({
+async function editPoints(amount) {
+    await updateDoc(doc(db, "ninjas", uid), {
         points: myProfile.points + amount
     });
 }
 
-function registerNinja() {
+async function registerNinja() {
     const fname = registerFNameInput.value;
     const lname = registerLNameInput.value;
     const belt = registerBeltInput.value;
-    db.collection("ninjas").doc(uid).set({
+    await setDoc(doc(db, "ninjas", uid), {
         firstname: fname,
         lastname: lname, 
         points: 0, 
@@ -101,10 +106,10 @@ function registerNinja() {
 }
 
 // Start app
-db.collection("ninjas").doc(uid).get().then((doc) => {
-    if (doc.exists) {
-        loadPage();
-    } else {
-        showRegisterPopup();
-    }
-});
+const snapshot = await getDoc(doc(db, "ninjas", uid));
+
+if (snapshot.exists()) {
+    loadPage();
+} else {
+    showRegisterPopup();
+}

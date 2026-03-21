@@ -1,0 +1,10 @@
+.registered_ninja, .shop_item {
+    background-color: #0005;
+}
+
+#shop_item_popup {
+    position: fixed;
+    left: 40%;
+    top: 40%;
+    background-color: #0005;
+}

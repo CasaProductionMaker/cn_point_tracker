@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Admin Panel</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="admin_styles.css">
+    </head>
+    <body>
+        <h1>Admin Panel (No styles)</h1>
+        <div id="ninja_container">
+            <h2>Registered Ninjas</h2>
+        </div>
+        <div id="settings_container">
+            <h2>Settings</h2>
+            <div>
+                <label for="leaderboard_slots_input">Leaderboard Positions: </label>
+                <input type="number" name="leaderboard_slots_input" id="leaderboard_slots_input">
+                <button id="apply_leaderboard_slots">Apply</button>
+            </div>
+            <h2>Edit Shop Items</h2>
+            <div id="shop_editor_container"></div>
+            <button id="add_shop_item_button">Add New Shop Item +</button>
+        </div>
+        <script type="module" src="admin.js"></script>
+    </body>
+</html>
+
+<!-- 
+Admin panel needs:
+- container for ninjas info with id #ninja_container
+- all ninjas in the contianer have class .registered_ninja
+    - ninja name has .ninja_name
+    - points has .ninja_points
+    - uid has .ninja_uid
+- #shop_editor_container to hold the shop editor
+- all shop items in the contianer have class .shop_item
+    - item name has .shop_item_name
+    - cost has .shop_item_cost
+    - description has .shop_item_description
+- #leaderboard_slots_input for the input to input leaderboard slots
+- #add_shop_item_button for the button that opens a popup
+
+settings needed:
+leaderboard posistions
+shop editor
+-->

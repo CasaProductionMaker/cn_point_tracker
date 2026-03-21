@@ -89,8 +89,10 @@ button {
 }
 
 .danger_button {
-    color: #F00;
     font-weight: bold;
+    background-color: #F55;
+    border: 1px solid #F77;
+    box-shadow: 0 0 1em #0008;
 }
 
 /* Popups */

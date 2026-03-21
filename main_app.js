@@ -6,7 +6,12 @@ function convertInputToKey(inputValue) {
 
 nfcInput.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
+        if (e.target.value === "admin6699") {
+            window.location.href = "admin_panel.html";
+            return;
+        }
         localStorage.setItem("currentUser", convertInputToKey(e.target.value))
+        nfcInput.style.visibility = "hidden";
         requestAnimationFrame(() => {
             document.getElementById("main_icon").style.bottom = "100vh"
             document.getElementById("title_text").style.top = "100vh"
@@ -14,7 +19,7 @@ nfcInput.addEventListener("keydown", (e) => {
             document.getElementById("title_text").style.opacity = "0"
         })
         setTimeout(() => {
-            window.location.href = "dashboard.html"
+            window.location.href = "dashboard.html";
         }, 1000)
     }
 })
