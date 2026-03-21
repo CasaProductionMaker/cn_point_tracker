@@ -16,11 +16,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 // Page references
-const ninjaContainer = document.getElementById("ninja_container");
-const applyLeaderboardSlots = document.getElementById("apply_leaderboard_slots");
-const leaderboardSlotsInput = document.getElementById("leaderboard_slots_input");
-const shopEditorContainer = document.getElementById("shop_editor_container");
-const addShopItemButton = document.getElementById("add_shop_item_button");
+const ninjaContainer = document.querySelector("#ninja_container");
+const applyLeaderboardSlots = document.querySelector("#apply_leaderboard_slots");
+const leaderboardSlotsInput = document.querySelector("#leaderboard_slots_input");
+const shopEditorContainer = document.querySelector("#shop_editor_container");
+const addShopItemButton = document.querySelector("#add_shop_item_button");
 
 // Element tracking
 let ninjaElements = {};
