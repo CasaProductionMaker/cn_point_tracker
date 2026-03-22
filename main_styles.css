@@ -1,6 +1,6 @@
 body {
     display: flex;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     justify-content: center;
     align-items: center;
@@ -16,11 +16,12 @@ body {
     position: relative;
     opacity: 1;
     transition: bottom 1s ease-out, opacity 0.5s ease-out;
+    margin-right: 2rem;
 }
 
 h1 {
     text-align: center;
-    font-size: 4em;
+    font-size: 4rem;
     margin: 0;
     top: 0;
     position: relative;
