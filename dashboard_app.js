@@ -56,8 +56,13 @@ async function loadShop() {
         item.innerHTML = `
             <h3>${shopItem.name} (${shopItem.cost} points)</h3>
             <p>${shopItem.description}</p>
-            <button onclick="console.log('Not added yet!!')" class="full_width_button layer_4">Purchase</button>
+            <button class="full_width_button layer_4 purchase_button">Purchase</button>
         `;
+
+        item.querySelector(".purchase_button").addEventListener("click", (event) => {
+            // buy item
+            console.log("Not added but soon...")
+        })
 
         shopContainer.appendChild(item);
     });

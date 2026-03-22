@@ -108,6 +108,18 @@ button {
     align-items: center;
 }
 
+#purchase_popup {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    border-radius: 2em;
+    background-color: #0005;
+    backdrop-filter: blur(1em);
+    padding: 2em;
+    gap: 0.5em;
+    align-items: center;
+}
+
 input {
     border-radius: 1em;
     height: 2em;
