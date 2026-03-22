@@ -16,16 +16,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 // Page references
-const ninjaContainer = document.getElementById("ninja_container");
-const applyLeaderboardSlots = document.getElementById("apply_leaderboard_slots");
-const leaderboardSlotsInput = document.getElementById("leaderboard_slots_input");
-const shopEditorContainer = document.getElementById("shop_editor_container");
-const addShopItemButton = document.getElementById("add_shop_item_button");
+const ninjaContainer = document.querySelector("#ninja_container");
+const applyLeaderboardSlots = document.querySelector("#apply_leaderboard_slots");
+const leaderboardSlotsInput = document.querySelector("#leaderboard_slots_input");
+const shopEditorContainer = document.querySelector("#shop_editor_container");
+const addShopItemButton = document.querySelector("#add_shop_item_button");
 
 // Element tracking
 let ninjaElements = {};
 let shopElements = {};
 let currentPopup = null;
+
+//VALUES
+const LEVEL_UP = 10;
+const BELT_UP = 100;
 
 
 function showPopup(type, editInfo = null, editID = null) {
@@ -143,19 +147,63 @@ async function loadPage() {
                     let ninjaElement = document.createElement("div");
                     ninjaElement.classList.add("registered_ninja");
 
-                    ninjaElement.innerHTML = `
-                        <h3 class="ninja_name">${value.firstname} ${value.lastname}</h3>
-                        <p class="ninja_points">Points: ${value.points}</p>
-                        <p class="ninja_uid">UID: ${ninja.doc.id}</p>
+                    // ninjaElement.innerHTML = `
+                    //     <h3 class="ninja_name">${value.firstname} ${value.lastname}</h3>
+                    //     <p class="ninja_points">Points: ${value.points}</p>
+                    //     <p class="ninja_uid">UID: ${ninja.doc.id}</p>
 
-                        <button data-id="${ninja.doc.id}" data-amount="10">Advanced Level</button>
-                        <button data-id="${ninja.doc.id}" data-amount="100">Belt Up</button>
+                    //     <button data-id="${ninja.doc.id}" data-amount="10">Advanced Level</button>
+                    //     <button data-id="${ninja.doc.id}" data-amount="100">Belt Up</button>
 
-                        <input type="number" placeholder="Custom..." class="custom_points">
-                        <button data-id="${ninja.doc.id}" data-custom="true">Apply Custom</button>
+                    //     <input type="number" placeholder="Custom..." class="custom_points">
+                    //     <button data-id="${ninja.doc.id}" data-custom="true">Apply Custom</button>
                         
-                        <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
-                    `;
+                    //     <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
+                    // `;
+
+                    function createElementHelper(elem_name, className, text) {
+                        let child = document.createElement(elem_name);
+                        child.classList.add(className);
+                        child.textContent = text;
+
+                        return child;
+                    };
+
+                    let name = createElementHelper("h3", "ninja_name", `${value.firstname} ${value.lastname}`);
+                    ninjaElement.appendChild(name);
+                    
+                    let points = createElementHelper("p", "ninja_points", `Points: ${value.points}`);
+                    ninjaElement.appendChild(points);
+
+                    let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
+                    ninjaElement.appendChild(uid);
+
+                    function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text,) {
+                        let child = document.createElement("button");
+                        child.dataset.id = first_dataset_input;
+                        child.dataset[second_dataset_var] = second_dataset_input;
+                        child.textContent = text;
+
+                        return child;
+                    };
+
+                    let lvl_up = createButtonHelper(ninja.doc.id, "amount", LEVEL_UP, "Advanced Level");
+                    ninjaElement.appendChild(lvl_up);
+
+                    let belt_up = createButtonHelper(ninja.doc.id, "amount", BELT_UP, "Belt Up");
+                    ninjaElement.appendChild(belt_up);
+
+                    let custom_pts = document.createElement("input");
+                    custom_pts.classList.add("custom_points");
+                    custom_pts.setAttribute("type", "number");
+                    custom_pts.setAttribute("placeholder", "Custom...");
+                    ninjaElement.appendChild(custom_pts);
+
+                    let custom_btn = createButtonHelper(ninja.doc.id, "custom", true, "Apply Custom");
+                    ninjaElement.appendChild(custom_btn);
+
+                    let custom_btn_del = createButtonHelper(ninja.doc.id, "delete", true, "Remove Ninja");
+                    ninjaElement.appendChild(custom_btn_del);
 
                     ninjaElement.addEventListener("click", async (event) => {
                         const buttonElement = event.target;
