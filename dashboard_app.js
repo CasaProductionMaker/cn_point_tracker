@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -43,6 +43,7 @@ const welcomeText = document.getElementById("welcome_text");
 
 // Login info
 let uid = localStorage.getItem("currentUser");
+let userKey = null;
 console.log("UID: " + uid);
 let myProfile = {};
 
@@ -77,7 +78,7 @@ function showRegisterPopup() {
 
 async function loadPage() {
     loadShop();
-    onSnapshot(doc(db, "ninjas", uid), (snapshot) => {
+    onSnapshot(doc(db, "ninjas", userKey), (snapshot) => {
         if (snapshot.exists) {
             const data = snapshot.data();
             myProfile = data;
@@ -91,7 +92,7 @@ async function loadPage() {
 }
 
 async function editPoints(amount) {
-    await updateDoc(doc(db, "ninjas", uid), {
+    await updateDoc(doc(db, "ninjas", userKey), {
         points: myProfile.points + amount
     });
 }
@@ -100,21 +101,25 @@ async function registerNinja() {
     const fname = registerFNameInput.value;
     const lname = registerLNameInput.value;
     const belt = registerBeltInput.value;
-    await setDoc(doc(db, "ninjas", uid), {
+    const docRef = await addDoc(collection(db, "ninjas"), {
         firstname: fname,
         lastname: lname, 
         points: 0, 
-        belt: belt
+        belt: belt, 
+        nfc_id: uid
     });
+    userKey = docRef.id;
     registerPopup.style.display = "none";
     loadPage();
 }
 
 // Start app
-const snapshot = await getDoc(doc(db, "ninjas", uid));
 
-if (snapshot.exists()) {
-    loadPage();
-} else {
+const snapshot = await getDocs(query(collection(db, "ninjas"), where("nfc_id", "==", uid)));
+if (snapshot.empty) {
     showRegisterPopup();
+} else {
+    console.log(snapshot)
+    userKey = snapshot.docs[0].id;
+    loadPage();
 }
