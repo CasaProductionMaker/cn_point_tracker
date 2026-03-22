@@ -27,10 +27,6 @@ let ninjaElements = {};
 let shopElements = {};
 let currentPopup = null;
 
-//VALUES
-const LEVEL_UP = 10;
-const BELT_UP = 100;
-
 
 function showPopup(type, editInfo = null, editID = null) {
     if (currentPopup != null) {
@@ -56,14 +52,14 @@ function showPopup(type, editInfo = null, editID = null) {
                 <label for="shop_item_description_input">Description: </label>
                 <input type="text" name="shop_item_description_input" id="shop_item_description_input">
             </div>
-            <button class="submit_shop_item_button">Add</button>
-            <button class="cancel_shop_item_button">Cancel</button>
+            <button class="submit_popup_button">Add</button>
+            <button class="cancel_popup_button">Cancel</button>
         `;
 
-        currentPopup.querySelector(".submit_shop_item_button").addEventListener("click", async (e) => {
+        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await addShopItem();
         })
-        currentPopup.querySelector(".cancel_shop_item_button").addEventListener("click", async (e) => {
+        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
             removePopup();
         })
 
@@ -86,14 +82,14 @@ function showPopup(type, editInfo = null, editID = null) {
                 <label for="shop_item_description_input">Description: </label>
                 <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
             </div>
-            <button class="submit_shop_item_button">Apply Changes</button>
-            <button class="cancel_shop_item_button">Cancel</button>
+            <button class="submit_popup_button">Apply Changes</button>
+            <button class="cancel_popup_button">Cancel</button>
         `;
 
-        currentPopup.querySelector(".submit_shop_item_button").addEventListener("click", async (e) => {
+        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await editShopItem(editID);
         })
-        currentPopup.querySelector(".cancel_shop_item_button").addEventListener("click", async (e) => {
+        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
             removePopup();
         })
 
@@ -101,6 +97,43 @@ function showPopup(type, editInfo = null, editID = null) {
     } else {
         console.log("Error: Invalid popup type!")
     }
+}
+
+function showSessionPopup(ninjaID, ninjaData) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    currentPopup = document.createElement("div");
+    currentPopup.id = "add_session_popup";
+    
+    currentPopup.innerHTML = `
+        <h2>Add Session to ${ninjaData.name}:</h2>
+        <div>
+            <label for="shop_item_name_input">Name: </label>
+            <input type="text" name="shop_item_name_input" id="shop_item_name_input" value="${editInfo.name}">
+        </div>
+        <div>
+            <label for="shop_item_cost_input">Cost: </label>
+            <input type="number" name="shop_item_cost_input" id="shop_item_cost_input" value="${editInfo.cost}">
+        </div>
+        <div>
+            <label for="shop_item_description_input">Description: </label>
+            <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
+        </div>
+        <button class="submit_popup_button">Add Session</button>
+        <button class="cancel_popup_button">Cancel</button>
+    `;
+
+    currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+        // submit session
+    })
+    currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    document.body.appendChild(currentPopup);
 }
 
 function removePopup() {
@@ -178,7 +211,7 @@ async function loadPage() {
                     let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
                     ninjaElement.appendChild(uid);
 
-                    function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text,) {
+                    function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text) {
                         let child = document.createElement("button");
                         child.dataset.id = first_dataset_input;
                         child.dataset[second_dataset_var] = second_dataset_input;
@@ -187,11 +220,8 @@ async function loadPage() {
                         return child;
                     };
 
-                    let lvl_up = createButtonHelper(ninja.doc.id, "amount", LEVEL_UP, "Advanced Level");
-                    ninjaElement.appendChild(lvl_up);
-
-                    let belt_up = createButtonHelper(ninja.doc.id, "amount", BELT_UP, "Belt Up");
-                    ninjaElement.appendChild(belt_up);
+                    let add_session = createButtonHelper(ninja.doc.id, "session", true, "Add Session");
+                    ninjaElement.appendChild(add_session);
 
                     let custom_pts = document.createElement("input");
                     custom_pts.classList.add("custom_points");
@@ -223,6 +253,10 @@ async function loadPage() {
 
                             await editPoints(ninjaID, amount);
                             input.value = "";
+                        }
+
+                        if (buttonElement.dataset.session) {
+                            showSessionPopup(ninjaID, value);
                         }
 
                         if (buttonElement.dataset.delete) {
