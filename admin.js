@@ -27,6 +27,10 @@ let ninjaElements = {};
 let shopElements = {};
 let currentPopup = null;
 
+//VALUES
+const LEVEL_UP = 10;
+const BELT_UP = 100;
+
 
 function showPopup(type, editInfo = null, editID = null) {
     if (currentPopup != null) {
@@ -143,19 +147,71 @@ async function loadPage() {
                     let ninjaElement = document.createElement("div");
                     ninjaElement.classList.add("registered_ninja");
 
-                    ninjaElement.innerHTML = `
-                        <h3 class="ninja_name">${value.firstname} ${value.lastname}</h3>
-                        <p class="ninja_points">Points: ${value.points}</p>
-                        <p class="ninja_uid">UID: ${ninja.doc.id}</p>
+                    // ninjaElement.innerHTML = `
+                    //     <h3 class="ninja_name">${value.firstname} ${value.lastname}</h3>
+                    //     <p class="ninja_points">Points: ${value.points}</p>
+                    //     <p class="ninja_uid">UID: ${ninja.doc.id}</p>
 
-                        <button data-id="${ninja.doc.id}" data-amount="10">Advanced Level</button>
-                        <button data-id="${ninja.doc.id}" data-amount="100">Belt Up</button>
+                    //     <button data-id="${ninja.doc.id}" data-amount="10">Advanced Level</button>
+                    //     <button data-id="${ninja.doc.id}" data-amount="100">Belt Up</button>
 
-                        <input type="number" placeholder="Custom..." class="custom_points">
-                        <button data-id="${ninja.doc.id}" data-custom="true">Apply Custom</button>
+                    //     <input type="number" placeholder="Custom..." class="custom_points">
+                    //     <button data-id="${ninja.doc.id}" data-custom="true">Apply Custom</button>
                         
-                        <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
-                    `;
+                    //     <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
+                    // `;
+
+                    //name
+                    let name = document.createElement("h3");
+                    name.classList.add("ninja_name");
+                    name.textContent = `${value.firstname} ${value.lastname}`;
+                    ninjaElement.appendChild(name);
+
+                    //points
+                    let points = document.createElement("p");
+                    points.classList.add("ninja_points");
+                    points.textContent = `Points: ${value.points}`;
+                    ninjaElement.appendChild(points);
+
+                    //uid
+                    let uid = document.createElement("p");
+                    uid.classList.add("ninja_uid");
+                    uid.textContent = `UID: ${ninja.doc.id}`;
+                    ninjaElement.appendChild(uid);
+                    
+                    //level up
+                    let lvl_up = document.createElement("button");
+                    lvl_up.dataset.id = ninja.doc.id;
+                    lvl_up.dataset.amount = LEVEL_UP;
+                    lvl_up.textContent = "Advanced Level";
+                    ninjaElement.appendChild(lvl_up);
+                    
+                    //belt_up
+                    let belt_up = document.createElement("button");
+                    belt_up.dataset.id = ninja.doc.id;
+                    belt_up.dataset.amount = BELT_UP;
+                    belt_up.textContent = "Belt Up";
+                    ninjaElement.appendChild(belt_up);
+
+                    //
+                    let custom_pts = document.createElement("input");
+                    custom_pts.classList.add("custom_points");
+                    custom_pts.setAttribute("type", "number");
+                    custom_pts.setAttribute("placeholder", "Custom...");
+                    ninjaElement.appendChild(custom_pts);
+
+                    //custom_btn
+                    let custom_btn = document.createElement("button");
+                    custom_btn.dataset.id = ninja.doc.id;
+                    custom_btn.dataset.custom = true;
+                    custom_btn.textContent = "Apply Custom";
+                    ninjaElement.appendChild(custom_btn);
+
+                    let custom_btn_del = document.createElement("button");
+                    custom_btn_del.dataset.id = ninja.doc.id;
+                    custom_btn_del.dataset.delete = true;
+                    custom_btn_del.textContent = "Remove Ninja";
+                    ninjaElement.appendChild(custom_btn_del);
 
                     ninjaElement.addEventListener("click", async (event) => {
                         const buttonElement = event.target;
