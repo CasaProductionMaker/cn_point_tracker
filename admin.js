@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -27,7 +27,64 @@ let ninjaElements = {};
 let shopElements = {};
 let currentPopup = null;
 
+// temp reasons to add
+const pointReasons = {
+    "good_behaviour": 10, 
+    "completed_goal": 10, 
+    "belt_up": 10, 
+    "level_up": 10
+};
 
+const lang = {
+    "good_behaviour": "Good Behaviour", 
+    "completed_goal": "Completed Goal", 
+    "belt_up": "Belt Up", 
+    "level_up": "Level Up"
+}
+
+// Helper functions
+function createElementHelper(elem_name, className, text) {
+    let child = document.createElement(elem_name);
+    child.classList.add(className);
+    child.textContent = text;
+
+    return child;
+};
+
+function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text) {
+    let child = document.createElement("button");
+    child.dataset.id = first_dataset_input;
+    child.dataset[second_dataset_var] = second_dataset_input;
+    child.textContent = text;
+
+    return child;
+};
+
+function createEmptyButtonHelper(text) {
+    let child = document.createElement("button");
+    child.textContent = text;
+
+    return child;
+};
+
+function createInputHelper(type, id) {
+    let child = document.createElement("input");
+    child.type = type;
+    child.id = id;
+    child.name = id;
+
+    return child;
+};
+
+function createLabelHelper(text, forElement) {
+    let child = document.createElement("label");
+    child.textContent = text;
+    child.setAttribute("for", forElement);
+
+    return child;
+};
+
+// UI Functions
 function showPopup(type, editInfo = null, editID = null) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -107,29 +164,80 @@ function showSessionPopup(ninjaID, ninjaData) {
 
     currentPopup = document.createElement("div");
     currentPopup.id = "add_session_popup";
-    
-    currentPopup.innerHTML = `
-        <h2>Add Session to ${ninjaData.name}:</h2>
-        <div>
-            <label for="shop_item_name_input">Name: </label>
-            <input type="text" name="shop_item_name_input" id="shop_item_name_input" value="${editInfo.name}">
-        </div>
-        <div>
-            <label for="shop_item_cost_input">Cost: </label>
-            <input type="number" name="shop_item_cost_input" id="shop_item_cost_input" value="${editInfo.cost}">
-        </div>
-        <div>
-            <label for="shop_item_description_input">Description: </label>
-            <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
-        </div>
-        <button class="submit_popup_button">Add Session</button>
-        <button class="cancel_popup_button">Cancel</button>
-    `;
 
-    currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
-        // submit session
+    let title = createElementHelper("h2", null, `Add Session to ${ninjaData.firstname}:`);
+    currentPopup.appendChild(title);
+
+    // Go through all the possible reasons to get points and add a checkbox to select
+    Object.keys(pointReasons).forEach(key => {
+        let pointReward = pointReasons[key];
+        let inputHolder = document.createElement("div");
+
+        // Create both the checkbox and label and put into div so flex doesn't change its layout
+        let checkboxInput = createInputHelper("checkbox", `${key}_checkbox`);
+        let labelElement = createLabelHelper(`${lang[key]} (${pointReward} points)`, `${key}_checkbox`);
+        inputHolder.appendChild(checkboxInput);
+        inputHolder.appendChild(labelElement);
+
+        currentPopup.appendChild(inputHolder);
+    });
+
+    // Custom points UI
+    let customInputHolder = document.createElement("div");
+
+    let checkboxInput = createInputHelper("checkbox", "custom_points_checkbox");
+    let labelElement = createLabelHelper(`Custom: `, "custom_points_checkbox");
+    let custom_pts = createInputHelper("number", `custom_points_input`);
+    custom_pts.setAttribute("placeholder", "Custom Amount...");
+    customInputHolder.appendChild(checkboxInput);
+    customInputHolder.appendChild(labelElement);
+    customInputHolder.appendChild(custom_pts);
+
+    currentPopup.appendChild(customInputHolder);
+
+    // Bottom buttons to submit or cancel
+    let submit_button = createEmptyButtonHelper("Add Session");
+    currentPopup.appendChild(submit_button);
+
+    let cancel_button = createEmptyButtonHelper("Cancel");
+    currentPopup.appendChild(cancel_button);
+    
+    // Add event listeners
+    submit_button.addEventListener("click", async (e) => {
+        // Add session to ninja as subcollection
+        let sessionData = {};
+        let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+        let pointsGotten = 0;
+        Object.keys(pointReasons).forEach(key => {
+            let pointReward = pointReasons[key];
+
+            if (document.querySelector(`#${key}_checkbox`).checked) {
+                pointsGotten += pointReward;
+                sessionData[`${key}_points`] = pointReward;
+                ninjaUpdates[`total_${key}_points`] = increment(pointReward);
+            }
+        });
+        if (document.querySelector(`#custom_points_checkbox`).checked) {
+            const inputVal = Number(document.querySelector(`#custom_points_input`).value);
+            pointsGotten += inputVal;
+            sessionData[`custom_points`] = inputVal;
+            ninjaUpdates[`total_custom_points`] = increment(inputVal);
+        }
+        sessionData.total_points_gotten = pointsGotten;
+
+        await addDoc(collection(db, "ninjas", ninjaID, "sessions"), sessionData);
+
+        // Update the ninja's stats in their regular account for easy access
+
+        ninjaUpdates.points = increment(pointsGotten);
+        ninjaUpdates.points_in_history = increment(pointsGotten);
+        
+        await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+
+        // Close popup after done
+        removePopup();
     })
-    currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+    cancel_button.addEventListener("click", async (e) => {
         removePopup();
     })
 
@@ -177,30 +285,9 @@ async function loadPage() {
 
             switch (ninja.type) {
                 case "added":
+                    // Create DOM
                     let ninjaElement = document.createElement("div");
                     ninjaElement.classList.add("registered_ninja");
-
-                    // ninjaElement.innerHTML = `
-                    //     <h3 class="ninja_name">${value.firstname} ${value.lastname}</h3>
-                    //     <p class="ninja_points">Points: ${value.points}</p>
-                    //     <p class="ninja_uid">UID: ${ninja.doc.id}</p>
-
-                    //     <button data-id="${ninja.doc.id}" data-amount="10">Advanced Level</button>
-                    //     <button data-id="${ninja.doc.id}" data-amount="100">Belt Up</button>
-
-                    //     <input type="number" placeholder="Custom..." class="custom_points">
-                    //     <button data-id="${ninja.doc.id}" data-custom="true">Apply Custom</button>
-                        
-                    //     <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
-                    // `;
-
-                    function createElementHelper(elem_name, className, text) {
-                        let child = document.createElement(elem_name);
-                        child.classList.add(className);
-                        child.textContent = text;
-
-                        return child;
-                    };
 
                     let name = createElementHelper("h3", "ninja_name", `${value.firstname} ${value.lastname}`);
                     ninjaElement.appendChild(name);
@@ -211,59 +298,22 @@ async function loadPage() {
                     let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
                     ninjaElement.appendChild(uid);
 
-                    function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text) {
-                        let child = document.createElement("button");
-                        child.dataset.id = first_dataset_input;
-                        child.dataset[second_dataset_var] = second_dataset_input;
-                        child.textContent = text;
-
-                        return child;
-                    };
-
-                    let add_session = createButtonHelper(ninja.doc.id, "session", true, "Add Session");
+                    let add_session = createEmptyButtonHelper("Add Session");
                     ninjaElement.appendChild(add_session);
 
-                    let custom_pts = document.createElement("input");
-                    custom_pts.classList.add("custom_points");
-                    custom_pts.setAttribute("type", "number");
-                    custom_pts.setAttribute("placeholder", "Custom...");
-                    ninjaElement.appendChild(custom_pts);
-
-                    let custom_btn = createButtonHelper(ninja.doc.id, "custom", true, "Apply Custom");
-                    ninjaElement.appendChild(custom_btn);
-
-                    let custom_btn_del = createButtonHelper(ninja.doc.id, "delete", true, "Remove Ninja");
+                    let custom_btn_del = createEmptyButtonHelper("Remove Ninja");
                     ninjaElement.appendChild(custom_btn_del);
 
-                    ninjaElement.addEventListener("click", async (event) => {
-                        const buttonElement = event.target;
-
-                        if (buttonElement.tagName !== "BUTTON") return;
-
-                        const ninjaID = buttonElement.dataset.id;
-
-                        if (buttonElement.dataset.amount) {
-                            const amount = Number(buttonElement.dataset.amount);
-                            await editPoints(ninjaID, amount);
-                        }
-
-                        if (buttonElement.dataset.custom) {
-                            const input = ninjaElement.querySelector(".custom_points");
-                            const amount = Number(input.value);
-
-                            await editPoints(ninjaID, amount);
-                            input.value = "";
-                        }
-
-                        if (buttonElement.dataset.session) {
-                            showSessionPopup(ninjaID, value);
-                        }
-
-                        if (buttonElement.dataset.delete) {
-                            await deleteNinja(ninjaID);
-                        }
+                    // Add event listeners
+                    add_session.addEventListener("click", async (event) => {
+                        showSessionPopup(ninja.doc.id, value);
                     });
 
+                    custom_btn_del.addEventListener("click", async (event) => {
+                        await deleteNinja(ninja.doc.id);
+                    });
+
+                    // Add to DOM
                     ninjaElements[ninja.doc.id] = ninjaElement;
                     ninjaContainer.appendChild(ninjaElement);
                     break;
@@ -346,7 +396,8 @@ async function loadPage() {
 
 async function editPoints(ninja, amount) {
     await updateDoc(doc(db, "ninjas", ninja), {
-        points: increment(amount)
+        points: increment(amount), 
+        points_in_history: increment(amount)
     });
 }
 

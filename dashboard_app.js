@@ -106,7 +106,8 @@ async function registerNinja() {
         lastname: lname, 
         points: 0, 
         belt: belt, 
-        nfc_id: uid
+        nfc_id: uid, 
+        points_in_history: 0
     });
     userKey = docRef.id;
     registerPopup.style.display = "none";
