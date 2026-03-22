@@ -161,56 +161,48 @@ async function loadPage() {
                     //     <button data-id="${ninja.doc.id}" data-delete="true">Remove Ninja</button>
                     // `;
 
-                    //name
-                    let name = document.createElement("h3");
-                    name.classList.add("ninja_name");
-                    name.textContent = `${value.firstname} ${value.lastname}`;
-                    ninjaElement.appendChild(name);
+                    function createElementHelper(elem_name, className, text) {
+                        let child = document.createElement(elem_name);
+                        child.classList.add(className);
+                        child.textContent = text;
 
-                    //points
-                    let points = document.createElement("p");
-                    points.classList.add("ninja_points");
-                    points.textContent = `Points: ${value.points}`;
+                        return child;
+                    };
+
+                    let name = createElementHelper("h3", "ninja_name", `${value.firstname} ${value.lastname}`);
+                    ninjaElement.appendChild(name);
+                    
+                    let points = createElementHelper("p", "ninja_points", `Points: ${value.points}`);
                     ninjaElement.appendChild(points);
 
-                    //uid
-                    let uid = document.createElement("p");
-                    uid.classList.add("ninja_uid");
-                    uid.textContent = `UID: ${ninja.doc.id}`;
+                    let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
                     ninjaElement.appendChild(uid);
-                    
-                    //level up
-                    let lvl_up = document.createElement("button");
-                    lvl_up.dataset.id = ninja.doc.id;
-                    lvl_up.dataset.amount = LEVEL_UP;
-                    lvl_up.textContent = "Advanced Level";
+
+                    function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text,) {
+                        let child = document.createElement("button");
+                        child.dataset.id = first_dataset_input;
+                        child.dataset[second_dataset_var] = second_dataset_input;
+                        child.textContent = text;
+
+                        return child;
+                    };
+
+                    let lvl_up = createButtonHelper(ninja.doc.id, "amount", LEVEL_UP, "Advanced Level");
                     ninjaElement.appendChild(lvl_up);
-                    
-                    //belt_up
-                    let belt_up = document.createElement("button");
-                    belt_up.dataset.id = ninja.doc.id;
-                    belt_up.dataset.amount = BELT_UP;
-                    belt_up.textContent = "Belt Up";
+
+                    let belt_up = createButtonHelper(ninja.doc.id, "amount", BELT_UP, "Belt Up");
                     ninjaElement.appendChild(belt_up);
 
-                    //
                     let custom_pts = document.createElement("input");
                     custom_pts.classList.add("custom_points");
                     custom_pts.setAttribute("type", "number");
                     custom_pts.setAttribute("placeholder", "Custom...");
                     ninjaElement.appendChild(custom_pts);
 
-                    //custom_btn
-                    let custom_btn = document.createElement("button");
-                    custom_btn.dataset.id = ninja.doc.id;
-                    custom_btn.dataset.custom = true;
-                    custom_btn.textContent = "Apply Custom";
+                    let custom_btn = createButtonHelper(ninja.doc.id, "custom", true, "Apply Custom");
                     ninjaElement.appendChild(custom_btn);
 
-                    let custom_btn_del = document.createElement("button");
-                    custom_btn_del.dataset.id = ninja.doc.id;
-                    custom_btn_del.dataset.delete = true;
-                    custom_btn_del.textContent = "Remove Ninja";
+                    let custom_btn_del = createButtonHelper(ninja.doc.id, "delete", true, "Remove Ninja");
                     ninjaElement.appendChild(custom_btn_del);
 
                     ninjaElement.addEventListener("click", async (event) => {
