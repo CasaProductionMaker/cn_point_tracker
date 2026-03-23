@@ -8,50 +8,61 @@
         <title>Dashboard</title>
     </head>
     <body>
-        <h1 id="welcome_text">Welcome, Ninja</h1>
-        <div id="main_body" class="layer_1">
-            <div id="profile">
-                <div id="stats" class="layer_2">
-                    <h2>Your Info</h2>
-                    <p id="ninja_name_display">Name: </p>
-                    <p id="ninja_points_display">Points: </p>
-                </div>
-                <div id="options" class="layer_2">
-                    <h2>Options</h2>
-                    <button onclick="console.log('Not added yet!!')" class="full_width_button danger_button">Transfer Belt</button>
-                </div>
-            </div>
-            <div id="shop" class="layer_2">
-                <h2>Shop</h2>
-            </div>
+        <div class="header">
+            <img src="Images/logo-full.svg" id="header-icon">
         </div>
-        <div id="register_popup">
-            <h2>First time? Register here:</h2>
-            <div>
-                <label for="fname">First Name: </label>
-                <input type="text" id="fname" name="fname">
+        <div class = "body-no-header">
+            <img src="Images/logo.svg" id="dashboard-icon">
+            <h1 id="welcome_text">Welcome, Ninja!</h1>
+            <div id="main_body" class="layer_1">
+                <div id="profile">
+                    <div id="stats" class="layer_2">
+                        <h2>Your Info</h2>
+                        <p id="ninja_name_display">Name: </p>
+                        <p id="ninja_points_display">Points: </p>
+                    </div>
+                    <div id="options" class="layer_2">
+                        <h2>Options</h2>
+                        <button onclick="console.log('Not added yet!!')" class="full_width_button danger_button">Transfer Belt</button>
+                    </div>
+                </div>
+                <div id="shop" class="layer_2">
+                    <h2>Shop</h2>
+                </div>
             </div>
-            <div>
-                <label for="lname">Last Name: </label>
-                <input type="text" id="lname" name="lname">
-            </div>
-            <div>
-                <label for="belt">Belt ID: </label>
-                <input type="text" id="belt" name="belt">
-            </div>
-            <button id="register_button" class="layer_2">Register!</button>
-        </div>
-        <div id="purchase_popup">
-            <h2>Buy shop item?</h2>
-            <div>
-                <label for="admin_password">Admin password: </label>
-                <input type="password" id="admin_password" name="admin_password">
-            </div>
-            <div>
-                <input type="text" id="tap_band_input" name="tap_band_input">
+
+            <div id="register_popup">
+                <h2>First time? Register here:</h2>
+                <div>
+                    <label for="fname">First Name: </label>
+                    <input type="text" id="fname" name="fname">
+                </div>
+                <div>
+                    <label for="lname">Last Name: </label>
+                    <input type="text" id="lname" name="lname">
+                </div>
+                <div>
+                    <label for="belt">Belt ID: </label>
+                    <input type="text" id="belt" name="belt">
+                </div>
                 <button id="register_button" class="layer_2">Register!</button>
             </div>
+
+            <div id="purchase_popup">
+                <h2>Buy shop item?</h2>
+                <div>
+                    <label for="admin_password">Admin password: </label>
+                    <input type="password" id="admin_password" name="admin_password">
+                </div>
+                <div>
+                    <input type="text" id="tap_band_input" name="tap_band_input">
+                    <button id="register_button" class="layer_2">Register!</button>
+                </div>
+            </div>
+
         </div>
+
+
         <script type="module" src="dashboard_app.js"></script>
     </body>
 </html>

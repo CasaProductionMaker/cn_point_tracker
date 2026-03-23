@@ -1,7 +1,7 @@
-body {
+.body-no-header{
     display: flex;
     width: 100vw;
-    height: 100vh;
+    height: 80vh;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -16,7 +16,6 @@ body {
     position: relative;
     opacity: 1;
     transition: bottom 1s ease-out, opacity 0.5s ease-out;
-    margin-right: 2rem;
 }
 
 h1 {
