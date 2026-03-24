@@ -279,6 +279,7 @@ async function editShopItem(shopItemID) {
 }
 
 async function loadPage() {
+    // Load Ninjas
     onSnapshot(collection(db, "ninjas"), (snapshot) => {
         snapshot.docChanges().forEach((ninja) => {
             const value = ninja.doc.data();
@@ -330,6 +331,7 @@ async function loadPage() {
         });
     });
 
+    // Load Shop Editor
     onSnapshot(collection(db, "shop"), (snapshot) => {
         snapshot.docChanges().forEach((shopItem) => {
             const value = shopItem.doc.data();
@@ -339,28 +341,28 @@ async function loadPage() {
                     let item = document.createElement("div");
                     item.classList.add("shop_item");
 
-                    item.innerHTML = `
-                        <h3 class="shop_item_name">${value.name}</h3>
-                        <p class="shop_item_cost">Cost: ${value.cost} points</p>
-                        <p class="shop_item_description">Description: ${value.description}</p>
-                        <button data-id="${shopItem.doc.id}" data-edit="true">Edit</button>
-                        <button data-id="${shopItem.doc.id}" data-delete="true">Delete</button>
-                    `;
+                    let name = createElementHelper("h3", "shop_item_name", `${value.name}`);
+                    item.appendChild(name);
+                    
+                    let cost = createElementHelper("p", "shop_item_cost", `Cost: ${value.cost} points`);
+                    item.appendChild(cost);
 
-                    item.addEventListener("click", async (event) => {
-                        const buttonElement = event.target;
+                    let description = createElementHelper("p", "shop_item_description", `Description: ${value.description}`);
+                    item.appendChild(description);
 
-                        if (buttonElement.tagName !== "BUTTON") return;
+                    let edit_button = createEmptyButtonHelper("Edit");
+                    item.appendChild(edit_button);
 
-                        const itemID = buttonElement.dataset.id;
+                    let delete_button = createEmptyButtonHelper("Delete");
+                    item.appendChild(delete_button);
 
-                        if (buttonElement.dataset.edit) {
-                            showPopup("edit", value, shopItem.doc.id);
-                        }
+                    // Add event listeners
+                    edit_button.addEventListener("click", async (event) => {
+                        showPopup("edit", value, shopItem.doc.id);
+                    });
 
-                        if (buttonElement.dataset.delete) {
-                            await removeShopItem(itemID);
-                        }
+                    delete_button.addEventListener("click", async (event) => {
+                        await removeShopItem(shopItem.doc.id);
                     });
 
                     shopElements[shopItem.doc.id] = item;
@@ -381,16 +383,6 @@ async function loadPage() {
 
     addShopItemButton.addEventListener("click", async (event) => {
         showPopup("add");
-    })
-
-    applyLeaderboardSlots.addEventListener("click", async (event) => {
-        let slots = Number(leaderboardSlotsInput.value);
-        if (slots <= 0) { return; }
-        await updateDoc(doc(db, "settings", "leaderboard"), {
-            leaderboard_slots: slots
-        })
-        
-        leaderboardSlotsInput.value = "";
     })
 }
 
