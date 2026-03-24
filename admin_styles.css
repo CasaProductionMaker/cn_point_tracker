@@ -4,7 +4,7 @@ body {
     align-items: center;
 }
 
-.registered_ninja, .shop_item {
+.registered_ninja, .shop_item, .leaderboard {
     background-color: #0005;
 }
 
@@ -14,7 +14,7 @@ body {
     align-items: center;
 }
 
-#shop_item_popup {
+#shop_item_popup, #leaderboard_popup {
     position: fixed;
     left: 40%;
     top: 40%;

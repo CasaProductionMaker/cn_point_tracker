@@ -17,14 +17,15 @@ const db = getFirestore();
 
 // Page references
 const ninjaContainer = document.querySelector("#ninja_container");
-const applyLeaderboardSlots = document.querySelector("#apply_leaderboard_slots");
-const leaderboardSlotsInput = document.querySelector("#leaderboard_slots_input");
 const shopEditorContainer = document.querySelector("#shop_editor_container");
+const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_container");
 const addShopItemButton = document.querySelector("#add_shop_item_button");
+const addLeaderboardButton = document.querySelector("#add_leaderboard_button");
 
 // Element tracking
 let ninjaElements = {};
 let shopElements = {};
+let leaderboardElements = {};
 let currentPopup = null;
 
 // temp reasons to add
@@ -41,6 +42,8 @@ const lang = {
     "belt_up": "Belt Up", 
     "level_up": "Level Up"
 }
+
+const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black"];
 
 // Helper functions
 function createElementHelper(elem_name, className, text) {
@@ -85,7 +88,7 @@ function createLabelHelper(text, forElement) {
 };
 
 // UI Functions
-function showPopup(type, editInfo = null, editID = null) {
+function showShopPopup(type, editInfo = null, editID = null) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -145,6 +148,62 @@ function showPopup(type, editInfo = null, editID = null) {
 
         currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await editShopItem(editID);
+        })
+        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+            removePopup();
+        })
+
+        document.body.appendChild(currentPopup);
+    } else {
+        console.log("Error: Invalid popup type!")
+    }
+}
+
+// Show Leaderboard Adding/Editing Popups
+function showLeaderboardPopup(type, editInfo = null, editID = null) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    if (type == "add") {
+        currentPopup = document.createElement("div");
+        currentPopup.id = "leaderboard_popup";
+        
+        currentPopup.innerHTML = `
+            <h2>Add New Leaderboard:</h2>
+            <div>
+                <label for="leaderboard_name_input">Name: </label>
+                <input type="text" name="leaderboard_name_input" id="leaderboard_name_input">
+            </div>
+            <button class="submit_popup_button">Add</button>
+            <button class="cancel_popup_button">Cancel</button>
+        `;
+
+        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+            // await addShopItem();
+        })
+        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+            removePopup();
+        })
+
+        document.body.appendChild(currentPopup);
+    } else if (type == "edit") {
+        currentPopup = document.createElement("div");
+        currentPopup.id = "leaderboard_popup";
+        
+        currentPopup.innerHTML = `
+            <h2>Edit Leaderboard:</h2>
+            <div>
+                <label for="leaderboard_name_input">Name: </label>
+                <input type="text" name="leaderboard_name_input" id="leaderboard_name_input" value="${editInfo.name}">
+            </div>
+            <button class="submit_popup_button">Apply Changes</button>
+            <button class="cancel_popup_button">Cancel</button>
+        `;
+
+        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+            // await editShopItem(editID);
         })
         currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
             removePopup();
@@ -358,7 +417,7 @@ async function loadPage() {
 
                     // Add event listeners
                     edit_button.addEventListener("click", async (event) => {
-                        showPopup("edit", value, shopItem.doc.id);
+                        showShopPopup("edit", value, shopItem.doc.id);
                     });
 
                     delete_button.addEventListener("click", async (event) => {
@@ -381,8 +440,78 @@ async function loadPage() {
         });
     });
 
+    // Load Leaderboards
+    onSnapshot(collection(db, "leaderboards"), (snapshot) => {
+        snapshot.docChanges().forEach((leaderboard) => {
+            const value = leaderboard.doc.data();
+
+            switch (leaderboard.type) {
+                case "added":
+                    let item = document.createElement("div");
+                    item.classList.add("leaderboard");
+
+                    let name = createElementHelper("h3", "leaderboard_name", `${value.name}`);
+                    item.appendChild(name);
+
+                    let slots = createElementHelper("p", "leaderboard_slots", `Slots: ${value.slots}`);
+                    item.appendChild(slots);
+
+                    let beltFilterText = "Belts: ";
+                    value.belt_filters.forEach(filter => {
+                        beltFilterText += `${belts[filter]}, `;
+                    });
+                    beltFilterText = beltFilterText.replace(/[\s,]+$/, '');
+                    let beltFilters = createElementHelper("p", "leaderboard_belt_filters", beltFilterText);
+                    item.appendChild(beltFilters);
+
+                    let reasonFilterText = "Belts: ";
+                    value.reason_filters.forEach(filter => {
+                        reasonFilterText += `${lang[filter]}, `;
+                    });
+                    reasonFilterText = reasonFilterText.replace(/[\s,]+$/, '');
+                    let reasonFilters = createElementHelper("p", "leaderboard_reason_filters", reasonFilterText);
+                    item.appendChild(reasonFilters);
+
+                    // Slots Input Holder
+                    // let slotsHolder = document.createElement("div");
+                    // slotsHolder.appendChild(createLabelHelper("Slots: ", `leaderboard_${leaderboard.doc.id}_slot_amount`))
+                    // slotsHolder.appendChild(createInputHelper("number", `leaderboard_${leaderboard.doc.id}_slot_amount`))
+
+                    let edit_button = createEmptyButtonHelper("Edit");
+                    item.appendChild(edit_button);
+
+                    let delete_button = createEmptyButtonHelper("Delete");
+                    item.appendChild(delete_button);
+
+                    // Add event listeners
+                    edit_button.addEventListener("click", async (event) => {
+                        // edit popup for thingy
+                    });
+
+                    delete_button.addEventListener("click", async (event) => {
+                        removeLeaderboard(leaderboard.doc.id);
+                    });
+
+                    leaderboardElements[leaderboard.doc.id] = item;
+                    leaderboardEditorContainer.appendChild(item);
+                    break;
+                case "modified":
+                    //
+                    break;
+                case "removed":
+                    leaderboardEditorContainer.removeChild(leaderboardElements[leaderboard.doc.id]);
+                    delete leaderboardElements[leaderboard.doc.id];
+                    break;
+            }
+        });
+    });
+
     addShopItemButton.addEventListener("click", async (event) => {
-        showPopup("add");
+        showShopPopup("add");
+    })
+
+    addLeaderboardButton.addEventListener("click", async (event) => {
+        showLeaderboardPopup("add");
     })
 }
 
@@ -399,6 +528,10 @@ async function deleteNinja(ninja) {
 
 async function removeShopItem(itemID) {
     await deleteDoc(doc(db, "shop", itemID));
+}
+
+async function removeLeaderboard(itemID) {
+    await deleteDoc(doc(db, "leaderboards", itemID));
 }
 
 // Start app
