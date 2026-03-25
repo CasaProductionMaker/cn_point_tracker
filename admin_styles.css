@@ -16,8 +16,10 @@ body {
 
 #shop_item_popup, #leaderboard_popup {
     position: fixed;
-    left: 40%;
-    top: 40%;
+    left: 20%;
+    top: 15%;
+    width: 60%;
+    height: 70%;
     background-color: #0005;
 }
 

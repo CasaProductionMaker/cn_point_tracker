@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, limit, onSnapshot, doc, getDoc, collection, orderBy, query } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, limit, onSnapshot, doc, getDocs, collection, orderBy, query } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,7 +16,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 // Page references
-const leaderboardContainer = document.getElementById("leaderboard_container");
+const topLeftLeaderboardContainer = document.querySelector("#top_left_leaderboard_container");
+const bottomLeftLeaderboardContainer = document.querySelector("#bottom_left_leaderboard_container");
+const mainLeaderboardContainer = document.querySelector("#main_leaderboard_container");
+const topRightLeaderboardContainer = document.querySelector("#top_right_leaderboard_container");
+const bottomRightLeaderboardContainer = document.querySelector("#bottom_right_leaderboard_container");
 
 // Element tracking
 
@@ -28,7 +32,35 @@ function buildLeaderBoardPosition(ninjaData, place) {
 }
 
 async function loadPage() {
-    const leaderboardDoc = await getDoc(doc(db, "settings", "leaderboard"));
+    const leaderboardDocs = await getDocs(collection(db, "leaderboards"));
+    onSnapshot(collection(db, "leaderboards"), (snapshot) => {
+        snapshot.docChanges().forEach(changedLeaderboard => {
+            const value = changedLeaderboard.doc.data();
+
+            switch (changedLeaderboard.type) {
+                case "added":
+                    //
+                case "modified":
+                    //
+                case "removed":
+                    //
+            }
+        });
+        leaderboardContainer.innerHTML = "";
+        let place = 1;
+        snapshot.forEach((doc) => {
+            const ninjaData = doc.data();
+            const newElement = document.createElement("div");
+            newElement.classList.add("leaderboard_member");
+
+            newElement.innerHTML = buildLeaderBoardPosition(ninjaData, place);
+
+            leaderboardContainer.appendChild(newElement);
+            place++;
+        });
+    });
+
+
     const gottenLimit = leaderboardDoc.data().leaderboard_slots;
     onSnapshot(query(collection(db, "ninjas"), orderBy("points", "desc"), limit(gottenLimit)), (snapshot) => {
         leaderboardContainer.innerHTML = "";
