@@ -1,0 +1,61 @@
+.leaderboard-body {
+    background-image: linear-gradient(to bottom, #43a5ef, #dae8f4);
+    height: 100vh;
+    width: 100%;
+}
+.body-no-header {
+    display: flex;
+    flex-direction: row;
+    /* color: black; */
+    justify-content: space-around;
+}
+
+.big_leaderboad_container {
+    background-color: #2295ee;
+    margin: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+}
+
+.middle-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.left-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.right-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#leaderboard-header {
+    height: 10%;
+}
+
+.body-no-header {
+    height: 90%;
+}
+
+#header-icon {
+    width: 15%;
+    height: auto;
+}
+
+
+
+
+
+
+/* <h1>Leaderboard</h1>
+<div id="top_left_leaderboard_container" class="small_leaderboad_container"></div>
+<div id="bottom_left_leaderboard_container" class="small_leaderboad_container"></div>
+<div id="main_leaderboard_container" class="big_leaderboad_container"></div>
+<div id="top_right_leaderboard_container" class="small_leaderboad_container"></div>
+<div id="bottom_right_leaderboard_container" class="small_leaderboad_container"></div> */

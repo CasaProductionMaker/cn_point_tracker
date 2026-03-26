@@ -7,13 +7,28 @@
         <link rel="stylesheet" href="leaderboard_styles.css">
         <title>Leaderboard</title>
     </head>
-    <body>
-        <h1>Leaderboard</h1>
-        <div id="top_left_leaderboard_container" class="small_leaderboad_container"></div>
-        <div id="bottom_left_leaderboard_container" class="small_leaderboad_container"></div>
-        <div id="main_leaderboard_container" class="big_leaderboad_container"></div>
-        <div id="top_right_leaderboard_container" class="small_leaderboad_container"></div>
-        <div id="bottom_right_leaderboard_container" class="small_leaderboad_container"></div>
+    <body class="leaderboard-body">
+        <div class="header" id="leaderboard-header">
+            <img src="../Images/logo-full.svg" id="header-icon">
+        </div>  
+        <div id="body-no-header"> 
+            
+            <div id="left-container">
+                <div id="top_left_leaderboard_container" class="small_leaderboad_container"></div>
+                <div id="bottom_left_leaderboard_container" class="small_leaderboad_container"></div>
+            </div>
+
+            <div id="middle-container">
+                <h1>Leaderboard</h1>
+                <div id="main_leaderboard_container" class="big_leaderboad_container"></div>
+            </div>
+            
+            <div id="right-container">
+                <div id="top_right_leaderboard_container" class="small_leaderboad_container"></div>
+                <div id="bottom_right_leaderboard_container" class="small_leaderboad_container"></div>
+            </div>
+        </div>
+
         <script type="module" src="leaderboard_app.js"></script>
     </body>
 </html>
