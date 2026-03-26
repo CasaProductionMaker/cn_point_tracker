@@ -100,7 +100,7 @@ async function editPoints(amount) {
 async function registerNinja() {
     const fname = registerFNameInput.value;
     const lname = registerLNameInput.value;
-    const belt = registerBeltInput.value;
+    const belt = Number(registerBeltInput.value);
     const docRef = await addDoc(collection(db, "ninjas"), {
         firstname: fname,
         lastname: lname, 

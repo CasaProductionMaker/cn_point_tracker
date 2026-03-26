@@ -14,21 +14,12 @@ body {
     align-items: center;
 }
 
-#shop_item_popup, #leaderboard_popup {
+#add_session_popup, #shop_item_popup, #leaderboard_popup {
     position: fixed;
     left: 20%;
-    top: 15%;
+    top: 5%;
     width: 60%;
-    height: 70%;
-    background-color: #0005;
-}
-
-#add_session_popup {
-    position: fixed;
-    left: 20%;
-    top: 20%;
-    width: 60%;
-    height: 60%;
+    height: 90%;
     background-color: #000C;
     backdrop-filter: blur(1em);
     display: flex;
