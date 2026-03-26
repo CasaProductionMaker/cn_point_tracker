@@ -83,7 +83,7 @@ async function loadPage() {
             const data = snapshot.data();
             myProfile = data;
             ninjaNameDisplay.textContent = `Name: ${data.firstname} ${data.lastname[0]}.`;
-            welcomeText.textContent = `Welcome, ${data.firstname}`;
+            welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
         } else {
             console.log("Ninja not registered!");

@@ -1,5 +1,5 @@
 body {
-    background-color: #222;
+    background: linear-gradient(to right, #151d44, #11162b);
     color: #EEE;
     font-family: sans-serif;
     margin: 0;
@@ -15,3 +15,14 @@ button:hover, input[type="checkbox"] {
     position: absolute;
     opacity: 0;
 }
+
+.header {
+    height: 20vh;
+    padding-top: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+#header-icon{
+    width: 10%;
+}
+

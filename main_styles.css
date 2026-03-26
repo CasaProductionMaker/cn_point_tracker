@@ -1,7 +1,7 @@
-body {
+.body-no-header{
     display: flex;
-    width: 100%;
-    height: 100vh;
+    width: 100vw;
+    height: 80vh;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -20,7 +20,7 @@ body {
 
 h1 {
     text-align: center;
-    font-size: 4em;
+    font-size: 4rem;
     margin: 0;
     top: 0;
     position: relative;
