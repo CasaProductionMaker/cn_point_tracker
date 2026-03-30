@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, limit, onSnapshot, doc, getDocs, collection, where, query } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, limit, onSnapshot, doc, getDoc, collection, where, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { lang } from "../data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,24 +16,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
-// Page references
-// const topLeftLeaderboardContainer = document.querySelector("#top_left_leaderboard_container");
-// const bottomLeftLeaderboardContainer = document.querySelector("#bottom_left_leaderboard_container");
-// const mainLeaderboardContainer = document.querySelector("#main_leaderboard_container");
-// const topRightLeaderboardContainer = document.querySelector("#top_right_leaderboard_container");
-// const bottomRightLeaderboardContainer = document.querySelector("#bottom_right_leaderboard_container");
-
-// Element tracking
-
-function buildLeaderBoardPosition(ninjaData, place) {
-    return `
-        <h2>#${place}: ${ninjaData.firstname} ${ninjaData.lastname[0]}.</h2>
-        <p>${ninjaData.points} points</p>
-    `;
-}
 
 async function loadPage() {
-    const leaderboardDocs = await getDocs(collection(db, "leaderboards"));
+    // const leaderboardDocs = await getDocs(collection(db, "leaderboards"));
+
     onSnapshot(collection(db, "leaderboards"), (snapshot) => {
         snapshot.docChanges().forEach(changedLeaderboard => {
             const value = changedLeaderboard.doc.data();
@@ -40,18 +27,26 @@ async function loadPage() {
             switch (changedLeaderboard.type) {
                 case "added":
                     if (value.belt_filters.length > 0) {
-                        onSnapshot(query(collection(db, "ninjas"), where("belt", "in", value.belt_filters)), (snapshot) => {
+                        onSnapshot(query(collection(db, "leaderboard_entries"), where("reason", "==", value.reason_filter), orderBy("points", "desc"), limit(value.slots)), (snapshot) => {
                             const leaderboardContainer = document.querySelector(`#${value.ui_position}_leaderboard_container`);
                             
-                            console.log(snapshot.docs)
-                            leaderboardContainer.innerHTML = "";
+                            // Reset Leaderboard
+                            leaderboardContainer.innerHTML = `<h2>${value.name}</h2>`;
                             let place = 1;
-                            snapshot.forEach((doc) => {
-                                const ninjaData = doc.data();
+                            snapshot.forEach(async (ninja) => {
+                                const docData = ninja.data();
+
+                                // Get user profile
+                                const ninjaProfile = await getDoc(doc(db, "ninjas", docData.ninja_id));
+
+                                // Create element
                                 const newElement = document.createElement("div");
                                 newElement.classList.add("leaderboard_member");
 
-                                newElement.innerHTML = buildLeaderBoardPosition(ninjaData, place);
+                                newElement.innerHTML = `
+                                    <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
+                                    <p>${docData.points} ${lang[value.reason_filter]} Points</p>
+                                `;
 
                                 leaderboardContainer.appendChild(newElement);
                                 place++;

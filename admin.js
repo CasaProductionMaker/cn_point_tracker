@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { lang } from "./data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -33,20 +34,9 @@ const pointReasons = {
     "good_behaviour": 10, 
     "completed_goal": 10, 
     "belt_up": 10, 
-    "level_up": 10
+    "level_up": 10, 
+    "history": 0
 };
-
-const lang = {
-    "good_behaviour": "Good Behaviour", 
-    "completed_goal": "Completed Goal", 
-    "belt_up": "Belt Up", 
-    "level_up": "Level Up", 
-    "top_left": "Top Left", 
-    "bottom_left": "Bottom Left", 
-    "main": "Middle", 
-    "top_right": "Top Right", 
-    "bottom_right": "Bottom Right"
-}
 
 const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black"];
 
@@ -232,11 +222,12 @@ function showLeaderboardPopup(type, editID = null) {
         });
         
         // Reason filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filters: "));
+        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
-            reason_input_holder.appendChild(createInputHelper("checkbox", `leaderboard_popup_${reason}_input`));
-            reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_input`));
+            let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, reason == "history", reason);
+            reason_input_holder.appendChild(radioInput);
+            reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
             currentPopup.appendChild(reason_input_holder);
         });
 
@@ -301,13 +292,12 @@ function showLeaderboardPopup(type, editID = null) {
         });
         
         // Reason filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filters: "));
+        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
-            let box = createInputHelper("checkbox", `leaderboard_popup_${reason}_input`);
-            box.checked = editInfo.reason_filters.includes(reason);
-            reason_input_holder.appendChild(box);
-            reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_input`));
+            let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, editInfo.reason_filter == reason, reason);
+            reason_input_holder.appendChild(radioInput);
+            reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
             currentPopup.appendChild(reason_input_holder);
         });
 
@@ -361,6 +351,9 @@ function showSessionPopup(ninjaID) {
     // Go through all the possible reasons to get points and add a checkbox to select
     Object.keys(pointReasons).forEach(key => {
         let pointReward = pointReasons[key];
+
+        if (pointReward <= 0) return;
+
         let inputHolder = document.createElement("div");
 
         // Create both the checkbox and label and put into div so flex doesn't change its layout
@@ -398,13 +391,23 @@ function showSessionPopup(ninjaID) {
         let sessionData = {};
         let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
         let pointsGotten = 0;
-        Object.keys(pointReasons).forEach(key => {
+        Object.keys(pointReasons).forEach(async key => {
             let pointReward = pointReasons[key];
+
+            if (pointReward <= 0) return;
 
             if (document.querySelector(`#${key}_checkbox`).checked) {
                 pointsGotten += pointReward;
                 sessionData[`${key}_points`] = pointReward;
                 ninjaUpdates[`total_${key}_points`] = increment(pointReward);
+
+                // Add info to leaderboard_entries
+                await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_${key}`), {
+                    ninja_id: ninjaID, 
+                    reason: key, 
+                    points: increment(pointReward), 
+                    ninja_belt_level: ninjaData.belt
+                }, { merge: true })
             }
         });
         if (document.querySelector(`#custom_points_checkbox`).checked) {
@@ -418,11 +421,18 @@ function showSessionPopup(ninjaID) {
         await addDoc(collection(db, "ninjas", ninjaID, "sessions"), sessionData);
 
         // Update the ninja's stats in their regular account for easy access
-
         ninjaUpdates.points = increment(pointsGotten);
         ninjaUpdates.points_in_history = increment(pointsGotten);
         
         await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+
+        // Add info to leaderboard_entries
+        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+            ninja_id: ninjaID, 
+            reason: "history", 
+            points: increment(pointsGotten), 
+            ninja_belt_level: ninjaData.belt
+        }, { merge: true })
 
         // Close popup after done
         removePopup();
@@ -458,9 +468,9 @@ async function addLeaderboard() {
     const leaderboardName = document.querySelector("#leaderboard_popup_name_input").value;
     const leaderboardSlots = Number(document.querySelector("#leaderboard_popup_slots_input").value);
     const UIPosition = document.querySelector("input[name='leaderboard_popup_place_input']:checked").value;
+    const reasonFilter = document.querySelector("input[name='leaderboard_popup_reason_filter_input']:checked").value;
 
     let beltFilters = [];
-    let reasonFilters = [];
 
     // Belt filters editor
     belts.forEach(belt => {
@@ -468,19 +478,12 @@ async function addLeaderboard() {
             beltFilters.push(belts.indexOf(belt));
         }
     });
-    
-    // Reason filters editor
-    Object.keys(pointReasons).forEach(reason => {
-        if (document.querySelector(`#leaderboard_popup_${reason}_input`).checked) {
-            reasonFilters.push(reason);
-        }
-    });
 
     await addDoc(collection(db, "leaderboards"), {
         name: leaderboardName, 
         slots: leaderboardSlots, 
         belt_filters: beltFilters, 
-        reason_filters: reasonFilters, 
+        reason_filter: reasonFilter, 
         ui_position: UIPosition
     });
 
@@ -509,9 +512,9 @@ async function editLeaderboard(leaderboardID, previousUIPosition) {
     const leaderboardName = document.querySelector("#leaderboard_popup_name_input").value;
     const leaderboardSlots = Number(document.querySelector("#leaderboard_popup_slots_input").value);
     const UIPosition = document.querySelector("input[name='leaderboard_popup_place_input']:checked").value;
+    const reasonFilter = document.querySelector("input[name='leaderboard_popup_reason_filter_input']:checked").value;
 
     let beltFilters = [];
-    let reasonFilters = [];
 
     // Belt filters editor
     belts.forEach(belt => {
@@ -519,19 +522,12 @@ async function editLeaderboard(leaderboardID, previousUIPosition) {
             beltFilters.push(belts.indexOf(belt));
         }
     });
-    
-    // Reason filters editor
-    Object.keys(pointReasons).forEach(reason => {
-        if (document.querySelector(`#leaderboard_popup_${reason}_input`).checked) {
-            reasonFilters.push(reason);
-        }
-    });
 
     await updateDoc(doc(db, "leaderboards", leaderboardID), {
         name: leaderboardName, 
         slots: leaderboardSlots, 
         belt_filters: beltFilters, 
-        reason_filters: reasonFilters, 
+        reason_filter: reasonFilter, 
         ui_position: UIPosition
     });
 
@@ -689,12 +685,7 @@ async function loadPage() {
                     let beltFilters = createElementHelper("p", "leaderboard_belt_filters", beltFilterText);
                     item.appendChild(beltFilters);
 
-                    let reasonFilterText = "Reasons: ";
-                    value.reason_filters.forEach(filter => {
-                        reasonFilterText += `${lang[filter]}, `;
-                    });
-                    reasonFilterText = reasonFilterText.replace(/[\s,]+$/, '');
-                    let reasonFilters = createElementHelper("p", "leaderboard_reason_filters", reasonFilterText);
+                    let reasonFilters = createElementHelper("p", "leaderboard_reason_filters", `Reason Filter: ${lang[value.reason_filter]} points`);
                     item.appendChild(reasonFilters);
 
                     let UIPlace = createElementHelper("p", "leaderboard_ui_place", "UI position: " + lang[value.ui_position]);
@@ -732,12 +723,7 @@ async function loadPage() {
                     updatedBeltFilterText = updatedBeltFilterText.replace(/[\s,]+$/, '');
                     leaderboardElements[leaderboard.doc.id].querySelector(".leaderboard_belt_filters").textContent = updatedBeltFilterText;
 
-                    let updatedReasonFilterText = "Reasons: ";
-                    value.reason_filters.forEach(filter => {
-                        updatedReasonFilterText += `${lang[filter]}, `;
-                    });
-                    updatedReasonFilterText = updatedReasonFilterText.replace(/[\s,]+$/, '');
-                    leaderboardElements[leaderboard.doc.id].querySelector(".leaderboard_reason_filters").textContent = updatedReasonFilterText;
+                    leaderboardElements[leaderboard.doc.id].querySelector(".leaderboard_reason_filters").textContent = `Reason Filter: ${lang[value.reason_filter]} points`;
 
                     leaderboardElements[leaderboard.doc.id].querySelector(".leaderboard_ui_place").textContent = "UI position: " + lang[value.ui_position];
 
@@ -770,7 +756,7 @@ async function loadPage() {
 async function editPoints(ninja, amount) {
     await updateDoc(doc(db, "ninjas", ninja), {
         points: increment(amount), 
-        points_in_history: increment(amount)
+        total_history_points: increment(amount)
     });
 }
 
@@ -783,6 +769,10 @@ async function removeShopItem(itemID) {
 }
 
 async function removeLeaderboard(itemID) {
+    await updateDoc(doc(db, "settings", "leaderboard"), {
+        taken_ui_positions: arrayRemove(leaderboards[itemID].ui_position)
+    });
+
     await deleteDoc(doc(db, "leaderboards", itemID));
 }
 
