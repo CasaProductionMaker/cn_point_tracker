@@ -63,6 +63,7 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             console.log("Not added but soon...")
+            ninjaPointsDisplay -= shopItem.cost;
         })
 
         shopContainer.appendChild(item);
@@ -85,6 +86,13 @@ async function loadPage() {
             ninjaNameDisplay.textContent = `Name: ${data.firstname} ${data.lastname[0]}.`;
             welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
+
+            const btn = document.createElement("button");
+            btn.addEventListener('click', function() {
+                editPoints(5);
+            })
+            btn.textContent = "add 5!";
+            ninjaPointsDisplay.appendChild(btn);
         } else {
             console.log("Ninja not registered!");
         }
