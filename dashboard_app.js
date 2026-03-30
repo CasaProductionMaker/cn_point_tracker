@@ -28,7 +28,12 @@ const shopItems = {
     "3D printing project": {
         cost: 200,
         description: "Do a 3D printing project in a class."
-    }
+    },
+
+    "Fidget Spinner": {
+        cost: 500,
+        description: "Earn a Code Ninjas Fidget Spinner!"
+    },
 };
 
 // Page references
@@ -85,6 +90,16 @@ async function loadPage() {
             ninjaNameDisplay.textContent = `Name: ${data.firstname} ${data.lastname[0]}.`;
             welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
+
+            //Created a button that adds points.
+            const btn = document.createElement("button");
+            btn.textContent = "add 5 points!";
+            btn.addEventListener('click', function() {
+                editPoints(5);
+            })
+
+            ninjaPointsDisplay.appendChild(btn);
+
         } else {
             console.log("Ninja not registered!");
         }
