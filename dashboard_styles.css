@@ -111,7 +111,7 @@ button {
 }
 
 /* Popups */
-#register_popup {
+#register_popup, #purchase_popup {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -121,18 +121,14 @@ button {
     padding: 2em;
     gap: 0.5em;
     align-items: center;
+    left: 25%;
+    top: 25%;
+    box-sizing: border-box;
 }
 
-#purchase_popup {
-    display: none;
-    flex-direction: column;
+#tap_band_input {
     position: absolute;
-    border-radius: 2em;
-    background-color: #0005;
-    backdrop-filter: blur(1em);
-    padding: 2em;
-    gap: 0.5em;
-    align-items: center;
+    opacity: 0;
 }
 
 input {

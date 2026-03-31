@@ -19,9 +19,6 @@ const db = getFirestore();
 // Page references
 const ninjaNameDisplay = document.getElementById("ninja_name_display");
 const ninjaPointsDisplay = document.getElementById("ninja_points_display");
-const registerFNameInput = document.getElementById("fname");
-const registerLNameInput = document.getElementById("lname");
-const registerBeltInput = document.getElementById("belt");
 const shopContainer = document.getElementById("shop");
 const welcomeText = document.getElementById("welcome_text");
 
@@ -49,9 +46,7 @@ async function loadShop() {
 
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
-            console.log("Not added but soon...")
-            buyItem(parseInt(shopItem.cost));
-            
+            showPurchasePopup();
         })
 
         shopContainer.appendChild(item);
@@ -95,6 +90,61 @@ function showRegisterPopup() {
     submit_button.addEventListener("click", (event) => {
         registerNinja();
     })
+
+    document.body.appendChild(currentPopup);
+}
+
+function showPurchasePopup() {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.id = "purchase_popup";
+
+    currentPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
+
+    // First Name input
+    let admin_password = document.createElement("div");
+    admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
+    admin_password.appendChild(createInputHelper("password", `admin_password`));
+    currentPopup.appendChild(admin_password);
+
+    let tap_band_input = document.createElement("div");
+    tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
+    currentPopup.appendChild(tap_band_input);
+
+    currentPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
+
+    let purchase_button = createEmptyButtonHelper("Purchase");
+    currentPopup.appendChild(purchase_button);
+
+    let cancel_button = createEmptyButtonHelper("Cancel");
+    currentPopup.appendChild(cancel_button);
+
+    purchase_button.addEventListener("click", (event) => {
+        // TODO :D
+    })
+
+    cancel_button.addEventListener("click", (event) => {
+        removePopup();
+    })
+
+    document.body.appendChild(currentPopup);
+    
+    // <div id="purchase_popup">
+    //     <h2>Buy shop item?</h2>
+    //     <div>
+    //         <label for="admin_password">Admin password: </label>
+    //         <input type="password" id="admin_password" name="admin_password">
+    //     </div>
+    //     <div>
+    //         <input type="text" id="tap_band_input" name="tap_band_input">
+    //         <button id="register_button" class="layer_2">Register!</button>
+    //     </div>
+    // </div>
 }
 
 function removePopup() {
@@ -132,16 +182,10 @@ async function editPoints(amount) {
     });
 }
 
-async function buyItem(amount) {
-    await updateDoc(doc(db, "ninjas", userKey), {
-        points: myProfile.points - amount
-    })
-}
-
 async function registerNinja() {
-    const fname = registerFNameInput.value;
-    const lname = registerLNameInput.value;
-    const belt = Number(registerBeltInput.value);
+    const fname = document.querySelector("#fname").value;
+    const lname = document.querySelector("#lname").value;
+    const belt = Number(document.querySelector("#belt").value);
     const docRef = await addDoc(collection(db, "ninjas"), {
         firstname: fname,
         lastname: lname, 
@@ -157,7 +201,6 @@ async function registerNinja() {
 }
 
 // Start app
-
 const snapshot = await getDocs(query(collection(db, "ninjas"), where("nfc_id", "==", uid)));
 if (snapshot.empty) {
     showRegisterPopup();
