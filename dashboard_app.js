@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,26 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
-// Consts
-const shopItems = {
-    "Candy": {
-        cost: 20, 
-        description: "Choose a small candy out of a few options."
-    }, 
-    "Sticker": {
-        cost: 10,
-        description: "Choose a sticker from the front desk."
-    },
-    "3D printing project": {
-        cost: 200,
-        description: "Do a 3D printing project in a class."
-    },
-    "Fidget Spinner": {
-        cost: 500,
-        description: "Earn a Code Ninjas Fidget Spinner!"
-    },
-};
-
 // Page references
 const ninjaNameDisplay = document.getElementById("ninja_name_display");
 const ninjaPointsDisplay = document.getElementById("ninja_points_display");
@@ -42,7 +23,6 @@ const registerFNameInput = document.getElementById("fname");
 const registerLNameInput = document.getElementById("lname");
 const registerBeltInput = document.getElementById("belt");
 const shopContainer = document.getElementById("shop");
-const registerPopup = document.getElementById("register_popup");
 const welcomeText = document.getElementById("welcome_text");
 
 // Login info
@@ -50,6 +30,9 @@ let uid = localStorage.getItem("currentUser");
 let userKey = null;
 console.log("UID: " + uid);
 let myProfile = {};
+
+// Element tracking
+let currentPopup = null;
 
 async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
@@ -75,12 +58,50 @@ async function loadShop() {
     });
 }
 
+// Popup functionality
 function showRegisterPopup() {
-    registerPopup.style.display = "flex";
-    document.getElementById("register_button").addEventListener("click", (event) => {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.id = "register_popup";
+
+    currentPopup.appendChild(createSimpleElementHelper("h2", "First time? Register here: "));
+
+    // First Name input
+    let first_name_input_holder = document.createElement("div");
+    first_name_input_holder.appendChild(createLabelHelper("First Name: ", `fname`));
+    first_name_input_holder.appendChild(createInputHelper("text", `fname`));
+    currentPopup.appendChild(first_name_input_holder);
+
+    // Last Name input
+    let last_name_input_holder = document.createElement("div");
+    last_name_input_holder.appendChild(createLabelHelper("Last Name: ", `lname`));
+    last_name_input_holder.appendChild(createInputHelper("text", `lname`));
+    currentPopup.appendChild(last_name_input_holder);
+
+    // Belt input
+    let belt_input_holder = document.createElement("div");
+    belt_input_holder.appendChild(createLabelHelper("Belt ID: ", `belt`));
+    belt_input_holder.appendChild(createInputHelper("text", `belt`));
+    currentPopup.appendChild(belt_input_holder);
+
+    let submit_button = createEmptyButtonHelper("Register!");
+    currentPopup.appendChild(submit_button);
+
+    submit_button.addEventListener("click", (event) => {
         registerNinja();
     })
 }
+
+function removePopup() {
+    document.body.removeChild(currentPopup);
+    currentPopup = null;
+}
+
 
 async function loadPage() {
     loadShop();
@@ -103,6 +124,7 @@ async function loadPage() {
         }
     });
 }
+
 
 async function editPoints(amount) {
     await updateDoc(doc(db, "ninjas", userKey), {
@@ -129,7 +151,8 @@ async function registerNinja() {
         points_in_history: 0
     });
     userKey = docRef.id;
-    registerPopup.style.display = "none";
+
+    removePopup();
     loadPage();
 }
 

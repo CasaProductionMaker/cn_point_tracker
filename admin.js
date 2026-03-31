@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
 import { lang } from "./data.js";
 
 // Your web app's Firebase configuration
@@ -47,67 +48,6 @@ let ninjas = {};
 let shop = {};
 let leaderboards = {};
 let takenUIPositions = [];
-
-// Helper functions
-function createElementHelper(elem_name, className, text) {
-    let child = document.createElement(elem_name);
-    child.classList.add(className);
-    child.textContent = text;
-
-    return child;
-};
-
-function createSimpleElementHelper(elem_name, text) {
-    let child = document.createElement(elem_name);
-    child.textContent = text;
-
-    return child;
-};
-
-function createButtonHelper(first_dataset_input, second_dataset_var, second_dataset_input, text) {
-    let child = document.createElement("button");
-    child.dataset.id = first_dataset_input;
-    child.dataset[second_dataset_var] = second_dataset_input;
-    child.textContent = text;
-
-    return child;
-};
-
-function createEmptyButtonHelper(text) {
-    let child = document.createElement("button");
-    child.textContent = text;
-
-    return child;
-};
-
-function createInputHelper(type, id, defaultValue = "") {
-    let child = document.createElement("input");
-    child.type = type;
-    child.id = id;
-    child.name = id;
-    child.value = defaultValue;
-
-    return child;
-};
-
-function createRadioInputHelper(name, id, checked, value) {
-    let child = document.createElement("input");
-    child.type = "radio";
-    child.id = id;
-    child.name = name;
-    child.value = value;
-    if (checked) child.checked = true;
-
-    return child;
-};
-
-function createLabelHelper(text, forElement) {
-    let child = document.createElement("label");
-    child.textContent = text;
-    child.setAttribute("for", forElement);
-
-    return child;
-};
 
 // UI Functions
 function showShopPopup(type, editID = null) {
