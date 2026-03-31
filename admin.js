@@ -543,12 +543,28 @@ async function loadPage() {
                     let add_session = createEmptyButtonHelper("Add Session");
                     ninjaElement.appendChild(add_session);
 
+                    let custom_pts = createEmptyButtonHelper("Add Custom Points")
+                    ninjaElement.appendChild(custom_pts);
+
                     let custom_btn_del = createEmptyButtonHelper("Remove Ninja");
                     ninjaElement.appendChild(custom_btn_del);
 
                     // Add event listeners
                     add_session.addEventListener("click", async (event) => {
                         showSessionPopup(ninja.doc.id);
+                    });
+
+                    //TODO: Custom Points
+                    custom_pts.addEventListener("click", async(event) => {
+                        let num = prompt("Please enter the custom value you'd like to add");
+                        num = Number(num);
+                        
+                        if (num == null || num == "" || Number.isNaN(num)) {
+                            alert("Invalid input. Please try again.");
+                        } else {
+                            await editPoints(ninja.doc.id, num);
+                            alert(`Successfully added ${num} points to ${value.firstname}!`);
+                        }
                     });
 
                     custom_btn_del.addEventListener("click", async (event) => {
