@@ -68,6 +68,8 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             console.log("Not added but soon...")
+            buyItem(parseInt(shopItem.cost));
+            
         })
 
         shopContainer.appendChild(item);
@@ -91,15 +93,12 @@ async function loadPage() {
             welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
 
-            //Created a button that adds points.
             const btn = document.createElement("button");
-            btn.textContent = "add 5 points!";
             btn.addEventListener('click', function() {
                 editPoints(5);
             })
-
-            ninjaPointsDisplay.appendChild(btn);
-
+            btn.textContent = "add 5!";
+            ninjaNameDisplay.appendChild(btn);
         } else {
             console.log("Ninja not registered!");
         }
@@ -110,6 +109,12 @@ async function editPoints(amount) {
     await updateDoc(doc(db, "ninjas", userKey), {
         points: myProfile.points + amount
     });
+}
+
+async function buyItem(amount) {
+    await updateDoc(doc(db, "ninjas", userKey), {
+        points: myProfile.points - amount
+    })
 }
 
 async function registerNinja() {
