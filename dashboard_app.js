@@ -92,12 +92,12 @@ async function loadPage() {
             welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
 
-            const btn = document.createElement("button");
-            btn.addEventListener('click', function() {
-                editPoints(5);
-            })
-            btn.textContent = "add 5!";
-            ninjaNameDisplay.appendChild(btn);
+            // const btn = document.createElement("button");
+            // btn.addEventListener('click', function() {
+            //     editPoints(5);
+            // })
+            // btn.textContent = "add 5!";
+            // ninjaNameDisplay.appendChild(btn);
         } else {
             console.log("Ninja not registered!");
         }
