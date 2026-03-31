@@ -49,7 +49,7 @@ let shop = {};
 let leaderboards = {};
 let takenUIPositions = [];
 
-// UI Functions
+// Popups
 function showShopPopup(type, editID = null) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -124,7 +124,6 @@ function showShopPopup(type, editID = null) {
     }
 }
 
-// Popups
 function showLeaderboardPopup(type, editID = null) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -418,6 +417,74 @@ function showConfirmDeletePopup(callback, titleText) {
     document.body.appendChild(currentPopup);
 }
 
+function showNinjaSessionsMenuPopup(ninjaID) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Load data from cache
+    const ninjaData = ninjas[ninjaID];
+
+    currentPopup = document.createElement("div");
+    currentPopup.id = "ninja_sessions_popup";
+
+    // Bottom buttons to submit or cancel
+    let submit_button = createEmptyButtonHelper("Add Session");
+    currentPopup.appendChild(submit_button);
+
+    let close_button = createEmptyButtonHelper("Close");
+    currentPopup.appendChild(close_button);
+    
+    // Add event listeners
+    submit_button.addEventListener("click", async (e) => {
+        //
+    })
+    close_button.addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    document.body.appendChild(currentPopup);
+}
+
+function showAddCustomPointsPopup(ninjaID) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Load data from cache
+    const ninjaData = ninjas[ninjaID];
+
+    currentPopup = document.createElement("div");
+    currentPopup.id = "custom_points_popup";
+
+    currentPopup.appendChild(createSimpleElementHelper("h2", "Add Custom Points to a Ninja: "));
+
+    // Amount input
+    let amount_input = document.createElement("div");
+    amount_input.appendChild(createLabelHelper("Amount: ", `custom_points_popup_amount_input`));
+    amount_input.appendChild(createInputHelper("number", `custom_points_popup_amount_input`));
+    currentPopup.appendChild(amount_input);
+
+    // Bottom buttons to submit or cancel
+    let submit_button = createEmptyButtonHelper("Apply Points");
+    currentPopup.appendChild(submit_button);
+
+    let close_button = createEmptyButtonHelper("Close");
+    currentPopup.appendChild(close_button);
+    
+    // Add event listeners
+    submit_button.addEventListener("click", async (e) => {
+        applyCustomPoints(ninjaID);
+    })
+    close_button.addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    document.body.appendChild(currentPopup);
+}
+
 function removePopup() {
     document.body.removeChild(currentPopup);
     currentPopup = null;
@@ -519,6 +586,13 @@ async function editLeaderboard(leaderboardID, previousUIPosition) {
     removePopup();
 }
 
+async function applyCustomPoints(ninjaID) {
+    const amount = Number(document.querySelector("#custom_points_popup_amount_input").value);
+    console.log(amount);
+    await editPoints(ninjaID, amount);
+    removePopup();
+}
+
 async function loadPage() {
     // Load Ninjas
     onSnapshot(collection(db, "ninjas"), (snapshot) => {
@@ -546,6 +620,9 @@ async function loadPage() {
                     let custom_pts = createEmptyButtonHelper("Add Custom Points")
                     ninjaElement.appendChild(custom_pts);
 
+                    let view_sessions = createEmptyButtonHelper("View Sessions")
+                    ninjaElement.appendChild(view_sessions);
+
                     let custom_btn_del = createEmptyButtonHelper("Remove Ninja");
                     ninjaElement.appendChild(custom_btn_del);
 
@@ -556,15 +633,12 @@ async function loadPage() {
 
                     //TODO: Custom Points
                     custom_pts.addEventListener("click", async(event) => {
-                        let num = prompt("Please enter the custom value you'd like to add");
-                        num = Number(num);
-                        
-                        if (num == null || num == "" || Number.isNaN(num)) {
-                            alert("Invalid input. Please try again.");
-                        } else {
-                            await editPoints(ninja.doc.id, num);
-                            alert(`Successfully added ${num} points to ${value.firstname}!`);
-                        }
+                        showAddCustomPointsPopup(ninja.doc.id);
+                    });
+
+                    view_sessions.addEventListener("click", async(event) => {
+                        // Open the chunky session popup
+                        showNinjaSessionsMenuPopup(ninja.doc.id);
                     });
 
                     custom_btn_del.addEventListener("click", async (event) => {

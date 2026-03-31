@@ -14,7 +14,7 @@ body {
     align-items: center;
 }
 
-#add_session_popup, #shop_item_popup, #leaderboard_popup, #confirm_delete_popup {
+#add_session_popup, #shop_item_popup, #leaderboard_popup, #confirm_delete_popup, #ninja_sessions_popup, #custom_points_popup {
     position: fixed;
     left: 20%;
     top: 5%;
