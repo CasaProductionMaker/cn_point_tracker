@@ -184,7 +184,7 @@ function showShopPopup(type, editID = null) {
     }
 }
 
-// Show Leaderboard Adding/Editing Popups
+// Popups
 function showLeaderboardPopup(type, editID = null) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -444,11 +444,46 @@ function showSessionPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
+function showConfirmDeletePopup(callback, titleText) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    currentPopup = document.createElement("div");
+    currentPopup.id = "confirm_delete_popup";
+
+    let title = createElementHelper("h2", null, titleText);
+    currentPopup.appendChild(title);
+
+    let info = createElementHelper("p", null, "This action is irriversible.");
+    currentPopup.appendChild(info);
+
+    // Bottom buttons to submit or cancel
+    let submit_button = createEmptyButtonHelper("Delete");
+    currentPopup.appendChild(submit_button);
+
+    let cancel_button = createEmptyButtonHelper("Cancel");
+    currentPopup.appendChild(cancel_button);
+
+    // Event listeners
+    submit_button.addEventListener("click", async (e) => {
+        callback();
+    })
+
+    cancel_button.addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    document.body.appendChild(currentPopup);
+}
+
 function removePopup() {
     document.body.removeChild(currentPopup);
     currentPopup = null;
 }
 
+// Functions to add stuff based on UI input
 async function addShopItem() {
     const itemName = document.querySelector("#shop_item_name_input").value;
     const itemCost = Number(document.querySelector("#shop_item_cost_input").value);
@@ -577,7 +612,7 @@ async function loadPage() {
                     });
 
                     custom_btn_del.addEventListener("click", async (event) => {
-                        await deleteNinja(ninja.doc.id);
+                        showConfirmDeletePopup(async () => await deleteNinja(ninja.doc.id), "Are you sure you want to delete this Ninja?");
                     });
 
                     // Save value for editing purposes
@@ -635,7 +670,7 @@ async function loadPage() {
                     });
 
                     delete_button.addEventListener("click", async (event) => {
-                        await removeShopItem(shopItem.doc.id);
+                        showConfirmDeletePopup(async () => await removeShopItem(shopItem.doc.id), "Are you sure you want to delete this shop item?");
                     });
 
                     // Save value for editing purposes
@@ -703,7 +738,7 @@ async function loadPage() {
                     });
 
                     delete_button.addEventListener("click", async (event) => {
-                        removeLeaderboard(leaderboard.doc.id);
+                        showConfirmDeletePopup(async () => removeLeaderboard(leaderboard.doc.id), "Are you sure you want to delete this leaderboard?");
                     });
 
                     // Save value for editing purposes
