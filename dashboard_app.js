@@ -29,7 +29,6 @@ const shopItems = {
         cost: 200,
         description: "Do a 3D printing project in a class."
     },
-
     "Fidget Spinner": {
         cost: 500,
         description: "Earn a Code Ninjas Fidget Spinner!"
