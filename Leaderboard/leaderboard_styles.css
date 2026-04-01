@@ -1,5 +1,7 @@
 .leaderboard-body {
-    background-image: linear-gradient(to bottom, #43a5ef, #dae8f4);
+    background-image: url(../Images/bg_create.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100vh;
     width: 100%;
     display: flex;
