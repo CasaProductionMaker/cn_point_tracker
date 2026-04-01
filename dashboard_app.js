@@ -41,7 +41,7 @@ async function loadShop() {
         item.innerHTML = `
             <h3>${shopItem.name} (${shopItem.cost} points)</h3>
             <p>${shopItem.description}</p>
-            <button class="full_width_button layer_4 purchase_button">Purchase</button>
+            <button class="purchase_button">PURCHASE</button>
         `;
 
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
@@ -62,34 +62,41 @@ function showRegisterPopup() {
 
     // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "register_popup";
+    currentPopup.classList.add("popup_container");
 
-    currentPopup.appendChild(createSimpleElementHelper("h2", "First time? Register here: "));
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "register_popup";
+    actualPopup.classList.add("popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", "First time? Register here: "));
 
     // First Name input
     let first_name_input_holder = document.createElement("div");
     first_name_input_holder.appendChild(createLabelHelper("First Name: ", `fname`));
     first_name_input_holder.appendChild(createInputHelper("text", `fname`));
-    currentPopup.appendChild(first_name_input_holder);
+    actualPopup.appendChild(first_name_input_holder);
 
     // Last Name input
     let last_name_input_holder = document.createElement("div");
     last_name_input_holder.appendChild(createLabelHelper("Last Name: ", `lname`));
     last_name_input_holder.appendChild(createInputHelper("text", `lname`));
-    currentPopup.appendChild(last_name_input_holder);
+    actualPopup.appendChild(last_name_input_holder);
 
     // Belt input
     let belt_input_holder = document.createElement("div");
     belt_input_holder.appendChild(createLabelHelper("Belt ID: ", `belt`));
     belt_input_holder.appendChild(createInputHelper("text", `belt`));
-    currentPopup.appendChild(belt_input_holder);
+    actualPopup.appendChild(belt_input_holder);
 
     let submit_button = createEmptyButtonHelper("Register!");
-    currentPopup.appendChild(submit_button);
+    actualPopup.appendChild(submit_button);
 
     submit_button.addEventListener("click", (event) => {
         registerNinja();
     })
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
 
     document.body.appendChild(currentPopup);
 }
@@ -102,27 +109,31 @@ function showPurchasePopup() {
 
     // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "purchase_popup";
+    currentPopup.classList.add("popup_container");
 
-    currentPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "popup_container";
+    actualPopup.classList.add("popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
 
     // First Name input
     let admin_password = document.createElement("div");
     admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
     admin_password.appendChild(createInputHelper("password", `admin_password`));
-    currentPopup.appendChild(admin_password);
+    actualPopup.appendChild(admin_password);
 
     // let tap_band_input = document.createElement("div");
     // tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
-    // currentPopup.appendChild(tap_band_input);
+    // actualPopup.appendChild(tap_band_input);
 
-    // currentPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
+    // actualPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
 
     let purchase_button = createEmptyButtonHelper("Purchase");
-    currentPopup.appendChild(purchase_button);
+    actualPopup.appendChild(purchase_button);
 
     let cancel_button = createEmptyButtonHelper("Cancel");
-    currentPopup.appendChild(cancel_button);
+    actualPopup.appendChild(cancel_button);
 
     purchase_button.addEventListener("click", (event) => {
         // TODO :D
@@ -132,6 +143,9 @@ function showPurchasePopup() {
     cancel_button.addEventListener("click", (event) => {
         removePopup();
     })
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
 
     document.body.appendChild(currentPopup);
 }

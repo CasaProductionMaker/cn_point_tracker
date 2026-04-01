@@ -33,13 +33,3 @@ h1 {
     opacity: 1;
     transition: top 1s ease-out, opacity 0.5s ease-out;
 }
-
-.header {
-    height: 20vh;
-    padding-top: 0.5rem;
-    padding-left: 0.5rem;
-}
-
-#header-icon{
-    width: 10%;
-}

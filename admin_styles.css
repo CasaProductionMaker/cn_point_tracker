@@ -13,16 +13,3 @@ body {
     flex-direction: column;
     align-items: center;
 }
-
-#add_session_popup, #shop_item_popup, #leaderboard_popup, #confirm_delete_popup, #ninja_sessions_popup, #custom_points_popup {
-    position: fixed;
-    left: 20%;
-    top: 5%;
-    width: 60%;
-    height: 90%;
-    background-color: #000C;
-    backdrop-filter: blur(1em);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}

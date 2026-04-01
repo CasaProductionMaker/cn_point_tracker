@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, limit, onSnapshot, doc, getDoc, collection, where, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { lang } from "../data.js";
+import { lang, belts } from "../data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -46,7 +46,10 @@ async function loadPage() {
 
                                 newElement.innerHTML = `
                                     <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
-                                    <p>${docData.points} ${lang[value.reason_filter]} Points</p>
+                                    <div class="leaderboard_member_flex">
+                                        <p>${docData.points} ${lang[value.reason_filter]} Points</p>
+                                        <p class="belt_color_${ninjaProfile.data().belt}">${belts[ninjaProfile.data().belt]} Belt</p>
+                                    </div>
                                 `;
 
                                 leaderboardContainer.appendChild(newElement);

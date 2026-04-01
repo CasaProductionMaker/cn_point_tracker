@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
-import { lang } from "./data.js";
+import { lang, belts } from "./data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -39,8 +39,6 @@ const pointReasons = {
     "history": 0
 };
 
-const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black"];
-
 const UIPositions = ["top_left", "bottom_left", "main", "top_right", "bottom_right"];
 
 // Database cache
@@ -60,10 +58,15 @@ function showShopPopup(type, editID = null) {
     const editInfo = shop[editID];
 
     if (type == "add") {
+        // Create the popup
         currentPopup = document.createElement("div");
-        currentPopup.id = "shop_item_popup";
+        currentPopup.classList.add("popup_container");
+
+        let actualPopup = document.createElement("div");
+        actualPopup.id = "shop_item_popup";
+        actualPopup.classList.add("popup");
         
-        currentPopup.innerHTML = `
+        actualPopup.innerHTML = `
             <h2>New Shop Item:</h2>
             <div>
                 <label for="shop_item_name_input">Name: </label>
@@ -81,19 +84,26 @@ function showShopPopup(type, editID = null) {
             <button class="cancel_popup_button">Cancel</button>
         `;
 
-        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+        actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await addShopItem();
         })
-        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+        actualPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
             removePopup();
         })
 
+        // Add the popup to the blur container
+        currentPopup.appendChild(actualPopup);
+
         document.body.appendChild(currentPopup);
-    } else if (type == "edit") {
+    } else if (type == "edit") {// Create the popup
         currentPopup = document.createElement("div");
-        currentPopup.id = "shop_item_popup";
+        currentPopup.classList.add("popup_container");
+
+        let actualPopup = document.createElement("div");
+        actualPopup.id = "shop_item_popup";
+        actualPopup.classList.add("popup");
         
-        currentPopup.innerHTML = `
+        actualPopup.innerHTML = `
             <h2>Edit Shop Item:</h2>
             <div>
                 <label for="shop_item_name_input">Name: </label>
@@ -111,12 +121,15 @@ function showShopPopup(type, editID = null) {
             <button class="cancel_popup_button">Cancel</button>
         `;
 
-        currentPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+        actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await editShopItem(editID);
         })
-        currentPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+        actualPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
             removePopup();
         })
+
+        // Add the popup to the blur container
+        currentPopup.appendChild(actualPopup);
 
         document.body.appendChild(currentPopup);
     } else {
@@ -134,44 +147,49 @@ function showLeaderboardPopup(type, editID = null) {
     const editInfo = leaderboards[editID];
 
     if (type == "add") {
+        // Create the popup
         currentPopup = document.createElement("div");
-        currentPopup.id = "leaderboard_popup";
+        currentPopup.classList.add("popup_container");
+
+        let actualPopup = document.createElement("div");
+        actualPopup.id = "leaderboard_popup";
+        actualPopup.classList.add("popup");
         
-        currentPopup.appendChild(createSimpleElementHelper("h2", "Add New Leaderboard: "));
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Add New Leaderboard: "));
 
         // Name input
         let name_input_holder = document.createElement("div");
         name_input_holder.appendChild(createLabelHelper("Name: ", `leaderboard_popup_name_input`));
         name_input_holder.appendChild(createInputHelper("text", `leaderboard_popup_name_input`));
-        currentPopup.appendChild(name_input_holder);
+        actualPopup.appendChild(name_input_holder);
         
         // Slots Input Holder
         let slots_input_holder = document.createElement("div");
         slots_input_holder.appendChild(createLabelHelper("Slots: ", `leaderboard_popup_slots_input`));
         slots_input_holder.appendChild(createInputHelper("number", `leaderboard_popup_slots_input`));
-        currentPopup.appendChild(slots_input_holder);
+        actualPopup.appendChild(slots_input_holder);
 
         // Belt filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
         belts.forEach(belt => {
             let belt_input_holder = document.createElement("div");
             belt_input_holder.appendChild(createInputHelper("checkbox", `leaderboard_popup_${belt}_belt_input`));
             belt_input_holder.appendChild(createLabelHelper(belt, `leaderboard_popup_${belt}_belt_input`));
-            currentPopup.appendChild(belt_input_holder);
+            actualPopup.appendChild(belt_input_holder);
         });
         
         // Reason filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, reason == "history", reason);
             reason_input_holder.appendChild(radioInput);
             reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
-            currentPopup.appendChild(reason_input_holder);
+            actualPopup.appendChild(reason_input_holder);
         });
 
         // Select UI position
-        currentPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
         let onTaken = false;
         UIPositions.forEach(place => {
             let place_input_holder = document.createElement("div");
@@ -183,14 +201,14 @@ function showLeaderboardPopup(type, editID = null) {
             }
             place_input_holder.appendChild(radioInput);
             place_input_holder.appendChild(createLabelHelper(lang[place], `leaderboard_popup_${place}_place_input`));
-            currentPopup.appendChild(place_input_holder);
+            actualPopup.appendChild(place_input_holder);
         });
 
         // Buttons
         let submit_button = createEmptyButtonHelper("Add");
-        currentPopup.appendChild(submit_button);
+        actualPopup.appendChild(submit_button);
         let cancel_popup_button = createEmptyButtonHelper("Cancel");
-        currentPopup.appendChild(cancel_popup_button);
+        actualPopup.appendChild(cancel_popup_button);
 
         submit_button.addEventListener("click", async (e) => {
             await addLeaderboard();
@@ -199,49 +217,56 @@ function showLeaderboardPopup(type, editID = null) {
             removePopup();
         })
 
+        // Add the popup to the blur container
+        currentPopup.appendChild(actualPopup);
+
         document.body.appendChild(currentPopup);
     } else if (type == "edit") {
-
+        // Create the popup
         currentPopup = document.createElement("div");
-        currentPopup.id = "leaderboard_popup";
+        currentPopup.classList.add("popup_container");
+
+        let actualPopup = document.createElement("div");
+        actualPopup.id = "leaderboard_popup";
+        actualPopup.classList.add("popup");
         
-        currentPopup.appendChild(createSimpleElementHelper("h2", "Edit Leaderboard: "));
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Edit Leaderboard: "));
 
         // Name input
         let name_input_holder = document.createElement("div");
         name_input_holder.appendChild(createLabelHelper("Name: ", `leaderboard_popup_name_input`));
         name_input_holder.appendChild(createInputHelper("text", `leaderboard_popup_name_input`, editInfo.name));
-        currentPopup.appendChild(name_input_holder);
+        actualPopup.appendChild(name_input_holder);
         
         // Slots Input Holder
         let slots_input_holder = document.createElement("div");
         slots_input_holder.appendChild(createLabelHelper("Slots: ", `leaderboard_popup_slots_input`));
         slots_input_holder.appendChild(createInputHelper("number", `leaderboard_popup_slots_input`, editInfo.slots));
-        currentPopup.appendChild(slots_input_holder);
+        actualPopup.appendChild(slots_input_holder);
 
         // Belt filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
         belts.forEach(belt => {
             let belt_input_holder = document.createElement("div");
             let box = createInputHelper("checkbox", `leaderboard_popup_${belt}_belt_input`);
             box.checked = editInfo.belt_filters.includes(belts.indexOf(belt));
             belt_input_holder.appendChild(box);
             belt_input_holder.appendChild(createLabelHelper(belt, `leaderboard_popup_${belt}_belt_input`));
-            currentPopup.appendChild(belt_input_holder);
+            actualPopup.appendChild(belt_input_holder);
         });
         
         // Reason filters editor
-        currentPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, editInfo.reason_filter == reason, reason);
             reason_input_holder.appendChild(radioInput);
             reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
-            currentPopup.appendChild(reason_input_holder);
+            actualPopup.appendChild(reason_input_holder);
         });
 
         // Select UI position
-        currentPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
+        actualPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
         UIPositions.forEach(place => {
             let place_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_place_input", `leaderboard_popup_${place}_place_input`, place == editInfo.ui_position, place);
@@ -250,14 +275,14 @@ function showLeaderboardPopup(type, editID = null) {
             }
             place_input_holder.appendChild(radioInput);
             place_input_holder.appendChild(createLabelHelper(lang[place], `leaderboard_popup_${place}_place_input`));
-            currentPopup.appendChild(place_input_holder);
+            actualPopup.appendChild(place_input_holder);
         });
 
         // Buttons
         let submit_button = createEmptyButtonHelper("Apply Changes");
-        currentPopup.appendChild(submit_button);
+        actualPopup.appendChild(submit_button);
         let cancel_popup_button = createEmptyButtonHelper("Cancel");
-        currentPopup.appendChild(cancel_popup_button);
+        actualPopup.appendChild(cancel_popup_button);
 
         submit_button.addEventListener("click", async (e) => {
             await editLeaderboard(editID, editInfo.ui_position);
@@ -265,6 +290,9 @@ function showLeaderboardPopup(type, editID = null) {
         cancel_popup_button.addEventListener("click", async (e) => {
             removePopup();
         })
+
+        // Add the popup to the blur container
+        currentPopup.appendChild(actualPopup);
 
         document.body.appendChild(currentPopup);
     } else {
@@ -281,11 +309,16 @@ function showSessionPopup(ninjaID) {
     // Load data from cache
     const ninjaData = ninjas[ninjaID];
 
+    // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "add_session_popup";
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "add_session_popup";
+    actualPopup.classList.add("popup");
 
     let title = createElementHelper("h2", null, `Add Session to ${ninjaData.firstname}:`);
-    currentPopup.appendChild(title);
+    actualPopup.appendChild(title);
 
     // Go through all the possible reasons to get points and add a checkbox to select
     Object.keys(pointReasons).forEach(key => {
@@ -301,7 +334,7 @@ function showSessionPopup(ninjaID) {
         inputHolder.appendChild(checkboxInput);
         inputHolder.appendChild(labelElement);
 
-        currentPopup.appendChild(inputHolder);
+        actualPopup.appendChild(inputHolder);
     });
 
     // Custom points UI
@@ -315,14 +348,14 @@ function showSessionPopup(ninjaID) {
     customInputHolder.appendChild(labelElement);
     customInputHolder.appendChild(custom_pts);
 
-    currentPopup.appendChild(customInputHolder);
+    actualPopup.appendChild(customInputHolder);
 
     // Bottom buttons to submit or cancel
     let submit_button = createEmptyButtonHelper("Add Session");
-    currentPopup.appendChild(submit_button);
+    actualPopup.appendChild(submit_button);
 
     let cancel_button = createEmptyButtonHelper("Cancel");
-    currentPopup.appendChild(cancel_button);
+    actualPopup.appendChild(cancel_button);
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -380,6 +413,9 @@ function showSessionPopup(ninjaID) {
         removePopup();
     })
 
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
     document.body.appendChild(currentPopup);
 }
 
@@ -389,21 +425,26 @@ function showConfirmDeletePopup(callback, titleText) {
         return;
     }
 
+    // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "confirm_delete_popup";
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "confirm_delete_popup";
+    actualPopup.classList.add("popup");
 
     let title = createElementHelper("h2", null, titleText);
-    currentPopup.appendChild(title);
+    actualPopup.appendChild(title);
 
     let info = createElementHelper("p", null, "This action is irriversible.");
-    currentPopup.appendChild(info);
+    actualPopup.appendChild(info);
 
     // Bottom buttons to submit or cancel
     let submit_button = createEmptyButtonHelper("Delete");
-    currentPopup.appendChild(submit_button);
+    actualPopup.appendChild(submit_button);
 
     let cancel_button = createEmptyButtonHelper("Cancel");
-    currentPopup.appendChild(cancel_button);
+    actualPopup.appendChild(cancel_button);
 
     // Event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -413,6 +454,9 @@ function showConfirmDeletePopup(callback, titleText) {
     cancel_button.addEventListener("click", async (e) => {
         removePopup();
     })
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
 
     document.body.appendChild(currentPopup);
 }
@@ -426,15 +470,20 @@ function showNinjaSessionsMenuPopup(ninjaID) {
     // Load data from cache
     const ninjaData = ninjas[ninjaID];
 
+    // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "ninja_sessions_popup";
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "ninja_sessions_popup";
+    actualPopup.classList.add("popup");
 
     // Bottom buttons to submit or cancel
     let submit_button = createEmptyButtonHelper("Add Session");
-    currentPopup.appendChild(submit_button);
+    actualPopup.appendChild(submit_button);
 
     let close_button = createEmptyButtonHelper("Close");
-    currentPopup.appendChild(close_button);
+    actualPopup.appendChild(close_button);
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -443,6 +492,9 @@ function showNinjaSessionsMenuPopup(ninjaID) {
     close_button.addEventListener("click", async (e) => {
         removePopup();
     })
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
 
     document.body.appendChild(currentPopup);
 }
@@ -456,23 +508,28 @@ function showAddCustomPointsPopup(ninjaID) {
     // Load data from cache
     const ninjaData = ninjas[ninjaID];
 
+    // Create the popup
     currentPopup = document.createElement("div");
-    currentPopup.id = "custom_points_popup";
+    currentPopup.classList.add("popup_container");
 
-    currentPopup.appendChild(createSimpleElementHelper("h2", "Add Custom Points to a Ninja: "));
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "custom_points_popup";
+    actualPopup.classList.add("popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", "Add Custom Points to a Ninja: "));
 
     // Amount input
     let amount_input = document.createElement("div");
     amount_input.appendChild(createLabelHelper("Amount: ", `custom_points_popup_amount_input`));
     amount_input.appendChild(createInputHelper("number", `custom_points_popup_amount_input`));
-    currentPopup.appendChild(amount_input);
+    actualPopup.appendChild(amount_input);
 
     // Bottom buttons to submit or cancel
     let submit_button = createEmptyButtonHelper("Apply Points");
-    currentPopup.appendChild(submit_button);
+    actualPopup.appendChild(submit_button);
 
     let close_button = createEmptyButtonHelper("Close");
-    currentPopup.appendChild(close_button);
+    actualPopup.appendChild(close_button);
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -481,6 +538,9 @@ function showAddCustomPointsPopup(ninjaID) {
     close_button.addEventListener("click", async (e) => {
         removePopup();
     })
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
 
     document.body.appendChild(currentPopup);
 }

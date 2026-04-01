@@ -47,6 +47,7 @@ h1, h3 {
 
 .small_leaderboad_container {
     background-color: #2295ee;
+    box-shadow: 0 0 1em #0005;
     padding: 1rem;
     border-radius: 1rem;
     flex: 1;
@@ -54,15 +55,18 @@ h1, h3 {
 
 .big_leaderboad_container {
     background-color: #2295ee;
+    box-shadow: 0 0 1em #0005;
     padding: 1rem;
     border-radius: 1rem;
     flex: 1;
 }
 
 .leaderboard_member {
-    background-color: #0003;
+    background-color: #0005;
+    box-shadow: 0 0 1em #0005;
     border-radius: 0.5rem;
     padding: 0.3rem;
+    margin-bottom: 1em;
 }
 
 #leaderboard-header {
@@ -74,8 +78,51 @@ h1, h3 {
     height: auto;
 }
 
+.leaderboard_member_flex {
+    display: flex;
+    justify-content: space-between;
+}
 
+p {
+    margin: 0;
+}
 
+/* Belt Colors */
+.belt_color_0 {
+    color: white;
+}
+
+.belt_color_1 {
+    color: #ebbc5e;
+}
+
+.belt_color_2 {
+    color: #dc6b37;
+}
+
+.belt_color_3 {
+    color: #a7ca36;
+}
+
+.belt_color_4 {
+    color: #4670bd;
+}
+
+.belt_color_5 {
+    color: #8b3b95;
+}
+
+.belt_color_6 {
+    color: #54321f;
+}
+
+.belt_color_7 {
+    color: #8b3b95;
+}
+
+.belt_color_8 {
+    color: #010607;
+}
 
 
 
