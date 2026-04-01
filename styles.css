@@ -16,13 +16,3 @@ button:hover, input[type="checkbox"] {
     opacity: 0;
 }
 
-.header {
-    height: 20vh;
-    padding-top: 0.5rem;
-    padding-left: 0.5rem;
-}
-
-#header-icon{
-    width: 10%;
-}
-

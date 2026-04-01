@@ -112,11 +112,11 @@ function showPurchasePopup() {
     admin_password.appendChild(createInputHelper("password", `admin_password`));
     currentPopup.appendChild(admin_password);
 
-    let tap_band_input = document.createElement("div");
-    tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
-    currentPopup.appendChild(tap_band_input);
+    // let tap_band_input = document.createElement("div");
+    // tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
+    // currentPopup.appendChild(tap_band_input);
 
-    currentPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
+    // currentPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
 
     let purchase_button = createEmptyButtonHelper("Purchase");
     currentPopup.appendChild(purchase_button);
@@ -126,6 +126,7 @@ function showPurchasePopup() {
 
     purchase_button.addEventListener("click", (event) => {
         // TODO :D
+        // await editPoints()
     })
 
     cancel_button.addEventListener("click", (event) => {
@@ -133,18 +134,6 @@ function showPurchasePopup() {
     })
 
     document.body.appendChild(currentPopup);
-    
-    // <div id="purchase_popup">
-    //     <h2>Buy shop item?</h2>
-    //     <div>
-    //         <label for="admin_password">Admin password: </label>
-    //         <input type="password" id="admin_password" name="admin_password">
-    //     </div>
-    //     <div>
-    //         <input type="text" id="tap_band_input" name="tap_band_input">
-    //         <button id="register_button" class="layer_2">Register!</button>
-    //     </div>
-    // </div>
 }
 
 function removePopup() {
