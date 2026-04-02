@@ -30,6 +30,7 @@ let myProfile = {};
 
 // Element tracking
 let currentPopup = null;
+let purchasePopupState = "none";
 
 async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
@@ -46,7 +47,11 @@ async function loadShop() {
 
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
-            showPurchasePopup();
+            if (myProfile.points >= shopItem.cost) {
+                showPurchasePopup();
+            } else {
+                showWarningPopup("You do not have enough money to make this purchase!");
+            }
         })
 
         shopContainer.appendChild(item);
@@ -113,7 +118,7 @@ function showPurchasePopup() {
 
     let actualPopup = document.createElement("div");
     actualPopup.id = "popup_container";
-    actualPopup.classList.add("popup");
+    actualPopup.classList.add("popup", "small_popup");
 
     actualPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
 
@@ -129,11 +134,15 @@ function showPurchasePopup() {
 
     // actualPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
 
-    let purchase_button = createEmptyButtonHelper("Purchase");
-    actualPopup.appendChild(purchase_button);
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
 
-    let cancel_button = createEmptyButtonHelper("Cancel");
-    actualPopup.appendChild(cancel_button);
+    let purchase_button = createEmptyButtonHelper("NEXT");
+    button_bar.appendChild(purchase_button);
+
+    let cancel_button = createEmptyButtonHelper("CANCEL");
+    button_bar.appendChild(cancel_button);
 
     purchase_button.addEventListener("click", (event) => {
         // TODO :D
@@ -143,6 +152,41 @@ function showPurchasePopup() {
     cancel_button.addEventListener("click", (event) => {
         removePopup();
     })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
+function showWarningPopup(warningText) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "popup_container";
+    actualPopup.classList.add("popup", "small_popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", warningText));
+
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+    let cancel_button = createEmptyButtonHelper("OK");
+    button_bar.appendChild(cancel_button);
+
+    cancel_button.addEventListener("click", (event) => {
+        removePopup();
+    })
+
+    actualPopup.appendChild(button_bar);
 
     // Add the popup to the blur container
     currentPopup.appendChild(actualPopup);

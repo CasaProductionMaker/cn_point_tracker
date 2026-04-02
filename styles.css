@@ -33,13 +33,15 @@ button {
     background-color: #0db88f;
     border: none;
     width: max-content;
-    padding: 0.5rem;
+    min-width: 10rem;
+    padding: 0.75rem;
     box-sizing: border-box;
     font-weight: 900;
-    border-radius: 0.5rem;
+    border-radius: 0.3rem;
     text-shadow: 0 2px 0.5rem #0005;
     box-shadow: 0 0 0.5em #0005;
     color: white;
+    font-size: 1rem;
 }
 
 .popup_container {
@@ -61,7 +63,22 @@ button {
     display: flex;
     flex-direction: column;
     align-items: baseline;
-    padding: 1em;
+    padding: 3rem;
+    gap: 1em;
+    box-sizing: border-box;
+}
+
+.small_popup {
+    width: 520px;
+    height: 347px;
+    justify-content: center;
+}
+
+.popup_button_bar {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 1rem;
 }
 
 /* #91dcc8 <- muted button */
