@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
+
+const ADMIN_PW = "admin6699" //TODO:Will be moved to an env file later?
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -48,7 +50,7 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             if (myProfile.points >= shopItem.cost) {
-                showPurchasePopup("admin_part");
+                showPurchasePopup("admin_part", shopItem.cost);
             } else {
                 showWarningPopup("You do not have enough money to make this purchase!");
             }
@@ -106,7 +108,7 @@ function showRegisterPopup() {
     document.body.appendChild(currentPopup);
 }
 
-function showPurchasePopup(purchasePopupState) {
+function showPurchasePopup(purchasePopupState, cost) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -141,9 +143,14 @@ function showPurchasePopup(purchasePopupState) {
 
         next_button.addEventListener("click", (event) => {
             // TODO :D
-            if (document.querySelector("#admin_password").value == "admin6699") { // HARDCODED FOR NOW
+            if (document.querySelector("#admin_password").value == ADMIN_PW) { // HARDCODED FOR NOW
+
+                editPoints(cost * -1); //subtracted
+                alert("Purchase successful!");
                 removePopup();
-                showPurchasePopup("purchase_part");
+                //showPurchasePopup("purchase_part");
+
+
                 nfcInput.value = "";
                 setInterval(() => {
                     nfcInput.focus();
