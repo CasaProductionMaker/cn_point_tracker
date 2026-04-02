@@ -2,8 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
 
-const ADMIN_PW = "admin6699" //TODO:Will be moved to an env file later?
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD4Ji7FYEOi0IseOh4b8FCGtj5gw1UQu34",
@@ -24,6 +22,8 @@ const ninjaPointsDisplay = document.getElementById("ninja_points_display");
 const shopContainer = document.getElementById("shop");
 const welcomeText = document.getElementById("welcome_text");
 
+const ADMIN_PW = "admin6699" //TODO:Will be moved to an env file later?
+
 // Login info
 let uid = localStorage.getItem("currentUser");
 let userKey = null;
@@ -32,7 +32,7 @@ let myProfile = {};
 
 // Element tracking
 let currentPopup = null;
-let myInterval;
+let inputIntervalFunction;
 
 async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
@@ -50,7 +50,7 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             if (myProfile.points >= shopItem.cost) {
-                showPurchasePopup("admin_part", shopItem.cost);
+                showPurchasePopup("admin_part", shopItem);
             } else {
                 showWarningPopup("You do not have enough money to make this purchase!");
             }
@@ -108,7 +108,7 @@ function showRegisterPopup() {
     document.body.appendChild(currentPopup);
 }
 
-function showPurchasePopup(purchasePopupState, cost) {
+function showPurchasePopup(purchasePopupState, shopItem) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -143,15 +143,9 @@ function showPurchasePopup(purchasePopupState, cost) {
 
         next_button.addEventListener("click", (event) => {
             // TODO :D
-            if (document.querySelector("#admin_password").value == ADMIN_PW) { // HARDCODED FOR NOW
+            if (document.querySelector("#admin_password").value == ADMIN_PW) {
                 removePopup();
-                editPoints(cost * -1); //subtracted
-                showWarningPopup("Purchase successful!");
-
-                nfcInput.value = "";
-                setInterval(() => {
-                    nfcInput.focus();
-                }, 500);
+                showPurchasePopup("purchase_part", shopItem);
             } else {
                 removePopup();
                 showWarningPopup("Incorrect Password!");
@@ -168,8 +162,33 @@ function showPurchasePopup(purchasePopupState, cost) {
 
         // NFC invisible input
         let tap_band_input = document.createElement("div");
-        tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
+        const tap_band_input_field = createInputHelper("text", `tap_band_input`);
+        tap_band_input.appendChild(tap_band_input_field);
         actualPopup.appendChild(tap_band_input);
+
+        // Set to constantly track
+        inputIntervalFunction = setInterval(() => {
+            tap_band_input_field.focus();
+        }, 500);
+        
+        tap_band_input_field.addEventListener("keydown", async (e) => {
+            console.log("SUBMITTED")
+            if (e.key != "Enter") {
+                return;
+            }
+
+            if (e.target.value == myProfile.nfc_id) {
+                // Done typing and got the right one
+                clearInterval(inputIntervalFunction);
+                removePopup();
+                await purchaseItem(shopItem);
+                showWarningPopup("Purchase Succesful!");
+            } else {
+                clearInterval(inputIntervalFunction);
+                removePopup();
+                showWarningPopup("Incorrect Wristband!");
+            }
+        })
 
         // Buttons
         let button_bar = document.createElement("div");
@@ -179,6 +198,7 @@ function showPurchasePopup(purchasePopupState, cost) {
         button_bar.appendChild(cancel_button);
 
         cancel_button.addEventListener("click", (event) => {
+            clearInterval(inputIntervalFunction);
             removePopup();
         })
 
@@ -225,7 +245,7 @@ function showWarningPopup(warningText) {
 }
 
 function removePopup() {
-    document.body.removeChild(currentPopup);
+    currentPopup.remove();
     currentPopup = null;
 }
 
@@ -257,6 +277,10 @@ async function editPoints(amount) {
     await updateDoc(doc(db, "ninjas", userKey), {
         points: myProfile.points + amount
     });
+}
+
+async function purchaseItem(shopItem) {
+    editPoints(-shopItem.cost);
 }
 
 async function registerNinja() {
