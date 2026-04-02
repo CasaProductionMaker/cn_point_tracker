@@ -30,7 +30,7 @@ let myProfile = {};
 
 // Element tracking
 let currentPopup = null;
-let purchasePopupState = "none";
+let myInterval;
 
 async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
@@ -48,7 +48,7 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             if (myProfile.points >= shopItem.cost) {
-                showPurchasePopup();
+                showPurchasePopup("admin_part");
             } else {
                 showWarningPopup("You do not have enough money to make this purchase!");
             }
@@ -106,7 +106,7 @@ function showRegisterPopup() {
     document.body.appendChild(currentPopup);
 }
 
-function showPurchasePopup() {
+function showPurchasePopup(purchasePopupState) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -120,40 +120,66 @@ function showPurchasePopup() {
     actualPopup.id = "popup_container";
     actualPopup.classList.add("popup", "small_popup");
 
-    actualPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
+    if (purchasePopupState == "admin_part") {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Buy shop item: "));
 
-    // First Name input
-    let admin_password = document.createElement("div");
-    admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
-    admin_password.appendChild(createInputHelper("password", `admin_password`));
-    actualPopup.appendChild(admin_password);
+        // First Name input
+        let admin_password = document.createElement("div");
+        admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
+        admin_password.appendChild(createInputHelper("password", `admin_password`));
+        actualPopup.appendChild(admin_password);
 
-    // let tap_band_input = document.createElement("div");
-    // tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
-    // actualPopup.appendChild(tap_band_input);
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
 
-    // actualPopup.appendChild(createSimpleElementHelper("h3", "Tap your belt wristband to confirm the purchase!"));
+        let next_button = createEmptyButtonHelper("NEXT");
+        button_bar.appendChild(next_button);
 
-    // Buttons
-    let button_bar = document.createElement("div");
-    button_bar.classList.add("popup_button_bar");
+        let cancel_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(cancel_button);
 
-    let purchase_button = createEmptyButtonHelper("NEXT");
-    button_bar.appendChild(purchase_button);
+        next_button.addEventListener("click", (event) => {
+            // TODO :D
+            if (document.querySelector("#admin_password").value == "admin6699") { // HARDCODED FOR NOW
+                removePopup();
+                showPurchasePopup("purchase_part");
+                nfcInput.value = "";
+                setInterval(() => {
+                    nfcInput.focus();
+                }, 500);
+            } else {
+                removePopup();
+                showWarningPopup("Incorrect Password!");
+            }
+        })
 
-    let cancel_button = createEmptyButtonHelper("CANCEL");
-    button_bar.appendChild(cancel_button);
+        cancel_button.addEventListener("click", (event) => {
+            removePopup();
+        })
 
-    purchase_button.addEventListener("click", (event) => {
-        // TODO :D
-        // await editPoints()
-    })
+        actualPopup.appendChild(button_bar);
+    } else if (purchasePopupState == "purchase_part") {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Tap your belt wristband to confirm the purchase!"));
 
-    cancel_button.addEventListener("click", (event) => {
-        removePopup();
-    })
+        // NFC invisible input
+        let tap_band_input = document.createElement("div");
+        tap_band_input.appendChild(createInputHelper("text", `tap_band_input`));
+        actualPopup.appendChild(tap_band_input);
 
-    actualPopup.appendChild(button_bar);
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let cancel_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(cancel_button);
+
+        cancel_button.addEventListener("click", (event) => {
+            removePopup();
+        })
+
+        actualPopup.appendChild(button_bar);
+    }
 
     // Add the popup to the blur container
     currentPopup.appendChild(actualPopup);

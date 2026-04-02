@@ -72,6 +72,7 @@ button {
     width: 520px;
     height: 347px;
     justify-content: center;
+    align-items: center;
 }
 
 .popup_button_bar {
