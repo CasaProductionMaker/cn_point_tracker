@@ -144,12 +144,9 @@ function showPurchasePopup(purchasePopupState, cost) {
         next_button.addEventListener("click", (event) => {
             // TODO :D
             if (document.querySelector("#admin_password").value == ADMIN_PW) { // HARDCODED FOR NOW
-
-                editPoints(cost * -1); //subtracted
-                alert("Purchase successful!");
                 removePopup();
-                //showPurchasePopup("purchase_part");
-
+                editPoints(cost * -1); //subtracted
+                showWarningPopup("Purchase successful!");
 
                 nfcInput.value = "";
                 setInterval(() => {
