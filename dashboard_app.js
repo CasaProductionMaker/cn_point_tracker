@@ -282,7 +282,9 @@ function showBeltTransferPopup(purchasePopupState) {
             clearInterval(inputIntervalFunction);
 
             // Replace nfc_id
-            
+            await updateDoc(doc(db, "ninjas", userKey), {
+                nfc_id: convertInputToKey(e.target.value)
+            });
 
             // Cleanup
             removePopup();
