@@ -102,24 +102,68 @@ function showShopPopup(type, editID = null) {
         let actualPopup = document.createElement("div");
         actualPopup.id = "shop_item_popup";
         actualPopup.classList.add("popup");
+
+
+        let popup_h2 = document.createElement("h2");
+        popup_h2.textContent = "Edit Shop Item:";
+        actualPopup.appendChild(popup_h2);
+
         
-        actualPopup.innerHTML = `
-            <h2>Edit Shop Item:</h2>
-            <div>
-                <label for="shop_item_name_input">Name: </label>
-                <input type="text" name="shop_item_name_input" id="shop_item_name_input" value="${editInfo.name}">
-            </div>
-            <div>
-                <label for="shop_item_cost_input">Cost: </label>
-                <input type="number" name="shop_item_cost_input" id="shop_item_cost_input" value="${editInfo.cost}">
-            </div>
-            <div>
-                <label for="shop_item_description_input">Description: </label>
-                <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
-            </div>
-            <button class="submit_popup_button">Apply Changes</button>
-            <button class="cancel_popup_button">Cancel</button>
-        `;
+        
+
+        
+        // actualPopup.innerHTML = `
+        //     <h2>Edit Shop Item:</h2>
+        //     <div>
+        //         <label for="shop_item_name_input">Name: </label>
+        //         <input type="text" name="shop_item_name_input" id="shop_item_name_input" value="${editInfo.name}">
+        //     </div>
+        //     <div>
+        //         <label for="shop_item_cost_input">Cost: </label>
+        //         <input type="number" name="shop_item_cost_input" id="shop_item_cost_input" value="${editInfo.cost}">
+        //     </div>
+        //     <div>
+        //         <label for="shop_item_description_input">Description: </label>
+        //         <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
+        //     </div>
+        //     <button class="submit_popup_button">Apply Changes</button>
+        //     <button class="cancel_popup_button">Cancel</button>
+        // `;
+
+        editInputHelper("shop_item_name_input", "Name: ", "text", "shop_item_name_input", editInfo.name);
+        editInputHelper("shop_item_cost_input", "Cost: ", "number", "shop_item_cost_input", editInfo.cost);
+        editInputHelper("shop_item_description_input", "Description: ", "text", "shop_item_description_input", editInfo.description);
+
+        function editInputHelper(l_name, l_name_text, input_type_name, id, val) {
+            let div = document.createElement("div");
+
+            let label_name = document.createElement("label")
+            label_name.for = l_name;
+            label_name.textContent = l_name_text;
+            div.appendChild(label_name);
+
+            let input = document.createElement("input")
+            input.type = input_type_name;
+            input.name = input_type_name;
+            input.id = id;
+            input.value = val;
+            div.appendChild(input);
+
+            actualPopup.appendChild(div);
+        }
+
+        btnHelper("submit_popup_button", "Apply Changes", actualPopup);
+        btnHelper("cancel_popup_button", "Cancel", actualPopup);
+
+
+        function btnHelper(btn_class, text, parent) {
+            let btn = document.createElement("button")
+            btn.classList.add(btn_class);
+            btn.textContent = text;
+
+            parent.appendChild(btn);
+        };
+    
 
         actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
             await editShopItem(editID);
