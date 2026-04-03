@@ -1,8 +1,6 @@
-const nfcInput = document.querySelector("#nfc_input");
+import { convertInputToKey } from "./util";
 
-function convertInputToKey(inputValue) {
-    return inputValue.replace(/[^a-fA-F0-9]/g, "");
-}
+const nfcInput = document.querySelector("#nfc_input");
 
 nfcInput.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
