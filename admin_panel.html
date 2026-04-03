@@ -9,18 +9,27 @@
         <link rel="stylesheet" href="admin_styles.css">
     </head>
     <body>
-        <h1>Admin Panel (No styles)</h1>
-        <div id="ninja_container">
-            <h2>Registered Ninjas</h2>
+        <div class="sidebar">
+            <img src="/Images/logo-full.svg" alt="Code Ninjas">
         </div>
-        <div id="settings_container">
-            <h2>Settings</h2>
-            <h2>Shop Items</h2>
-            <div id="shop_editor_container"></div>
-            <button id="add_shop_item_button">Add New Shop Item +</button>
-            <h2>Leaderboards</h2>
-            <div id="leaderboards_editor_container"></div>
-            <button id="add_leaderboard_button">Add Leaderboard +</button>
+        <div class="right_side">
+            <div class="top_bar">
+                <h1>Admin Panel (No styles)</h1>
+            </div>
+            <div class="main_content">
+                <div id="ninja_container">
+                    <h2>Registered Ninjas</h2>
+                </div>
+                <div id="settings_container">
+                    <h2>Settings</h2>
+                    <h2>Shop Items</h2>
+                    <div id="shop_editor_container"></div>
+                    <button id="add_shop_item_button">Add New Shop Item +</button>
+                    <h2>Leaderboards</h2>
+                    <div id="leaderboards_editor_container"></div>
+                    <button id="add_leaderboard_button">Add Leaderboard +</button>
+                </div>
+            </div>
         </div>
         <script type="module" src="admin.js"></script>
     </body>
