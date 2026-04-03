@@ -210,6 +210,106 @@ function showPurchasePopup(purchasePopupState, shopItem) {
     document.body.appendChild(currentPopup);
 }
 
+function showBeltTransferPopup(purchasePopupState) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "popup_container";
+    actualPopup.classList.add("popup", "small_popup");
+
+    if (purchasePopupState == "admin_part") {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Transfer to a new belt: "));
+
+        // admin password input
+        let admin_password = document.createElement("div");
+        admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
+        admin_password.appendChild(createInputHelper("password", `admin_password`));
+        actualPopup.appendChild(admin_password);
+
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let next_button = createEmptyButtonHelper("NEXT");
+        button_bar.appendChild(next_button);
+
+        let cancel_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(cancel_button);
+
+        next_button.addEventListener("click", (event) => {
+            // TODO :D
+            if (document.querySelector("#admin_password").value == ADMIN_PW) {
+                removePopup();
+                showBeltTransferPopup("scan_part");
+            } else {
+                removePopup();
+                showWarningPopup("Incorrect Password!");
+            }
+        })
+
+        cancel_button.addEventListener("click", (event) => {
+            removePopup();
+        })
+
+        actualPopup.appendChild(button_bar);
+    } else if (purchasePopupState == "scan_part") {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Tap your new wristband to transfer your data to the new belt."));
+
+        // NFC invisible input
+        let tap_band_input = document.createElement("div");
+        const tap_band_input_field = createInputHelper("text", `tap_band_input`);
+        tap_band_input.appendChild(tap_band_input_field);
+        actualPopup.appendChild(tap_band_input);
+
+        // Set to constantly track
+        inputIntervalFunction = setInterval(() => {
+            tap_band_input_field.focus();
+        }, 500);
+        
+        tap_band_input_field.addEventListener("keydown", async (e) => {
+            if (e.key != "Enter") {
+                return;
+            }
+
+            // Done typing
+            clearInterval(inputIntervalFunction);
+
+            // Replace nfc_id
+            
+
+            // Cleanup
+            removePopup();
+            showRedirectPopup("Belt Transferred! You will now have to log in again.", "index.html");
+        })
+
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let cancel_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(cancel_button);
+
+        cancel_button.addEventListener("click", (event) => {
+            clearInterval(inputIntervalFunction);
+            removePopup();
+        })
+
+        actualPopup.appendChild(button_bar);
+    }
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
 function showWarningPopup(warningText) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -243,6 +343,39 @@ function showWarningPopup(warningText) {
     document.body.appendChild(currentPopup);
 }
 
+function showRedirectPopup(text, link) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "popup_container";
+    actualPopup.classList.add("popup", "small_popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", text));
+
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+    let cancel_button = createEmptyButtonHelper("OK");
+    button_bar.appendChild(cancel_button);
+
+    cancel_button.addEventListener("click", (event) => {
+        window.location.href = link;
+    })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
 function removePopup() {
     currentPopup.remove();
     currentPopup = null;
@@ -258,17 +391,14 @@ async function loadPage() {
             ninjaNameDisplay.textContent = `Name: ${data.firstname} ${data.lastname[0]}.`;
             welcomeText.textContent = `Welcome, ${data.firstname}!`;
             ninjaPointsDisplay.textContent = `Points: ${data.points}`;
-
-            // const btn = document.createElement("button");
-            // btn.addEventListener('click', function() {
-            //     editPoints(5);
-            // })
-            // btn.textContent = "add 5!";
-            // ninjaNameDisplay.appendChild(btn);
         } else {
             console.log("Ninja not registered!");
         }
     });
+
+    document.querySelector("#transfer_belt_button").addEventListener("click", event => {
+        showBeltTransferPopup("admin_part");
+    })
 }
 
 

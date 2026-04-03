@@ -1,4 +1,4 @@
-import { convertInputToKey } from "./util";
+import { convertInputToKey } from "./util.js";
 
 const nfcInput = document.querySelector("#nfc_input");
 
