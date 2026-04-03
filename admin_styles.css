@@ -1,9 +1,14 @@
 body {
     display: flex;
+    background-image: url(/Images/main-bg.png);
 }
 
 .registered_ninja, .shop_item, .leaderboard {
     background-color: #0005;
+    box-sizing: border-box;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
 }
 
 #settings_container {
@@ -19,6 +24,25 @@ body {
     padding: 1rem;
     box-sizing: border-box;
     box-shadow: 0 0 5px #000;
+    gap: 1rem;
+    background-color: #070d21;
+    z-index: 10;
+}
+
+#sidebar_top_logo {
+    margin-bottom: 1em;
+}
+
+.sidebar > button {
+    background-color: #FFF0;
+    padding: 0.5rem 0.7rem;
+    border-radius: 1.5rem;
+    text-align: left;
+    transition: background-color 200ms ease-in-out;
+}
+
+.sidebar > button:hover {
+    background-color: #FFF2;
 }
 
 .right_side {
@@ -31,17 +55,19 @@ body {
 .top_bar {
     display: flex;
     justify-content: center;
-    box-shadow: 0 0 5px #000;
-    padding: 1rem;
+    box-shadow: 0 3px 2px -2px #000;
+    background-color: #2e3458;
+    padding: 1.2rem;
 }
 
 .top_bar > h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 .main_content {
     padding: 2rem;
     box-sizing: border-box;
     overflow-y: scroll;
+    scrollbar-color: #FFF5 #0000;
 }
