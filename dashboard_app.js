@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
+import { createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createLabelHelper, convertInputToKey } from "./util.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -172,12 +172,11 @@ function showPurchasePopup(purchasePopupState, shopItem) {
         }, 500);
         
         tap_band_input_field.addEventListener("keydown", async (e) => {
-            console.log("SUBMITTED")
             if (e.key != "Enter") {
                 return;
             }
 
-            if (e.target.value == myProfile.nfc_id) {
+            if (convertInputToKey(e.target.value) == myProfile.nfc_id) {
                 // Done typing and got the right one
                 clearInterval(inputIntervalFunction);
                 removePopup();

@@ -58,3 +58,8 @@ export function createLabelHelper(text, forElement) {
 
     return child;
 };
+
+// NFC input to Key:
+export function convertInputToKey(inputValue) {
+    return inputValue.replace(/[^a-fA-F0-9]/g, "");
+}
