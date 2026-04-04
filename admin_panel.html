@@ -11,19 +11,23 @@
     <body>
         <div class="sidebar">
             <img src="/Images/logo-full.svg" alt="Code Ninjas" id="sidebar_top_logo">
-            <button id="sidebar_home_button">Home</button>
-            <button id="sidebar_ninjas_button">Ninjas</button>
-            <button id="sidebar_settings_button">Settings</button>
+            <button id="sidebar_home_button"><img src="/Images/HomeIcon.svg" class="sidebar_icon">Home</button>
+            <button id="sidebar_ninjas_button"><img src="/Images/logo.svg" class="sidebar_icon">Ninjas</button>
+            <button id="sidebar_settings_button"><img src="/Images/GearIcon.svg" class="sidebar_icon">Settings</button>
         </div>
         <div class="right_side">
             <div class="top_bar">
-                <h1>Admin Panel (No styles)</h1>
+                <h1 id="navbar_header">Home</h1>
             </div>
             <div class="main_content">
-                <div id="ninja_container">
-                    <h2>Registered Ninjas</h2>
+                <div id="home_container" class="content_view active_view">
+                    <h2>Home</h2>
                 </div>
-                <div id="settings_container">
+                <div id="ninja_container" class="content_view">
+                    <h2>Registered Ninjas</h2>
+                    <div id="ninja_grid_container"></div>
+                </div>
+                <div id="settings_container" class="content_view">
                     <h2>Settings</h2>
                     <h2>Shop Items</h2>
                     <div id="shop_editor_container"></div>
@@ -31,6 +35,27 @@
                     <h2>Leaderboards</h2>
                     <div id="leaderboards_editor_container"></div>
                     <button id="add_leaderboard_button">Add Leaderboard +</button>
+                </div>
+                <div id="single_ninja_view" class="content_view">
+                    <div class="ninja_tab_bar">
+                        <button id="ninja_stats_button">Stats</button>
+                        <button id="ninja_sessions_button">Sessions</button>
+                        <button id="ninja_purchases_button">Purchases</button>
+                    </div>
+                    <div id="single_ninja_stats" class="active_ninja_tab">
+                        <h2 class="ninja_title">Name's Stats</h2>
+                        <p class="ninja_belt">White Belt</p>
+                        <p class="ninja_points">Current Points: </p>
+                        <p class="ninja_uid">UID: </p>
+                        <p class="ninja_nfc_id">NFC ID: </p>
+                        <p class="ninja_history_points">Points in History: </p>
+                    </div>
+                    <div id="single_ninja_sessions">
+                        <h2 class="ninja_title">Name's Sessions</h2>
+                    </div>
+                    <div id="single_ninja_purchases">
+                        <h2 class="ninja_title">Name's Purchases</h2>
+                    </div>
                 </div>
             </div>
         </div>

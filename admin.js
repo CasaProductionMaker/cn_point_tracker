@@ -18,7 +18,24 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 // Page references
+const homeContainer = document.querySelector("#home_container");
 const ninjaContainer = document.querySelector("#ninja_container");
+const settingsContainer = document.querySelector("#settings_container");
+const singleNinjaView = document.querySelector("#single_ninja_view");
+
+const sidebarHomeButton = document.querySelector("#sidebar_home_button");
+const sidebarNinjasButton = document.querySelector("#sidebar_ninjas_button");
+const sidebarSettingsButton = document.querySelector("#sidebar_settings_button");
+
+const ninjaStatsButton = document.querySelector("#ninja_stats_button");
+const ninjaSessionsButton = document.querySelector("#ninja_sessions_button");
+const ninjaPurchasesButton = document.querySelector("#ninja_purchases_button");
+
+const singleNinjaStats = document.querySelector("#single_ninja_stats");
+const singleNinjaSessions = document.querySelector("#single_ninja_sessions");
+const singleNinjaPurchases = document.querySelector("#single_ninja_purchases");
+
+const ninjaGridContainer = document.querySelector("#ninja_grid_container");
 const shopEditorContainer = document.querySelector("#shop_editor_container");
 const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_container");
 const addShopItemButton = document.querySelector("#add_shop_item_button");
@@ -64,7 +81,7 @@ function showShopPopup(type, editID = null) {
 
         let actualPopup = document.createElement("div");
         actualPopup.id = "shop_item_popup";
-        actualPopup.classList.add("popup");
+        actualPopup.classList.add("popup", "small_popup");
         
         actualPopup.innerHTML = `
             <h2>New Shop Item:</h2>
@@ -80,8 +97,10 @@ function showShopPopup(type, editID = null) {
                 <label for="shop_item_description_input">Description: </label>
                 <input type="text" name="shop_item_description_input" id="shop_item_description_input">
             </div>
-            <button class="submit_popup_button">Add</button>
-            <button class="cancel_popup_button">Cancel</button>
+            <div class="button_bar">
+                <button class="submit_popup_button">Add</button>
+                <button class="cancel_popup_button">Cancel</button>
+            </div>
         `;
 
         actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
@@ -95,82 +114,54 @@ function showShopPopup(type, editID = null) {
         currentPopup.appendChild(actualPopup);
 
         document.body.appendChild(currentPopup);
-    } else if (type == "edit") {// Create the popup
+    } else if (type == "edit") {
+        // Create the popup
         currentPopup = document.createElement("div");
         currentPopup.classList.add("popup_container");
 
         let actualPopup = document.createElement("div");
-        actualPopup.id = "shop_item_popup";
-        actualPopup.classList.add("popup");
+        actualPopup.id = "custom_points_popup";
+        actualPopup.classList.add("popup", "small_popup");
 
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Edit Shop Item: "));
 
-        let popup_h2 = document.createElement("h2");
-        popup_h2.textContent = "Edit Shop Item:";
-        actualPopup.appendChild(popup_h2);
+        // shop item name input
+        let name_input = document.createElement("div");
+        name_input.appendChild(createLabelHelper("Name: ", `shop_item_name_input`));
+        name_input.appendChild(createInputHelper("text", `shop_item_name_input`, editInfo.name));
+        actualPopup.appendChild(name_input);
 
+        // cost item name input
+        let cost_input = document.createElement("div");
+        cost_input.appendChild(createLabelHelper("Cost: ", `shop_item_cost_input`));
+        cost_input.appendChild(createInputHelper("number", `shop_item_cost_input`, editInfo.cost));
+        actualPopup.appendChild(cost_input);
+
+        // description item name input
+        let description_input = document.createElement("div");
+        description_input.appendChild(createLabelHelper("Description: ", `shop_item_description_input`));
+        description_input.appendChild(createInputHelper("text", `shop_item_description_input`, editInfo.description));
+        actualPopup.appendChild(description_input);
+
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let submit_button = createEmptyButtonHelper("APPLY");
+        button_bar.appendChild(submit_button);
+
+        let close_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(close_button);
         
-        
-
-        
-        // actualPopup.innerHTML = `
-        //     <h2>Edit Shop Item:</h2>
-        //     <div>
-        //         <label for="shop_item_name_input">Name: </label>
-        //         <input type="text" name="shop_item_name_input" id="shop_item_name_input" value="${editInfo.name}">
-        //     </div>
-        //     <div>
-        //         <label for="shop_item_cost_input">Cost: </label>
-        //         <input type="number" name="shop_item_cost_input" id="shop_item_cost_input" value="${editInfo.cost}">
-        //     </div>
-        //     <div>
-        //         <label for="shop_item_description_input">Description: </label>
-        //         <input type="text" name="shop_item_description_input" id="shop_item_description_input" value="${editInfo.description}">
-        //     </div>
-        //     <button class="submit_popup_button">Apply Changes</button>
-        //     <button class="cancel_popup_button">Cancel</button>
-        // `;
-
-        editInputHelper("shop_item_name_input", "Name: ", "text", "shop_item_name_input", editInfo.name);
-        editInputHelper("shop_item_cost_input", "Cost: ", "number", "shop_item_cost_input", editInfo.cost);
-        editInputHelper("shop_item_description_input", "Description: ", "text", "shop_item_description_input", editInfo.description);
-
-        function editInputHelper(l_name, l_name_text, input_type_name, id, val) {
-            let div = document.createElement("div");
-
-            let label_name = document.createElement("label")
-            label_name.for = l_name;
-            label_name.textContent = l_name_text;
-            div.appendChild(label_name);
-
-            let input = document.createElement("input")
-            input.type = input_type_name;
-            input.name = input_type_name;
-            input.id = id;
-            input.value = val;
-            div.appendChild(input);
-
-            actualPopup.appendChild(div);
-        }
-
-        btnHelper("submit_popup_button", "Apply Changes", actualPopup);
-        btnHelper("cancel_popup_button", "Cancel", actualPopup);
-
-
-        function btnHelper(btn_class, text, parent) {
-            let btn = document.createElement("button")
-            btn.classList.add(btn_class);
-            btn.textContent = text;
-
-            parent.appendChild(btn);
-        };
-    
-
-        actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
-            await editShopItem(editID);
+        // Add event listeners
+        submit_button.addEventListener("click", async (e) => {
+            editShopItem(editID);
         })
-        actualPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+        close_button.addEventListener("click", async (e) => {
             removePopup();
         })
+
+        actualPopup.appendChild(button_bar);
 
         // Add the popup to the blur container
         currentPopup.appendChild(actualPopup);
@@ -215,25 +206,33 @@ function showLeaderboardPopup(type, editID = null) {
 
         // Belt filters editor
         actualPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
+        let belt_filters_holder = document.createElement("div");
+        belt_filters_holder.classList.add("long_tile_list");
         belts.forEach(belt => {
             let belt_input_holder = document.createElement("div");
             belt_input_holder.appendChild(createInputHelper("checkbox", `leaderboard_popup_${belt}_belt_input`));
             belt_input_holder.appendChild(createLabelHelper(belt, `leaderboard_popup_${belt}_belt_input`));
-            actualPopup.appendChild(belt_input_holder);
+            belt_filters_holder.appendChild(belt_input_holder);
         });
+        actualPopup.appendChild(belt_filters_holder);
         
         // Reason filters editor
         actualPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
+        let reason_filters_holder = document.createElement("div");
+        reason_filters_holder.classList.add("long_tile_list");
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, reason == "history", reason);
             reason_input_holder.appendChild(radioInput);
             reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
-            actualPopup.appendChild(reason_input_holder);
+            reason_filters_holder.appendChild(reason_input_holder);
         });
+        actualPopup.appendChild(reason_filters_holder);
 
         // Select UI position
         actualPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
+        let ui_position_holder = document.createElement("div");
+        ui_position_holder.classList.add("long_tile_list");
         let onTaken = false;
         UIPositions.forEach(place => {
             let place_input_holder = document.createElement("div");
@@ -245,14 +244,18 @@ function showLeaderboardPopup(type, editID = null) {
             }
             place_input_holder.appendChild(radioInput);
             place_input_holder.appendChild(createLabelHelper(lang[place], `leaderboard_popup_${place}_place_input`));
-            actualPopup.appendChild(place_input_holder);
+            ui_position_holder.appendChild(place_input_holder);
         });
+        actualPopup.appendChild(ui_position_holder);
 
         // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+        
         let submit_button = createEmptyButtonHelper("Add");
-        actualPopup.appendChild(submit_button);
+        button_bar.appendChild(submit_button);
         let cancel_popup_button = createEmptyButtonHelper("Cancel");
-        actualPopup.appendChild(cancel_popup_button);
+        button_bar.appendChild(cancel_popup_button);
 
         submit_button.addEventListener("click", async (e) => {
             await addLeaderboard();
@@ -260,6 +263,8 @@ function showLeaderboardPopup(type, editID = null) {
         cancel_popup_button.addEventListener("click", async (e) => {
             removePopup();
         })
+
+        actualPopup.appendChild(button_bar);
 
         // Add the popup to the blur container
         currentPopup.appendChild(actualPopup);
@@ -290,27 +295,35 @@ function showLeaderboardPopup(type, editID = null) {
 
         // Belt filters editor
         actualPopup.appendChild(createSimpleElementHelper("h3", "Belt Filters: "));
+        let belt_filters_holder = document.createElement("div");
+        belt_filters_holder.classList.add("long_tile_list");
         belts.forEach(belt => {
             let belt_input_holder = document.createElement("div");
             let box = createInputHelper("checkbox", `leaderboard_popup_${belt}_belt_input`);
             box.checked = editInfo.belt_filters.includes(belts.indexOf(belt));
             belt_input_holder.appendChild(box);
             belt_input_holder.appendChild(createLabelHelper(belt, `leaderboard_popup_${belt}_belt_input`));
-            actualPopup.appendChild(belt_input_holder);
+            belt_filters_holder.appendChild(belt_input_holder);
         });
+        actualPopup.appendChild(belt_filters_holder);
         
         // Reason filters editor
         actualPopup.appendChild(createSimpleElementHelper("h3", "Reason Filter: "));
+        let reason_filters_holder = document.createElement("div");
+        reason_filters_holder.classList.add("long_tile_list");
         Object.keys(pointReasons).forEach(reason => {
             let reason_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_reason_filter_input", `leaderboard_popup_${reason}_reason_filter_input`, editInfo.reason_filter == reason, reason);
             reason_input_holder.appendChild(radioInput);
             reason_input_holder.appendChild(createLabelHelper(lang[reason], `leaderboard_popup_${reason}_reason_filter_input`));
-            actualPopup.appendChild(reason_input_holder);
+            reason_filters_holder.appendChild(reason_input_holder);
         });
+        actualPopup.appendChild(reason_filters_holder);
 
         // Select UI position
         actualPopup.appendChild(createSimpleElementHelper("h3", "UI Position: "));
+        let ui_position_holder = document.createElement("div");
+        ui_position_holder.classList.add("long_tile_list");
         UIPositions.forEach(place => {
             let place_input_holder = document.createElement("div");
             let radioInput = createRadioInputHelper("leaderboard_popup_place_input", `leaderboard_popup_${place}_place_input`, place == editInfo.ui_position, place);
@@ -319,14 +332,18 @@ function showLeaderboardPopup(type, editID = null) {
             }
             place_input_holder.appendChild(radioInput);
             place_input_holder.appendChild(createLabelHelper(lang[place], `leaderboard_popup_${place}_place_input`));
-            actualPopup.appendChild(place_input_holder);
+            ui_position_holder.appendChild(place_input_holder);
         });
+        actualPopup.appendChild(ui_position_holder);
 
         // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
         let submit_button = createEmptyButtonHelper("Apply Changes");
-        actualPopup.appendChild(submit_button);
+        button_bar.appendChild(submit_button);
         let cancel_popup_button = createEmptyButtonHelper("Cancel");
-        actualPopup.appendChild(cancel_popup_button);
+        button_bar.appendChild(cancel_popup_button);
 
         submit_button.addEventListener("click", async (e) => {
             await editLeaderboard(editID, editInfo.ui_position);
@@ -334,6 +351,8 @@ function showLeaderboardPopup(type, editID = null) {
         cancel_popup_button.addEventListener("click", async (e) => {
             removePopup();
         })
+
+        actualPopup.appendChild(button_bar);
 
         // Add the popup to the blur container
         currentPopup.appendChild(actualPopup);
@@ -394,12 +413,15 @@ function showSessionPopup(ninjaID) {
 
     actualPopup.appendChild(customInputHolder);
 
-    // Bottom buttons to submit or cancel
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
     let submit_button = createEmptyButtonHelper("Add Session");
-    actualPopup.appendChild(submit_button);
+    button_bar.appendChild(submit_button);
 
     let cancel_button = createEmptyButtonHelper("Cancel");
-    actualPopup.appendChild(cancel_button);
+    button_bar.appendChild(cancel_button);
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -457,6 +479,8 @@ function showSessionPopup(ninjaID) {
         removePopup();
     })
 
+    actualPopup.appendChild(button_bar);
+
     // Add the popup to the blur container
     currentPopup.appendChild(actualPopup);
 
@@ -475,7 +499,7 @@ function showConfirmDeletePopup(callback, titleText) {
 
     let actualPopup = document.createElement("div");
     actualPopup.id = "confirm_delete_popup";
-    actualPopup.classList.add("popup");
+    actualPopup.classList.add("popup", "small_popup");
 
     let title = createElementHelper("h2", null, titleText);
     actualPopup.appendChild(title);
@@ -483,21 +507,27 @@ function showConfirmDeletePopup(callback, titleText) {
     let info = createElementHelper("p", null, "This action is irriversible.");
     actualPopup.appendChild(info);
 
-    // Bottom buttons to submit or cancel
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
     let submit_button = createEmptyButtonHelper("Delete");
-    actualPopup.appendChild(submit_button);
+    button_bar.appendChild(submit_button);
 
     let cancel_button = createEmptyButtonHelper("Cancel");
-    actualPopup.appendChild(cancel_button);
+    button_bar.appendChild(cancel_button);
 
     // Event listeners
     submit_button.addEventListener("click", async (e) => {
-        callback();
+        await callback();
+        removePopup();
     })
 
     cancel_button.addEventListener("click", async (e) => {
         removePopup();
     })
+
+    actualPopup.appendChild(button_bar);
 
     // Add the popup to the blur container
     currentPopup.appendChild(actualPopup);
@@ -558,7 +588,7 @@ function showAddCustomPointsPopup(ninjaID) {
 
     let actualPopup = document.createElement("div");
     actualPopup.id = "custom_points_popup";
-    actualPopup.classList.add("popup");
+    actualPopup.classList.add("popup", "small_popup");
 
     actualPopup.appendChild(createSimpleElementHelper("h2", "Add Custom Points to a Ninja: "));
 
@@ -568,12 +598,15 @@ function showAddCustomPointsPopup(ninjaID) {
     amount_input.appendChild(createInputHelper("number", `custom_points_popup_amount_input`));
     actualPopup.appendChild(amount_input);
 
-    // Bottom buttons to submit or cancel
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
     let submit_button = createEmptyButtonHelper("Apply Points");
-    actualPopup.appendChild(submit_button);
+    button_bar.appendChild(submit_button);
 
     let close_button = createEmptyButtonHelper("Close");
-    actualPopup.appendChild(close_button);
+    button_bar.appendChild(close_button);
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
@@ -582,6 +615,8 @@ function showAddCustomPointsPopup(ninjaID) {
     close_button.addEventListener("click", async (e) => {
         removePopup();
     })
+
+    actualPopup.appendChild(button_bar);
 
     // Add the popup to the blur container
     currentPopup.appendChild(actualPopup);
@@ -697,6 +732,34 @@ async function applyCustomPoints(ninjaID) {
     removePopup();
 }
 
+// View functions
+function removeActiveView() {
+    document.querySelector(".active_view").classList.remove("active_view");
+}
+
+function showNinjaView(ninjaID) {
+    removeActiveView();
+    singleNinjaView.classList.add("active_view");
+
+    // Setup ALL the ninjas's stuff
+    const ninjaData = ninjas[ninjaID];
+
+    // Stats:
+    singleNinjaStats.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Stats`;
+    singleNinjaStats.querySelector(".ninja_belt").textContent = `${belts[ninjaData.belt]} Belt`;
+    singleNinjaStats.querySelector(".ninja_points").textContent = `Current Points: ${ninjaData.points}`;
+    singleNinjaStats.querySelector(".ninja_uid").textContent = `UID: ${ninjaID}`;
+    singleNinjaStats.querySelector(".ninja_nfc_id").textContent = `NFC ID: ${ninjaData.nfc_id}`;
+    singleNinjaStats.querySelector(".ninja_history_points").textContent = `Points in History: ${ninjaData.points_in_history}`;
+
+    // Sessions:
+    singleNinjaSessions.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Sessions`;
+
+    // Purchases:
+    singleNinjaPurchases.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Purchases`;
+}
+
+// On page load
 async function loadPage() {
     // Load Ninjas
     onSnapshot(collection(db, "ninjas"), (snapshot) => {
@@ -718,6 +781,9 @@ async function loadPage() {
                     let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
                     ninjaElement.appendChild(uid);
 
+                    let view_ninja = createEmptyButtonHelper("MORE INFO");
+                    ninjaElement.appendChild(view_ninja);
+
                     let add_session = createEmptyButtonHelper("Add Session");
                     ninjaElement.appendChild(add_session);
 
@@ -731,11 +797,14 @@ async function loadPage() {
                     ninjaElement.appendChild(custom_btn_del);
 
                     // Add event listeners
+                    view_ninja.addEventListener("click", async (event) => {
+                        showNinjaView(ninja.doc.id);
+                    });
+
                     add_session.addEventListener("click", async (event) => {
                         showSessionPopup(ninja.doc.id);
                     });
 
-                    //TODO: Custom Points
                     custom_pts.addEventListener("click", async(event) => {
                         showAddCustomPointsPopup(ninja.doc.id);
                     });
@@ -754,7 +823,7 @@ async function loadPage() {
 
                     // Add to DOM
                     ninjaElements[ninja.doc.id] = ninjaElement;
-                    ninjaContainer.appendChild(ninjaElement);
+                    ninjaGridContainer.appendChild(ninjaElement);
                     break;
                 case "modified":
                     ninjaElements[ninja.doc.id].querySelector(".ninja_name").textContent = `${value.firstname} ${value.lastname}`;
@@ -766,7 +835,7 @@ async function loadPage() {
 
                     break;
                 case "removed":
-                    ninjaContainer.removeChild(ninjaElements[ninja.doc.id]);
+                    ninjaGridContainer.removeChild(ninjaElements[ninja.doc.id]);
                     delete ninjaElements[ninja.doc.id];
                     break;
             }
@@ -920,8 +989,37 @@ async function loadPage() {
     addLeaderboardButton.addEventListener("click", async (event) => {
         showLeaderboardPopup("add");
     })
+
+    // Sidebar buttons
+    sidebarHomeButton.addEventListener("click", (event) => {
+        removeActiveView();
+        homeContainer.classList.add("active_view");
+    })
+    sidebarNinjasButton.addEventListener("click", (event) => {
+        removeActiveView();
+        ninjaContainer.classList.add("active_view");
+    })
+    sidebarSettingsButton.addEventListener("click", (event) => {
+        removeActiveView();
+        settingsContainer.classList.add("active_view");
+    })
+
+    // Ninja view buttons
+    ninjaStatsButton.addEventListener("click", (event) => {
+        document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
+        singleNinjaStats.classList.add("active_ninja_tab");
+    })
+    ninjaSessionsButton.addEventListener("click", (event) => {
+        document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
+        singleNinjaSessions.classList.add("active_ninja_tab");
+    })
+    ninjaPurchasesButton.addEventListener("click", (event) => {
+        document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
+        singleNinjaPurchases.classList.add("active_ninja_tab");
+    })
 }
 
+// Database functions
 async function editPoints(ninja, amount) {
     await updateDoc(doc(db, "ninjas", ninja), {
         points: increment(amount), 
@@ -947,13 +1045,3 @@ async function removeLeaderboard(itemID) {
 
 // Start app
 loadPage();
-
-/*
-Admin panel needs to:
-- See all registered members
-- add points to members
-
-POINT GUIDE (ROUGH DRAFT)
-Level up: 10 points
-Belt up: 100 points
-*/

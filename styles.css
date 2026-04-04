@@ -61,10 +61,11 @@ button {
     color: #0151ac;
     width: 800px;
     height: 472px;
+    min-height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: baseline;
-    padding: 3rem;
+    padding: 2rem 3rem;
     gap: 1em;
     box-sizing: border-box;
 }
@@ -81,6 +82,10 @@ button {
     justify-content: center;
     width: 100%;
     gap: 1rem;
+}
+
+.popup > h3 {
+    margin: 0;
 }
 
 /* #91dcc8 <- muted button */
