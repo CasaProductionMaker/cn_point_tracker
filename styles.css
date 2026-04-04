@@ -44,6 +44,12 @@ button {
     font-size: 1rem;
 }
 
+.danger_button {
+    font-weight: bold;
+    background-color: #dc3545;
+    box-shadow: 0 0 1em #0008;
+}
+
 .popup_container {
     position: fixed;
     width: 100%;

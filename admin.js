@@ -31,10 +31,15 @@ const ninjaStatsButton = document.querySelector("#ninja_stats_button");
 const ninjaSessionsButton = document.querySelector("#ninja_sessions_button");
 const ninjaPurchasesButton = document.querySelector("#ninja_purchases_button");
 
+// Single Ninja stuff
 const singleNinjaStats = document.querySelector("#single_ninja_stats");
 const singleNinjaSessions = document.querySelector("#single_ninja_sessions");
 const singleNinjaPurchases = document.querySelector("#single_ninja_purchases");
+const singleNinjaCustomPoints = document.querySelector("#single_ninja_custom_points");
+const removeSingleNinja = document.querySelector("#remove_single_ninja");
+const ninjaSessionsContainer = document.querySelector("#ninja_sessions_container");
 
+// Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
 const shopEditorContainer = document.querySelector("#shop_editor_container");
 const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_container");
@@ -46,6 +51,10 @@ let ninjaElements = {};
 let shopElements = {};
 let leaderboardElements = {};
 let currentPopup = null;
+
+// Viewing ninja
+let currentlyViewingNinja = null;
+let sessionUnSub = null;
 
 // temp reasons to add
 const pointReasons = {
@@ -535,44 +544,6 @@ function showConfirmDeletePopup(callback, titleText) {
     document.body.appendChild(currentPopup);
 }
 
-function showNinjaSessionsMenuPopup(ninjaID) {
-    if (currentPopup != null) {
-        console.log("Error: A popup already exists!");
-        return;
-    }
-
-    // Load data from cache
-    const ninjaData = ninjas[ninjaID];
-
-    // Create the popup
-    currentPopup = document.createElement("div");
-    currentPopup.classList.add("popup_container");
-
-    let actualPopup = document.createElement("div");
-    actualPopup.id = "ninja_sessions_popup";
-    actualPopup.classList.add("popup");
-
-    // Bottom buttons to submit or cancel
-    let submit_button = createEmptyButtonHelper("Add Session");
-    actualPopup.appendChild(submit_button);
-
-    let close_button = createEmptyButtonHelper("Close");
-    actualPopup.appendChild(close_button);
-    
-    // Add event listeners
-    submit_button.addEventListener("click", async (e) => {
-        //
-    })
-    close_button.addEventListener("click", async (e) => {
-        removePopup();
-    })
-
-    // Add the popup to the blur container
-    currentPopup.appendChild(actualPopup);
-
-    document.body.appendChild(currentPopup);
-}
-
 function showAddCustomPointsPopup(ninjaID) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -738,9 +709,14 @@ function removeActiveView() {
 }
 
 function showNinjaView(ninjaID) {
+    currentlyViewingNinja = ninjaID;
+    updateNinjaView(ninjaID);
+
     removeActiveView();
     singleNinjaView.classList.add("active_view");
+}
 
+function updateNinjaView(ninjaID) {
     // Setup ALL the ninjas's stuff
     const ninjaData = ninjas[ninjaID];
 
@@ -754,6 +730,47 @@ function showNinjaView(ninjaID) {
 
     // Sessions:
     singleNinjaSessions.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Sessions`;
+
+    // Subscribe to update the sessions:
+    if (sessionUnSub) {
+        sessionUnSub();
+    }
+    sessionUnSub = onSnapshot(collection(db, "ninjas", ninjaID, "sessions"), (snapshot) => {
+        ninjaSessionsContainer.innerHTML = "";
+        snapshot.forEach((session) => {
+            const value = session.data();
+            console.log(value);
+
+            // Create DOM
+            let sessionElement = document.createElement("div");
+            sessionElement.classList.add("ninja_session");
+
+            // Title
+            let title = createSimpleElementHelper("h3", `April 4, 2026`);
+            sessionElement.appendChild(title);
+            
+            let points = createSimpleElementHelper("p", `Total Points: ${value.total_points_gotten}`);
+            sessionElement.appendChild(points);
+
+            Object.keys(pointReasons).forEach(reason => {
+                const pointsForReason = value[`${reason}_points`];
+                if (pointsForReason) {
+                    let pointReason = createSimpleElementHelper("p", `${lang[reason]} Points: ${pointsForReason}`);
+                    sessionElement.appendChild(pointReason);
+                }
+            });
+
+            // Add to DOM
+            ninjaSessionsContainer.appendChild(sessionElement);
+        });
+    });
+
+    // <div class="ninja_session">
+    //     <h3>April 4, 2026</h3>
+    //     <p>Total Points: 40</p>
+    //     <p>Good Behaviour Points: 10</p>
+    //     <p>Custom Points: 30</p>
+    // </div>
 
     // Purchases:
     singleNinjaPurchases.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Purchases`;
@@ -778,23 +795,14 @@ async function loadPage() {
                     let points = createElementHelper("p", "ninja_points", `Points: ${value.points}`);
                     ninjaElement.appendChild(points);
 
-                    let uid = createElementHelper("p", "ninja_uid", `UID: ${ninja.doc.id}`);
-                    ninjaElement.appendChild(uid);
+                    let belt = createElementHelper("p", "ninja_uid", `${belts[value.belt]} Belt`);
+                    ninjaElement.appendChild(belt);
 
                     let view_ninja = createEmptyButtonHelper("MORE INFO");
                     ninjaElement.appendChild(view_ninja);
 
                     let add_session = createEmptyButtonHelper("Add Session");
                     ninjaElement.appendChild(add_session);
-
-                    let custom_pts = createEmptyButtonHelper("Add Custom Points")
-                    ninjaElement.appendChild(custom_pts);
-
-                    let view_sessions = createEmptyButtonHelper("View Sessions")
-                    ninjaElement.appendChild(view_sessions);
-
-                    let custom_btn_del = createEmptyButtonHelper("Remove Ninja");
-                    ninjaElement.appendChild(custom_btn_del);
 
                     // Add event listeners
                     view_ninja.addEventListener("click", async (event) => {
@@ -803,19 +811,6 @@ async function loadPage() {
 
                     add_session.addEventListener("click", async (event) => {
                         showSessionPopup(ninja.doc.id);
-                    });
-
-                    custom_pts.addEventListener("click", async(event) => {
-                        showAddCustomPointsPopup(ninja.doc.id);
-                    });
-
-                    view_sessions.addEventListener("click", async(event) => {
-                        // Open the chunky session popup
-                        showNinjaSessionsMenuPopup(ninja.doc.id);
-                    });
-
-                    custom_btn_del.addEventListener("click", async (event) => {
-                        showConfirmDeletePopup(async () => await deleteNinja(ninja.doc.id), "Are you sure you want to delete this Ninja?");
                     });
 
                     // Save value for editing purposes
@@ -832,6 +827,11 @@ async function loadPage() {
 
                     // Update value for editing purposes
                     ninjas[ninja.doc.id] = value;
+
+                    // Update Ninja View
+                    if (ninja.doc.id == currentlyViewingNinja) {
+                        updateNinjaView(ninja.doc.id);
+                    }
 
                     break;
                 case "removed":
@@ -1016,6 +1016,13 @@ async function loadPage() {
     ninjaPurchasesButton.addEventListener("click", (event) => {
         document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
         singleNinjaPurchases.classList.add("active_ninja_tab");
+    })
+
+    singleNinjaCustomPoints.addEventListener("click", (event) => {
+        showAddCustomPointsPopup(currentlyViewingNinja);
+    })
+    removeSingleNinja.addEventListener("click", (event) => {
+        showConfirmDeletePopup(async () => await deleteNinja(currentlyViewingNinja), "Are you sure you want to delete this Ninja?");
     })
 }
 

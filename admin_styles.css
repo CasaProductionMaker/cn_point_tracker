@@ -3,11 +3,19 @@ body {
     background-image: url(/Images/main-bg.png);
 }
 
-.registered_ninja, .shop_item, .leaderboard {
+.registered_ninja, .shop_item, .leaderboard, .ninja_session {
     background-color: #0005;
     box-sizing: border-box;
     padding: 1rem;
     border-radius: 1rem;
+}
+
+.shop_item, .leaderboard, .ninja_session {
+    background-color: #0005;
+    box-sizing: border-box;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
 }
 
  /* UI layout */

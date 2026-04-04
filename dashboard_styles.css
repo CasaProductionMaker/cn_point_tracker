@@ -100,12 +100,6 @@ p {
     align-items: center;
 }
 
-.danger_button {
-    font-weight: bold;
-    background-color: #dc3545;
-    box-shadow: 0 0 1em #0008;
-}
-
 #tap_band_input {
     position: absolute;
     opacity: 0;
