@@ -23,9 +23,10 @@ export function createButtonHelper(first_dataset_input, second_dataset_var, seco
     return child;
 };
 
-export function createEmptyButtonHelper(text) {
+export function createEmptyButtonHelper(text, className = null) {
     let child = document.createElement("button");
     child.textContent = text;
+    child.classList.add(className);
 
     return child;
 };

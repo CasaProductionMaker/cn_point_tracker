@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
@@ -36,6 +36,8 @@ const singleNinjaStats = document.querySelector("#single_ninja_stats");
 const singleNinjaSessions = document.querySelector("#single_ninja_sessions");
 const singleNinjaPurchases = document.querySelector("#single_ninja_purchases");
 const singleNinjaCustomPoints = document.querySelector("#single_ninja_custom_points");
+const singleNinjaManualLogin = document.querySelector("#single_ninja_manual_login");
+const singleNinjaAddSession = document.querySelector("#single_ninja_add_session");
 const removeSingleNinja = document.querySelector("#remove_single_ninja");
 const ninjaSessionsContainer = document.querySelector("#ninja_sessions_container");
 
@@ -435,7 +437,9 @@ function showSessionPopup(ninjaID) {
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
         // Add session to ninja as subcollection
-        let sessionData = {};
+        let sessionData = {
+            date_added: Date.now()
+        };
         let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
         let pointsGotten = 0;
         Object.keys(pointReasons).forEach(async key => {
@@ -520,10 +524,10 @@ function showConfirmDeletePopup(callback, titleText) {
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
 
-    let submit_button = createEmptyButtonHelper("Delete");
+    let submit_button = createEmptyButtonHelper("DELETE", "danger_button");
     button_bar.appendChild(submit_button);
 
-    let cancel_button = createEmptyButtonHelper("Cancel");
+    let cancel_button = createEmptyButtonHelper("CANCEL");
     button_bar.appendChild(cancel_button);
 
     // Event listeners
@@ -735,7 +739,8 @@ function updateNinjaView(ninjaID) {
     if (sessionUnSub) {
         sessionUnSub();
     }
-    sessionUnSub = onSnapshot(collection(db, "ninjas", ninjaID, "sessions"), (snapshot) => {
+
+    sessionUnSub = onSnapshot(query(collection(db, "ninjas", ninjaID, "sessions"), orderBy("date_added", "desc")), (snapshot) => {
         ninjaSessionsContainer.innerHTML = "";
         snapshot.forEach((session) => {
             const value = session.data();
@@ -746,7 +751,8 @@ function updateNinjaView(ninjaID) {
             sessionElement.classList.add("ninja_session");
 
             // Title
-            let title = createSimpleElementHelper("h3", `April 4, 2026`);
+            const time = new Date(value.date_added);
+            let title = createSimpleElementHelper("h3", time.toLocaleDateString());
             sessionElement.appendChild(title);
             
             let points = createSimpleElementHelper("p", `Total Points: ${value.total_points_gotten}`);
@@ -760,17 +766,24 @@ function updateNinjaView(ninjaID) {
                 }
             });
 
+            // Buttons
+            let button_bar = document.createElement("div");
+            button_bar.classList.add("popup_button_bar");
+
+            let delete_button = createEmptyButtonHelper("DELETE SESSION", "danger_button");
+            button_bar.appendChild(delete_button);
+            
+            // Add event listeners
+            delete_button.addEventListener("click", async (e) => {
+                showConfirmDeletePopup(async () => await removeSession(ninjaID, session.id), "Are you sure you want to delete this session?")
+            })
+
+            sessionElement.appendChild(button_bar);
+
             // Add to DOM
             ninjaSessionsContainer.appendChild(sessionElement);
         });
     });
-
-    // <div class="ninja_session">
-    //     <h3>April 4, 2026</h3>
-    //     <p>Total Points: 40</p>
-    //     <p>Good Behaviour Points: 10</p>
-    //     <p>Custom Points: 30</p>
-    // </div>
 
     // Purchases:
     singleNinjaPurchases.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Purchases`;
@@ -801,16 +814,9 @@ async function loadPage() {
                     let view_ninja = createEmptyButtonHelper("MORE INFO");
                     ninjaElement.appendChild(view_ninja);
 
-                    let add_session = createEmptyButtonHelper("Add Session");
-                    ninjaElement.appendChild(add_session);
-
                     // Add event listeners
                     view_ninja.addEventListener("click", async (event) => {
                         showNinjaView(ninja.doc.id);
-                    });
-
-                    add_session.addEventListener("click", async (event) => {
-                        showSessionPopup(ninja.doc.id);
                     });
 
                     // Save value for editing purposes
@@ -1021,8 +1027,16 @@ async function loadPage() {
     singleNinjaCustomPoints.addEventListener("click", (event) => {
         showAddCustomPointsPopup(currentlyViewingNinja);
     })
+    singleNinjaManualLogin.addEventListener("click", (event) => {
+        // Set the login credentials to the ninja's credentials and open the dashboard app
+        localStorage.setItem("currentUser", ninjas[currentlyViewingNinja].nfc_id);
+        window.location.href = "dashboard.html";
+    })
     removeSingleNinja.addEventListener("click", (event) => {
         showConfirmDeletePopup(async () => await deleteNinja(currentlyViewingNinja), "Are you sure you want to delete this Ninja?");
+    })
+    singleNinjaAddSession.addEventListener("click", (event) => {
+        showSessionPopup(currentlyViewingNinja);
     })
 }
 
@@ -1040,6 +1054,10 @@ async function deleteNinja(ninja) {
 
 async function removeShopItem(itemID) {
     await deleteDoc(doc(db, "shop", itemID));
+}
+
+async function removeSession(ninjaID, sessionID) {
+    await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
 }
 
 async function removeLeaderboard(itemID) {

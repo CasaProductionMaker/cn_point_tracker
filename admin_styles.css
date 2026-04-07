@@ -1,6 +1,7 @@
 body {
     display: flex;
     background-image: url(/Images/main-bg.png);
+    background-size: cover;
 }
 
 .registered_ninja, .shop_item, .leaderboard, .ninja_session {
@@ -174,6 +175,7 @@ body {
     align-items: center;
     flex: 1;
     min-height: 0;
+    gap: 1rem;
 }
 
 #single_ninja_purchases {
