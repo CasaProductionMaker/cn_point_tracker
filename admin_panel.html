@@ -21,7 +21,7 @@
             </div>
             <div class="main_content">
                 <div id="home_container" class="content_view active_view">
-                    <h2>Home</h2>
+                    <h2>Welcome, Admin!</h2>
                 </div>
                 <div id="ninja_container" class="content_view">
                     <div class="button_bar view_top_bar">
@@ -31,16 +31,23 @@
                     <div id="ninja_grid_container"></div>
                 </div>
                 <div id="settings_container" class="content_view">
-                    <h2>Settings</h2>
-                    <h2>Shop Items</h2>
-                    <div id="shop_editor_container"></div>
-                    <button id="add_shop_item_button">Add New Shop Item +</button>
-                    <h2>Leaderboards</h2>
-                    <div id="leaderboards_editor_container"></div>
-                    <button id="add_leaderboard_button">Add Leaderboard +</button>
+                    <div class="tab_bar">
+                        <button id="settings_shop_items_button">Shop Items</button>
+                        <button id="settings_leaderboards_button">Leaderboards</button>
+                    </div>
+                    <div id="settings_shop_items" class="active_settings_tab">
+                        <h2>Shop Items</h2>
+                        <div id="shop_editor_container"></div>
+                        <button id="add_shop_item_button">Add New Shop Item +</button>
+                    </div>
+                    <div id="settings_leaderboards">
+                        <h2>Leaderboards</h2>
+                        <div id="leaderboards_editor_container"></div>
+                        <button id="add_leaderboard_button">Add Leaderboard +</button>
+                    </div>
                 </div>
                 <div id="single_ninja_view" class="content_view">
-                    <div class="ninja_tab_bar">
+                    <div class="tab_bar">
                         <button id="ninja_stats_button">Stats</button>
                         <button id="ninja_sessions_button">Sessions</button>
                         <button id="ninja_purchases_button">Purchases</button>

@@ -11,10 +11,6 @@ body {
     border-radius: 1rem;
 }
 
-.shop_item, .leaderboard {
-    margin-bottom: 2rem;
-}
-
  /* UI layout */
 
 .sidebar {
@@ -153,6 +149,9 @@ body {
     display: none;
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
+    min-height: 0;
+    flex: 1;
 }
 
 #settings_container.active_view {
@@ -203,4 +202,41 @@ body {
 #single_ninja_purchases.active_ninja_tab {
     display: flex;
     flex-direction: column;
+}
+
+/* Settings views */
+
+#settings_shop_items {
+    display: none;
+}
+
+#settings_shop_items.active_settings_tab {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+    gap: 1rem;
+}
+
+#shop_editor_container, #leaderboards_editor_container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    gap: 2rem;
+}
+
+#settings_leaderboards {
+    display: none;
+}
+
+#settings_leaderboards.active_settings_tab {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+    gap: 1rem;
 }

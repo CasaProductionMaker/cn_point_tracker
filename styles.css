@@ -42,6 +42,7 @@ button {
     box-shadow: 0 0 0.5em #0005;
     color: white;
     font-size: 1rem;
+    text-transform: uppercase;
 }
 
 .danger_button {

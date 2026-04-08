@@ -41,6 +41,12 @@ const singleNinjaAddSession = document.querySelector("#single_ninja_add_session"
 const removeSingleNinja = document.querySelector("#remove_single_ninja");
 const ninjaSessionsContainer = document.querySelector("#ninja_sessions_container");
 
+// Settings stuff
+const settingsShopItemsButton = document.querySelector("#settings_shop_items_button");
+const settingsLeaderboardsButton = document.querySelector("#settings_leaderboards_button");
+const settingsShopItems = document.querySelector("#settings_shop_items");
+const settingsLeaderboards = document.querySelector("#settings_leaderboards");
+
 // Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
 const ninjaSearchBar = document.querySelector("#ninja_search_bar");
@@ -48,6 +54,7 @@ const shopEditorContainer = document.querySelector("#shop_editor_container");
 const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_container");
 const addShopItemButton = document.querySelector("#add_shop_item_button");
 const addLeaderboardButton = document.querySelector("#add_leaderboard_button");
+const dynamicNavbar = document.querySelector("#navbar_header");
 
 // Element tracking
 let ninjaElements = {};
@@ -817,8 +824,11 @@ async function loadPage() {
                     ninjaElement.appendChild(view_ninja);
 
                     // Add event listeners
-                    view_ninja.addEventListener("click", async (event) => {
+                    view_ninja.addEventListener("click", (event) => {
                         showNinjaView(ninja.doc.id);
+                        document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
+                        singleNinjaStats.classList.add("active_ninja_tab");
+                        updateDynamicNavbar(`Ninjas > ${value.firstname} ${value.lastname} > Stats`);
                     });
 
                     // Save value for editing purposes
@@ -869,13 +879,17 @@ async function loadPage() {
                     let description = createElementHelper("p", "shop_item_description", `Description: ${value.description}`);
                     item.appendChild(description);
 
+                    // Buttons
+                    let button_bar = document.createElement("div");
+                    button_bar.classList.add("button_bar");
+
                     let edit_button = createEmptyButtonHelper("Edit");
-                    item.appendChild(edit_button);
+                    button_bar.appendChild(edit_button);
 
-                    let delete_button = createEmptyButtonHelper("Delete");
-                    item.appendChild(delete_button);
+                    let delete_button = createEmptyButtonHelper("Delete", "danger_button");
+                    button_bar.appendChild(delete_button);
 
-                    // Add event listeners
+                    // Event listeners
                     edit_button.addEventListener("click", async (event) => {
                         showShopPopup("edit", shopItem.doc.id);
                     });
@@ -883,6 +897,8 @@ async function loadPage() {
                     delete_button.addEventListener("click", async (event) => {
                         showConfirmDeletePopup(async () => await removeShopItem(shopItem.doc.id), "Are you sure you want to delete this shop item?");
                     });
+
+                    item.appendChild(button_bar);
 
                     // Save value for editing purposes
                     shop[shopItem.doc.id] = value;
@@ -937,11 +953,15 @@ async function loadPage() {
                     let UIPlace = createElementHelper("p", "leaderboard_ui_place", "UI position: " + lang[value.ui_position]);
                     item.appendChild(UIPlace);
 
-                    let edit_button = createEmptyButtonHelper("Edit");
-                    item.appendChild(edit_button);
+                    // Buttons
+                    let button_bar = document.createElement("div");
+                    button_bar.classList.add("button_bar");
 
-                    let delete_button = createEmptyButtonHelper("Delete");
-                    item.appendChild(delete_button);
+                    let edit_button = createEmptyButtonHelper("Edit");
+                    button_bar.appendChild(edit_button);
+
+                    let delete_button = createEmptyButtonHelper("Delete", "danger_button");
+                    button_bar.appendChild(delete_button);
 
                     // Add event listeners
                     edit_button.addEventListener("click", async (event) => {
@@ -951,6 +971,8 @@ async function loadPage() {
                     delete_button.addEventListener("click", async (event) => {
                         showConfirmDeletePopup(async () => removeLeaderboard(leaderboard.doc.id), "Are you sure you want to delete this leaderboard?");
                     });
+
+                    item.appendChild(button_bar);
 
                     // Save value for editing purposes
                     leaderboards[leaderboard.doc.id] = value;
@@ -1002,28 +1024,36 @@ async function loadPage() {
     sidebarHomeButton.addEventListener("click", (event) => {
         removeActiveView();
         homeContainer.classList.add("active_view");
+        updateDynamicNavbar("Home");
     })
     sidebarNinjasButton.addEventListener("click", (event) => {
         removeActiveView();
         ninjaContainer.classList.add("active_view");
+        updateDynamicNavbar("Ninjas");
     })
     sidebarSettingsButton.addEventListener("click", (event) => {
         removeActiveView();
         settingsContainer.classList.add("active_view");
+        document.querySelector(".active_settings_tab").classList.remove("active_settings_tab");
+        settingsShopItems.classList.add("active_settings_tab");
+        updateDynamicNavbar("Settings > Shop Items");
     })
 
     // Ninja view buttons
     ninjaStatsButton.addEventListener("click", (event) => {
         document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
         singleNinjaStats.classList.add("active_ninja_tab");
+        updateDynamicNavbar(`Ninjas > ${ninjas[currentlyViewingNinja].firstname} ${ninjas[currentlyViewingNinja].lastname} > Stats`);
     })
     ninjaSessionsButton.addEventListener("click", (event) => {
         document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
         singleNinjaSessions.classList.add("active_ninja_tab");
+        updateDynamicNavbar(`Ninjas > ${ninjas[currentlyViewingNinja].firstname} ${ninjas[currentlyViewingNinja].lastname} > Sessions`);
     })
     ninjaPurchasesButton.addEventListener("click", (event) => {
         document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
         singleNinjaPurchases.classList.add("active_ninja_tab");
+        updateDynamicNavbar(`Ninjas > ${ninjas[currentlyViewingNinja].firstname} ${ninjas[currentlyViewingNinja].lastname} > Purchases`);
     })
 
     singleNinjaCustomPoints.addEventListener("click", (event) => {
@@ -1056,6 +1086,18 @@ async function loadPage() {
             ninjaElement.style.display = isShown ? "block" : "none";
         });
     });
+
+    // Settings listeners
+    settingsShopItemsButton.addEventListener("click", (event) => {
+        document.querySelector(".active_settings_tab").classList.remove("active_settings_tab");
+        settingsShopItems.classList.add("active_settings_tab");
+        updateDynamicNavbar("Settings > Shop Items");
+    });
+    settingsLeaderboardsButton.addEventListener("click", (event) => {
+        document.querySelector(".active_settings_tab").classList.remove("active_settings_tab");
+        settingsLeaderboards.classList.add("active_settings_tab");
+        updateDynamicNavbar("Settings > Leaderboards");
+    });
 }
 
 // Database functions
@@ -1084,6 +1126,11 @@ async function removeLeaderboard(itemID) {
     });
 
     await deleteDoc(doc(db, "leaderboards", itemID));
+}
+
+// Other functions
+function updateDynamicNavbar(path) {
+    dynamicNavbar.textContent = path;
 }
 
 // Start app
