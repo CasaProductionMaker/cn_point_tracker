@@ -511,7 +511,7 @@ function showSessionPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
-function showConfirmDeletePopup(callback, titleText) {
+function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel") {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -535,10 +535,10 @@ function showConfirmDeletePopup(callback, titleText) {
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
 
-    let submit_button = createEmptyButtonHelper("DELETE", "danger_button");
+    let submit_button = createEmptyButtonHelper(button1, "danger_button");
     button_bar.appendChild(submit_button);
 
-    let cancel_button = createEmptyButtonHelper("CANCEL");
+    let cancel_button = createEmptyButtonHelper(button2);
     button_bar.appendChild(cancel_button);
 
     // Event listeners
@@ -786,7 +786,7 @@ function updateNinjaView(ninjaID) {
             
             // Add event listeners
             delete_button.addEventListener("click", async (e) => {
-                showConfirmDeletePopup(async () => await removeSession(ninjaID, session.id), "Are you sure you want to delete this session?")
+                showConfirmPopup(async () => await removeSession(ninjaID, session.id), "Are you sure you want to delete this session?")
             })
 
             sessionElement.appendChild(button_bar);
@@ -830,18 +830,20 @@ function updateNinjaView(ninjaID) {
             purchaseElement.appendChild(resolved);
 
             // Buttons
-            let button_bar = document.createElement("div");
-            button_bar.classList.add("button_bar");
+            if (!value.fulfilled) {
+                let button_bar = document.createElement("div");
+                button_bar.classList.add("button_bar");
 
-            let delete_button = createEmptyButtonHelper("Fulfilled?", "danger_button");
-            button_bar.appendChild(delete_button);
-            
-            // Add event listeners
-            delete_button.addEventListener("click", async (e) => {
-                showConfirmDeletePopup(async () => await fulfillPurchase(ninjaID, purchase.id), "Are you sure this purchase has been fulfilled??")
-            })
+                let delete_button = createEmptyButtonHelper("Fulfilled?", "danger_button");
+                button_bar.appendChild(delete_button);
+                
+                // Add event listeners
+                delete_button.addEventListener("click", async (e) => {
+                    showConfirmPopup(async () => await fulfillPurchase(ninjaID, purchase.id), "Are you sure this purchase has been fulfilled?", "Confirm")
+                })
 
-            purchaseElement.appendChild(button_bar);
+                purchaseElement.appendChild(button_bar);
+            }
 
             // Add to DOM
             ninjaPurchasesContainer.appendChild(purchaseElement);
@@ -946,7 +948,7 @@ async function loadPage() {
                     });
 
                     delete_button.addEventListener("click", async (event) => {
-                        showConfirmDeletePopup(async () => await removeShopItem(shopItem.doc.id), "Are you sure you want to delete this shop item?");
+                        showConfirmPopup(async () => await removeShopItem(shopItem.doc.id), "Are you sure you want to delete this shop item?");
                     });
 
                     item.appendChild(button_bar);
@@ -1020,7 +1022,7 @@ async function loadPage() {
                     });
 
                     delete_button.addEventListener("click", async (event) => {
-                        showConfirmDeletePopup(async () => removeLeaderboard(leaderboard.doc.id), "Are you sure you want to delete this leaderboard?");
+                        showConfirmPopup(async () => removeLeaderboard(leaderboard.doc.id), "Are you sure you want to delete this leaderboard?");
                     });
 
                     item.appendChild(button_bar);
@@ -1116,7 +1118,7 @@ async function loadPage() {
         window.location.href = "dashboard.html";
     })
     removeSingleNinja.addEventListener("click", (event) => {
-        showConfirmDeletePopup(async () => await deleteNinja(currentlyViewingNinja), "Are you sure you want to delete this Ninja?");
+        showConfirmPopup(async () => await deleteNinja(currentlyViewingNinja), "Are you sure you want to delete this Ninja?");
     })
     singleNinjaAddSession.addEventListener("click", (event) => {
         showSessionPopup(currentlyViewingNinja);
