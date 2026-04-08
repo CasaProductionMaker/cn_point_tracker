@@ -50,7 +50,7 @@ async function loadShop() {
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
             // buy item
             if (myProfile.points >= shopItem.cost) {
-                showPurchasePopup("admin_part", shopItem);
+                showPurchasePopup("admin_part", {...shopItem, id: doc.id});
             } else {
                 showWarningPopup("You do not have enough money to make this purchase!");
             }
@@ -411,7 +411,14 @@ async function editPoints(amount) {
 }
 
 async function purchaseItem(shopItem) {
-    editPoints(-shopItem.cost);
+    await editPoints(-shopItem.cost);
+
+    // Add to ninja's purchase log
+    await addDoc(collection(db, "ninjas", userKey, "purchases"), {
+        date: Date.now(), 
+        item: shopItem.id, 
+        fulfilled: false
+    });
 }
 
 async function registerNinja() {
