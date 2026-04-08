@@ -43,6 +43,7 @@ const ninjaSessionsContainer = document.querySelector("#ninja_sessions_container
 
 // Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
+const ninjaSearchBar = document.querySelector("#ninja_search_bar");
 const shopEditorContainer = document.querySelector("#shop_editor_container");
 const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_container");
 const addShopItemButton = document.querySelector("#add_shop_item_button");
@@ -53,6 +54,7 @@ let ninjaElements = {};
 let shopElements = {};
 let leaderboardElements = {};
 let currentPopup = null;
+let ninjaSearchFilter = "";
 
 // Viewing ninja
 let currentlyViewingNinja = null;
@@ -1038,6 +1040,22 @@ async function loadPage() {
     singleNinjaAddSession.addEventListener("click", (event) => {
         showSessionPopup(currentlyViewingNinja);
     })
+
+    ninjaSearchBar.addEventListener("input", (event) => {
+        ninjaSearchFilter = event.target.value.toLowerCase();
+
+        Object.keys(ninjas).forEach((ninjaKey) => {
+            const ninjaData = ninjas[ninjaKey];
+            const ninjaElement = ninjaElements[ninjaKey];
+            
+            let isShown = false;
+            if (ninjaData.firstname.toLowerCase().includes(ninjaSearchFilter)) {
+                isShown = true;
+            }
+
+            ninjaElement.style.display = isShown ? "block" : "none";
+        });
+    });
 }
 
 // Database functions

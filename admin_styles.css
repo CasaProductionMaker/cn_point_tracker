@@ -84,6 +84,22 @@ body {
     min-height: 0;
 }
 
+.top_search_bar {
+    background-color: #0007;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1rem;
+    padding: 0.6rem;
+    color: #EEE;
+    box-sizing: border-box;
+}
+
+.view_top_bar {
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 /* UI stuf */
 
 .long_tile_list {
@@ -96,6 +112,7 @@ body {
     display: grid;
     grid-template-columns: auto auto auto;
     gap: 2rem;
+    width: 100%;
 }
 
 #ninja_sessions_container {
@@ -125,6 +142,7 @@ body {
     display: none;
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
 }
 
 #ninja_container.active_view {
