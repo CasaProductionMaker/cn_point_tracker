@@ -417,7 +417,8 @@ async function purchaseItem(shopItem) {
     await addDoc(collection(db, "ninjas", userKey, "purchases"), {
         date: Date.now(), 
         item: shopItem.id, 
-        fulfilled: false
+        fulfilled: false, 
+        amount_payed: shopItem.cost
     });
 }
 

@@ -4,7 +4,7 @@ body {
     background-size: cover;
 }
 
-.registered_ninja, .shop_item, .leaderboard, .ninja_session {
+.registered_ninja, .shop_item, .leaderboard, .ninja_session, .ninja_purchase {
     background-color: #0005;
     box-sizing: border-box;
     padding: 1rem;
@@ -112,6 +112,17 @@ body {
 }
 
 #ninja_sessions_container {
+    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    padding: 0 0.5rem;
+}
+
+#ninja_purchases_container {
     overflow-y: scroll;
     flex: 1;
     min-height: 0;
@@ -239,4 +250,14 @@ body {
     flex: 1;
     min-height: 0;
     gap: 1rem;
+}
+
+/* Purchases views */
+
+.unresolved_purchase {
+    color: #E00;
+}
+
+.resolved_purchase {
+    color: #0E0;
 }

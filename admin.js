@@ -40,6 +40,7 @@ const singleNinjaManualLogin = document.querySelector("#single_ninja_manual_logi
 const singleNinjaAddSession = document.querySelector("#single_ninja_add_session");
 const removeSingleNinja = document.querySelector("#remove_single_ninja");
 const ninjaSessionsContainer = document.querySelector("#ninja_sessions_container");
+const ninjaPurchasesContainer = document.querySelector("#ninja_purchases_container");
 
 // Settings stuff
 const settingsShopItemsButton = document.querySelector("#settings_shop_items_button");
@@ -66,6 +67,7 @@ let ninjaSearchFilter = "";
 // Viewing ninja
 let currentlyViewingNinja = null;
 let sessionUnSub = null;
+let purchaseUnSub = null;
 
 // temp reasons to add
 const pointReasons = {
@@ -796,6 +798,55 @@ function updateNinjaView(ninjaID) {
 
     // Purchases:
     singleNinjaPurchases.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Purchases`;
+
+    // Unsubscribe if we are already listening:
+    if (purchaseUnSub) {
+        purchaseUnSub();
+    }
+
+    purchaseUnSub = onSnapshot(query(collection(db, "ninjas", ninjaID, "purchases"), orderBy("fulfilled", "asc")), (snapshot) => {
+        ninjaPurchasesContainer.innerHTML = "";
+        snapshot.forEach((purchase) => {
+            const value = purchase.data();
+            console.log(value);
+
+            // Create DOM
+            let purchaseElement = document.createElement("div");
+            purchaseElement.classList.add("ninja_purchase");
+
+            // Title
+            const time = new Date(value.date);
+            let title = createSimpleElementHelper("h3", `Purchase on ${time.toLocaleDateString()}`);
+            purchaseElement.appendChild(title);
+            
+            let item = createSimpleElementHelper("p", `Item Bought: ${shop[value.item].name}`);
+            purchaseElement.appendChild(item);
+            
+            let cost = createSimpleElementHelper("p", `Amount Payed: ${value.amount_payed}`);
+            purchaseElement.appendChild(cost);
+            
+            let resolved = createSimpleElementHelper("p", `${value.fulfilled ? "Fulfilled" : "Not Fulfilled"}`);
+            resolved.classList.add(value.fulfilled ? "resolved_purchase" : "unresolved_purchase");
+            purchaseElement.appendChild(resolved);
+
+            // Buttons
+            let button_bar = document.createElement("div");
+            button_bar.classList.add("button_bar");
+
+            let delete_button = createEmptyButtonHelper("Fulfilled?", "danger_button");
+            button_bar.appendChild(delete_button);
+            
+            // Add event listeners
+            delete_button.addEventListener("click", async (e) => {
+                showConfirmDeletePopup(async () => await fulfillPurchase(ninjaID, purchase.id), "Are you sure this purchase has been fulfilled??")
+            })
+
+            purchaseElement.appendChild(button_bar);
+
+            // Add to DOM
+            ninjaPurchasesContainer.appendChild(purchaseElement);
+        });
+    });
 }
 
 // On page load
@@ -1118,6 +1169,12 @@ async function removeShopItem(itemID) {
 
 async function removeSession(ninjaID, sessionID) {
     await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
+}
+
+async function fulfillPurchase(ninjaID, purchaseID) {
+    await updateDoc(doc(db, "ninjas", ninjaID, "purchases", purchaseID), {
+        fulfilled: true
+    });
 }
 
 async function removeLeaderboard(itemID) {
