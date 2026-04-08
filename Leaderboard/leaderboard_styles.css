@@ -15,7 +15,13 @@
     flex: 1;
 }
 
-h1, h3 {
+h1 {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+h3 {
     text-align: center;
     margin-top: 0;
 }
@@ -48,7 +54,7 @@ h1, h3 {
 }
 
 .small_leaderboad_container {
-    background-color: #2295ee;
+    background-color: #32aced;
     box-shadow: 0 0 1em #0005;
     padding: 1rem;
     border-radius: 1rem;
@@ -56,7 +62,7 @@ h1, h3 {
 }
 
 .big_leaderboad_container {
-    background-color: #2295ee;
+    background-color: #32aced;
     box-shadow: 0 0 1em #0005;
     padding: 1rem;
     border-radius: 1rem;
@@ -64,8 +70,8 @@ h1, h3 {
 }
 
 .leaderboard_member {
-    background-color: #0005;
-    box-shadow: 0 0 1em #0005;
+    background-color: #0003;
+    box-shadow: 0 0 1em #0003;
     border-radius: 0.5rem;
     padding: 0.3rem;
     margin-bottom: 1em;
@@ -87,6 +93,11 @@ h1, h3 {
 
 p {
     margin: 0;
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
 /* Belt Colors */
