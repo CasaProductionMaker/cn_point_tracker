@@ -90,6 +90,13 @@ p {
 }
 
 /* Belt Colors */
+
+.belt_color {
+    -webkit-text-stroke: 1.5px black;
+    paint-order: stroke fill;
+    text-shadow: 0 0 1rem black;
+}
+
 .belt_color_0 {
     color: white;
 }
@@ -125,12 +132,3 @@ p {
 .belt_color_8 {
     color: #010607;
 }
-
-
-
-/* <h1>Leaderboard</h1>
-<div id="top_left_leaderboard_container" class="small_leaderboad_container"></div>
-<div id="bottom_left_leaderboard_container" class="small_leaderboad_container"></div>
-<div id="main_leaderboard_container" class="big_leaderboad_container"></div>
-<div id="top_right_leaderboard_container" class="small_leaderboad_container"></div>
-<div id="bottom_right_leaderboard_container" class="small_leaderboad_container"></div> */

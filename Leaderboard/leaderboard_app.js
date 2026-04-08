@@ -48,7 +48,7 @@ async function loadPage() {
                                     <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
                                     <div class="leaderboard_member_flex">
                                         <p>${docData.points} ${lang[value.reason_filter]} Points</p>
-                                        <p class="belt_color_${ninjaProfile.data().belt}">${belts[ninjaProfile.data().belt]} Belt</p>
+                                        <p class="belt_color_${ninjaProfile.data().belt} belt_color">${belts[ninjaProfile.data().belt]} Belt</p>
                                     </div>
                                 `;
 
