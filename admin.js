@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
@@ -785,6 +785,15 @@ async function applyBeltLevel(ninjaID) {
     await updateDoc(doc(db, "ninjas", ninjaID), {
         belt: belt
     });
+    // Find all my leaderboard entries to update them
+    const myEntries = await getDocs(query(collection(db, "leaderboard_entries"), where("ninja_id", "==", ninjaID)));
+    myEntries.forEach(async (document) => {
+        // replace the belt level
+        await updateDoc(doc(db, "leaderboard_entries", document.id), {
+            ninja_belt_level: belt
+        })
+    })
+
     removePopup();
 }
 
@@ -825,7 +834,6 @@ function updateNinjaView(ninjaID) {
         ninjaSessionsContainer.innerHTML = "";
         snapshot.forEach((session) => {
             const value = session.data();
-            console.log(value);
 
             // Create DOM
             let sessionElement = document.createElement("div");
@@ -878,7 +886,6 @@ function updateNinjaView(ninjaID) {
         ninjaPurchasesContainer.innerHTML = "";
         snapshot.forEach((purchase) => {
             const value = purchase.data();
-            console.log(value);
 
             // Create DOM
             let purchaseElement = document.createElement("div");
@@ -943,7 +950,7 @@ async function loadPage() {
                     let belt = createElementHelper("p", "ninja_belt", `${belts[value.belt]} Belt`);
                     ninjaElement.appendChild(belt);
 
-                    let view_ninja = createEmptyButtonHelper("MORE INFO");
+                    let view_ninja = createEmptyButtonHelper("More Info");
                     ninjaElement.appendChild(view_ninja);
 
                     // Add event listeners
