@@ -36,6 +36,7 @@ const singleNinjaStats = document.querySelector("#single_ninja_stats");
 const singleNinjaSessions = document.querySelector("#single_ninja_sessions");
 const singleNinjaPurchases = document.querySelector("#single_ninja_purchases");
 const singleNinjaCustomPoints = document.querySelector("#single_ninja_custom_points");
+const singleNinjaBeltSet = document.querySelector("#single_ninja_belt_set");
 const singleNinjaManualLogin = document.querySelector("#single_ninja_manual_login");
 const singleNinjaAddSession = document.querySelector("#single_ninja_add_session");
 const removeSingleNinja = document.querySelector("#remove_single_ninja");
@@ -610,6 +611,68 @@ function showAddCustomPointsPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
+function showEditBeltLevelPopup(ninjaID) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Load data from cache
+    const ninjaData = ninjas[ninjaID];
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "custom_points_popup";
+    actualPopup.classList.add("popup", "small_popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", `Update ${ninjaData.firstname}'s Belt Level: `));
+
+    // Amount input
+    let beltHolder = document.createElement("div");
+    let label = createLabelHelper("Belt Level: ", "belts");
+    let dropdown = document.createElement("select");
+    dropdown.setAttribute("name", "belts");
+    dropdown.id = "belts";
+    belts.forEach(belt => {
+        let option = document.createElement("option");
+        option.setAttribute("value", belt);
+        option.textContent = belt;
+        dropdown.appendChild(option);
+    });
+    dropdown.value = belts[ninjaData.belt];
+    beltHolder.appendChild(label);
+    beltHolder.appendChild(dropdown);
+    actualPopup.appendChild(beltHolder);
+
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
+    let submit_button = createEmptyButtonHelper("Apply");
+    button_bar.appendChild(submit_button);
+
+    let close_button = createEmptyButtonHelper("Close");
+    button_bar.appendChild(close_button);
+    
+    // Add event listeners
+    submit_button.addEventListener("click", async (e) => {
+        applyBeltLevel(ninjaID);
+    })
+    close_button.addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
 function removePopup() {
     document.body.removeChild(currentPopup);
     currentPopup = null;
@@ -713,8 +776,15 @@ async function editLeaderboard(leaderboardID, previousUIPosition) {
 
 async function applyCustomPoints(ninjaID) {
     const amount = Number(document.querySelector("#custom_points_popup_amount_input").value);
-    console.log(amount);
     await editPoints(ninjaID, amount);
+    removePopup();
+}
+
+async function applyBeltLevel(ninjaID) {
+    const belt = belts.indexOf(document.querySelector("#belts").value);
+    await updateDoc(doc(db, "ninjas", ninjaID), {
+        belt: belt
+    });
     removePopup();
 }
 
@@ -870,7 +940,7 @@ async function loadPage() {
                     let points = createElementHelper("p", "ninja_points", `Points: ${value.points}`);
                     ninjaElement.appendChild(points);
 
-                    let belt = createElementHelper("p", "ninja_uid", `${belts[value.belt]} Belt`);
+                    let belt = createElementHelper("p", "ninja_belt", `${belts[value.belt]} Belt`);
                     ninjaElement.appendChild(belt);
 
                     let view_ninja = createEmptyButtonHelper("MORE INFO");
@@ -894,7 +964,7 @@ async function loadPage() {
                 case "modified":
                     ninjaElements[ninja.doc.id].querySelector(".ninja_name").textContent = `${value.firstname} ${value.lastname}`;
                     ninjaElements[ninja.doc.id].querySelector(".ninja_points").textContent = `Points: ${value.points}`;
-                    ninjaElements[ninja.doc.id].querySelector(".ninja_uid").textContent = `UID: ${ninja.doc.id}`;
+                    ninjaElements[ninja.doc.id].querySelector(".ninja_belt").textContent = `${belts[value.belt]} Belt`;
 
                     // Update value for editing purposes
                     ninjas[ninja.doc.id] = value;
@@ -1112,6 +1182,9 @@ async function loadPage() {
     singleNinjaCustomPoints.addEventListener("click", (event) => {
         showAddCustomPointsPopup(currentlyViewingNinja);
     })
+    singleNinjaBeltSet.addEventListener("click", (event) => {
+        showEditBeltLevelPopup(currentlyViewingNinja);
+    });
     singleNinjaManualLogin.addEventListener("click", (event) => {
         // Set the login credentials to the ninja's credentials and open the dashboard app
         localStorage.setItem("currentUser", ninjas[currentlyViewingNinja].nfc_id);
