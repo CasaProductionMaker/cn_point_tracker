@@ -630,7 +630,7 @@ function showEditBeltLevelPopup(ninjaID) {
 
     actualPopup.appendChild(createSimpleElementHelper("h2", `Update ${ninjaData.firstname}'s Belt Level: `));
 
-    // Amount input
+    // Belt input
     let beltHolder = document.createElement("div");
     let label = createLabelHelper("Belt Level: ", "belts");
     let dropdown = document.createElement("select");

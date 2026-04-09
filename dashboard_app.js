@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createLabelHelper, convertInputToKey } from "./util.js";
+import { belts } from "./data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -90,10 +91,20 @@ function showRegisterPopup() {
     actualPopup.appendChild(last_name_input_holder);
 
     // Belt input
-    let belt_input_holder = document.createElement("div");
-    belt_input_holder.appendChild(createLabelHelper("Belt ID: ", `belt`));
-    belt_input_holder.appendChild(createInputHelper("text", `belt`));
-    actualPopup.appendChild(belt_input_holder);
+    let beltHolder = document.createElement("div");
+    let label = createLabelHelper("Belt Level: ", "belts");
+    let dropdown = document.createElement("select");
+    dropdown.setAttribute("name", "belts");
+    dropdown.id = "belts";
+    belts.forEach(belt => {
+        let option = document.createElement("option");
+        option.setAttribute("value", belt);
+        option.textContent = belt;
+        dropdown.appendChild(option);
+    });
+    beltHolder.appendChild(label);
+    beltHolder.appendChild(dropdown);
+    actualPopup.appendChild(beltHolder);
 
     let submit_button = createEmptyButtonHelper("Register!");
     actualPopup.appendChild(submit_button);
@@ -425,7 +436,7 @@ async function purchaseItem(shopItem) {
 async function registerNinja() {
     const fname = document.querySelector("#fname").value;
     const lname = document.querySelector("#lname").value;
-    const belt = Number(document.querySelector("#belt").value);
+    const belt = belts.indexOf(document.querySelector("#belts").value);
     const docRef = await addDoc(collection(db, "ninjas"), {
         firstname: fname,
         lastname: lname, 

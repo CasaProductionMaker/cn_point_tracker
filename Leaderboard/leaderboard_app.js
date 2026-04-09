@@ -19,8 +19,6 @@ const db = getFirestore();
 let subscribeFunctions = {};
 
 async function loadPage() {
-    // const leaderboardDocs = await getDocs(collection(db, "leaderboards"));
-
     onSnapshot(collection(db, "leaderboards"), (snapshot) => {
         snapshot.docChanges().forEach(changedLeaderboard => {
             const value = changedLeaderboard.doc.data();
