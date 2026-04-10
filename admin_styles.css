@@ -40,16 +40,23 @@ body {
     padding: 1rem;
     box-sizing: border-box;
     box-shadow: 0 0 5px #000;
-    gap: 1rem;
     background-color: #070d21;
     z-index: 10;
+    justify-content: space-between;
+}
+
+.sidebar_top {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
 }
 
 #sidebar_top_logo {
     margin-bottom: 1em;
 }
 
-.sidebar > button {
+.sidebar button {
     background-color: #FFF0;
     padding: 0.5rem 0.7rem;
     border-radius: 1.5rem;
@@ -61,7 +68,7 @@ body {
     transition: background-color 200ms ease-in-out;
 }
 
-.sidebar > button:hover {
+.sidebar button:hover {
     background-color: #FFF2;
     box-shadow: 0 0 5px #000;
 }
