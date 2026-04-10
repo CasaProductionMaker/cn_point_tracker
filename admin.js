@@ -26,6 +26,7 @@ const singleNinjaView = document.querySelector("#single_ninja_view");
 const sidebarHomeButton = document.querySelector("#sidebar_home_button");
 const sidebarNinjasButton = document.querySelector("#sidebar_ninjas_button");
 const sidebarSettingsButton = document.querySelector("#sidebar_settings_button");
+const sidebarLogoutButton = document.querySelector("#sidebar_logout_button");
 
 const ninjaStatsButton = document.querySelector("#ninja_stats_button");
 const ninjaSessionsButton = document.querySelector("#ninja_sessions_button");
@@ -1172,6 +1173,9 @@ async function loadPage() {
         document.querySelector(".active_settings_tab").classList.remove("active_settings_tab");
         settingsShopItems.classList.add("active_settings_tab");
         updateDynamicNavbar("Settings > Shop Items");
+    })
+    sidebarLogoutButton.addEventListener("click", (event) => {
+        window.location.href = "/";
     })
 
     // Ninja view buttons
