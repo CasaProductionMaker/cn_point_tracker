@@ -23,6 +23,20 @@
             <div class="main_content">
                 <div id="home_container" class="content_view active_view">
                     <h2>Welcome, Admin!</h2>
+                    <div id="home_items_container">
+                        <div id="ninjas_shortcut" class="home_item">
+                            <h3>Ninjas</h3>
+                            <p>67 total Ninjas registered.</p>
+                        </div>
+                        <div id="leaderboards_shortcut" class="home_item">
+                            <h3>Leaderboards</h3>
+                            <p>View leaderboards ></p>
+                        </div>
+                        <div id="coming_soon_shortcut" class="home_item">
+                            <h3>More coming soon!</h3>
+                            <p>More shortcuts will be added soon.</p>
+                        </div>
+                    </div>
                 </div>
                 <div id="ninja_container" class="content_view">
                     <div class="button_bar view_top_bar">
@@ -98,23 +112,3 @@
         <script type="module" src="admin.js"></script>
     </body>
 </html>
-
-<!-- 
-Admin panel needs:
-- container for ninjas info with id #ninja_container
-- all ninjas in the contianer have class .registered_ninja
-    - ninja name has .ninja_name
-    - points has .ninja_points
-    - uid has .ninja_uid
-- #shop_editor_container to hold the shop editor
-- all shop items in the contianer have class .shop_item
-    - item name has .shop_item_name
-    - cost has .shop_item_cost
-    - description has .shop_item_description
-- #leaderboard_slots_input for the input to input leaderboard slots
-- #add_shop_item_button for the button that opens a popup
-
-settings needed:
-leaderboard posistions
-shop editor
--->

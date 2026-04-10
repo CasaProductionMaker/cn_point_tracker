@@ -11,6 +11,26 @@ body {
     border-radius: 1rem;
 }
 
+.home_item {
+    background-color: #0005;
+    box-sizing: border-box;
+    padding: 1rem;
+    border-radius: 1rem;
+    transition: 200ms ease-in-out background-color, 200ms ease-in-out box-shadow;
+}
+
+.home_item:hover {
+    background-color: #0006;
+    box-shadow: 0 0 1rem #0006;
+    cursor: pointer;
+}
+
+#coming_soon_shortcut:hover {
+    cursor: not-allowed;
+    background-color: #0005;
+    box-shadow: none;
+}
+
  /* UI layout */
 
 .sidebar {
@@ -102,6 +122,13 @@ body {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+#home_items_container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 2rem;
+    width: 100%;
 }
 
 #ninja_grid_container {

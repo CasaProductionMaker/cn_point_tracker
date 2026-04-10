@@ -49,6 +49,11 @@ const settingsLeaderboardsButton = document.querySelector("#settings_leaderboard
 const settingsShopItems = document.querySelector("#settings_shop_items");
 const settingsLeaderboards = document.querySelector("#settings_leaderboards");
 
+// Shortcuts
+const ninjasShortcut = document.querySelector("#ninjas_shortcut");
+const leaderboardsShortcut = document.querySelector("#leaderboards_shortcut");
+const comingSoonShortcut = document.querySelector("#coming_soon_shortcut");
+
 // Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
 const ninjaSearchBar = document.querySelector("#ninja_search_bar");
@@ -1231,6 +1236,16 @@ async function loadPage() {
         settingsLeaderboards.classList.add("active_settings_tab");
         updateDynamicNavbar("Settings > Leaderboards");
     });
+
+    // Shortcuts listeners
+    ninjasShortcut.addEventListener("click", (event) => {
+        removeActiveView();
+        ninjaContainer.classList.add("active_view");
+        updateDynamicNavbar("Ninjas");
+    })
+    leaderboardsShortcut.addEventListener("click", (event) => {
+        window.location.href = "/Leaderboard/"
+    })
 }
 
 // Database functions
