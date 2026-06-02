@@ -43,9 +43,12 @@ async function loadShop() {
         item.classList.add("shop_option", "layer_3");
 
         item.innerHTML = `
-            <h3>${shopItem.name} (${shopItem.cost} points)</h3>
-            <p>${shopItem.description}</p>
-            <button class="purchase_button">PURCHASE</button>
+            <img src='${shopItem.imageBase64 || "Images/EmptyImage.jpg"}' class='shop_image'>
+            <div class='shop_info'>
+                <h3>${shopItem.name} (${shopItem.cost} points)</h3>
+                <p>${shopItem.description}</p>
+                <button class="purchase_button">PURCHASE</button>
+            </div>
         `;
 
         item.querySelector(".purchase_button").addEventListener("click", (event) => {
@@ -53,7 +56,7 @@ async function loadShop() {
             if (myProfile.points >= shopItem.cost) {
                 showPurchasePopup("admin_part", {...shopItem, id: doc.id});
             } else {
-                showWarningPopup("You do not have enough money to make this purchase!");
+                showWarningPopup("You do not have enough points to make this purchase!");
             }
         })
 

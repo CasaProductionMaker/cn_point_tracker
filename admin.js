@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper } from "./util.js"; 
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
 // Your web app's Firebase configuration
@@ -123,6 +123,10 @@ function showShopPopup(type, editID = null) {
                 <input type="number" name="shop_item_cost_input" id="shop_item_cost_input">
             </div>
             <div>
+                <label for="shop_item_image">Upload Image: </label>
+                <input type="file" id="shop_item_image" name="shop_item_image" accept="image/*">
+            </div>
+            <div>
                 <label for="shop_item_description_input">Description: </label>
                 <input type="text" name="shop_item_description_input" id="shop_item_description_input">
             </div>
@@ -160,11 +164,17 @@ function showShopPopup(type, editID = null) {
         name_input.appendChild(createInputHelper("text", `shop_item_name_input`, editInfo.name));
         actualPopup.appendChild(name_input);
 
-        // cost item name input
+        // item cost input
         let cost_input = document.createElement("div");
         cost_input.appendChild(createLabelHelper("Cost: ", `shop_item_cost_input`));
         cost_input.appendChild(createInputHelper("number", `shop_item_cost_input`, editInfo.cost));
         actualPopup.appendChild(cost_input);
+
+        // item image input
+        let image_input = document.createElement("div");
+        image_input.appendChild(createLabelHelper("Upload Image: ", `shop_item_image`));
+        image_input.appendChild(createInputHelper("file", `shop_item_image`));
+        actualPopup.appendChild(image_input);
 
         // description item name input
         let description_input = document.createElement("div");
@@ -689,12 +699,16 @@ async function addShopItem() {
     const itemName = document.querySelector("#shop_item_name_input").value;
     const itemCost = Number(document.querySelector("#shop_item_cost_input").value);
     const itemDescription = document.querySelector("#shop_item_description_input").value;
+    const file = document.querySelector("#shop_item_image").files[0];
     let nameID = itemName.replaceAll(" ", "_").toLowerCase();
+
+    const base64 = await compressImage(file, 800, 0.7);
 
     await setDoc(doc(db, "shop", nameID), {
         name: itemName, 
         cost: itemCost, 
-        description: itemDescription
+        description: itemDescription, 
+        imageBase64: base64
     });
 
     removePopup();
@@ -733,13 +747,24 @@ async function addLeaderboard() {
 async function editShopItem(shopItemID) {
     const itemName = document.getElementById("shop_item_name_input").value;
     const itemCost = Number(document.getElementById("shop_item_cost_input").value);
+    const file = document.querySelector("#shop_item_image").files[0];
     const itemDescription = document.getElementById("shop_item_description_input").value;
 
-    await updateDoc(doc(db, "shop", shopItemID), {
-        name: itemName, 
-        cost: itemCost, 
-        description: itemDescription
-    });
+    if (file == undefined) {
+        await updateDoc(doc(db, "shop", shopItemID), {
+            name: itemName, 
+            cost: itemCost, 
+            description: itemDescription
+        });
+    } else {
+        const base64 = await compressImage(file, 800, 0.7);
+        await updateDoc(doc(db, "shop", shopItemID), {
+            name: itemName, 
+            cost: itemCost, 
+            description: itemDescription, 
+            imageBase64: base64
+        });
+    }
 
     removePopup();
 }
@@ -1248,7 +1273,7 @@ async function loadPage() {
         updateDynamicNavbar("Ninjas");
     })
     leaderboardsShortcut.addEventListener("click", (event) => {
-        window.location.href = "/Leaderboard/"
+        window.location.href = "Leaderboard/"
     })
 }
 

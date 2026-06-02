@@ -33,7 +33,7 @@ body {
 }
 
 #shop {
-    flex: 1;
+    flex: 3;
     border-radius: 0.6em;
     display: flex;
     flex-direction: column;
@@ -47,7 +47,7 @@ body {
 #profile {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 2;
     gap: 0.7em;
 }
 
@@ -95,9 +95,36 @@ p {
 .shop_option {
     border-radius: 0.5em;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding: 0.7em;
-    align-items: center;
+    align-items: stretch;
+    min-height: 10em;
+    gap: 0.7em;
+}
+
+.shop_info {
+    border-radius: 0.5em;
+    display: flex;
+    flex-direction: column;
+    /* padding: 0.7em; */
+    align-items: left;
+}
+
+.shop_image {
+    border-radius: 0.3em;
+    height: 100%;
+    box-shadow: 0 0 1em #0005;
+    aspect-ratio: 0.75;
+    object-fit: cover;
+}
+
+.shop_info > h3 {
+    margin-top: 0;
+    text-align: left;
+}
+
+.shop_info > p {
+    text-align: left;
 }
 
 #tap_band_input {
