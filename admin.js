@@ -1019,6 +1019,7 @@ async function loadPage() {
                     break;
             }
         });
+        document.querySelector("#ninjas_shortcut > p").textContent = `${Object.keys(ninjas).length} ${Object.keys(ninjas).length == 1 ? "ninja" : "ninjas"} registered.`;
     });
 
     // Load Shop Editor
