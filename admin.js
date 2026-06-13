@@ -78,12 +78,12 @@ let purchaseUnSub = null;
 
 // temp reasons to add
 const pointReasons = {
-    "good_behaviour": 10, 
-    "completed_goal": 10, 
-    "belt_up": 10, 
-    "level_up": 10, 
+    "good_behaviour": 125, 
+    "belt_up": 1000, 
+    "level_up": 250, 
     "history": 0
 };
+const basePointsPerSession = 125;
 
 const UIPositions = ["top_left", "bottom_left", "main", "top_right", "bottom_right"];
 
@@ -469,7 +469,7 @@ function showSessionPopup(ninjaID) {
             date_added: Date.now()
         };
         let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
-        let pointsGotten = 0;
+        let pointsGotten = basePointsPerSession;
         Object.keys(pointReasons).forEach(async key => {
             let pointReward = pointReasons[key];
 
