@@ -20,7 +20,7 @@ const db = getFirestore();
 // Page references
 const ninjaNameDisplay = document.getElementById("ninja_name_display");
 const ninjaPointsDisplay = document.getElementById("ninja_points_display");
-const shopContainer = document.getElementById("shop");
+const shopContainer = document.getElementById("shop_container");
 const welcomeText = document.getElementById("welcome_text");
 
 const ADMIN_PW = "admin6699" //TODO:Will be moved to an env file later?

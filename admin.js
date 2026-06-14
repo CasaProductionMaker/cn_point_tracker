@@ -702,14 +702,22 @@ async function addShopItem() {
     const file = document.querySelector("#shop_item_image").files[0];
     let nameID = itemName.replaceAll(" ", "_").toLowerCase();
 
-    const base64 = await compressImage(file, 800, 0.7);
+    if (file == undefined) {
+        await setDoc(doc(db, "shop", nameID), {
+            name: itemName, 
+            cost: itemCost, 
+            description: itemDescription
+        });
+    } else {
+        const base64 = await compressImage(file, 800, 0.7);
 
-    await setDoc(doc(db, "shop", nameID), {
-        name: itemName, 
-        cost: itemCost, 
-        description: itemDescription, 
-        imageBase64: base64
-    });
+        await setDoc(doc(db, "shop", nameID), {
+            name: itemName, 
+            cost: itemCost, 
+            description: itemDescription, 
+            imageBase64: base64
+        });
+    }
 
     removePopup();
 }

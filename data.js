@@ -11,4 +11,4 @@ export const lang = {
     "bottom_right": "Bottom Right"
 }
 
-export const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black"];
+export const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black", "Bronze", "Silver", "Platinum", 'Gold'];
