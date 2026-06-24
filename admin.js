@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore();
+const db = getFirestore(app);
 
 // Page references
 const homeContainer = document.querySelector("#home_container");
@@ -627,7 +627,7 @@ function showAddCustomPointsPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
-function showEditBeltLevelPopup(ninjaID) {
+function showEditNinjaInfoPopup(ninjaID) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -644,7 +644,7 @@ function showEditBeltLevelPopup(ninjaID) {
     actualPopup.id = "custom_points_popup";
     actualPopup.classList.add("popup", "small_popup");
 
-    actualPopup.appendChild(createSimpleElementHelper("h2", `Update ${ninjaData.firstname}'s Belt Level: `));
+    actualPopup.appendChild(createSimpleElementHelper("h2", `Update ${ninjaData.firstname}'s Info: `));
 
     // Belt input
     let beltHolder = document.createElement("div");
@@ -663,6 +663,18 @@ function showEditBeltLevelPopup(ninjaID) {
     beltHolder.appendChild(dropdown);
     actualPopup.appendChild(beltHolder);
 
+    // first name
+    let first_name_input = document.createElement("div");
+    first_name_input.appendChild(createLabelHelper("First name: ", `edit_ninja_first_name_input`));
+    first_name_input.appendChild(createInputHelper("text", `edit_ninja_first_name_input`, ninjaData.firstname));
+    actualPopup.appendChild(first_name_input);
+
+    // last name
+    let last_name_input = document.createElement("div");
+    last_name_input.appendChild(createLabelHelper("Last name: ", `edit_ninja_last_name_input`));
+    last_name_input.appendChild(createInputHelper("text", `edit_ninja_last_name_input`, ninjaData.lastname));
+    actualPopup.appendChild(last_name_input);
+
     // Buttons
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
@@ -675,7 +687,7 @@ function showEditBeltLevelPopup(ninjaID) {
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
-        applyBeltLevel(ninjaID);
+        applyNinjaInfoUpdates(ninjaID);
     })
     close_button.addEventListener("click", async (e) => {
         removePopup();
@@ -819,10 +831,14 @@ async function applyCustomPoints(ninjaID) {
     removePopup();
 }
 
-async function applyBeltLevel(ninjaID) {
+async function applyNinjaInfoUpdates(ninjaID) {
     const belt = belts.indexOf(document.querySelector("#belts").value);
+    const fname = document.querySelector("#edit_ninja_first_name_input").value;
+    const lname = document.querySelector("#edit_ninja_last_name_input").value;
     await updateDoc(doc(db, "ninjas", ninjaID), {
-        belt: belt
+        belt: belt, 
+        firstname: fname, 
+        lastname: lname
     });
     // Find all my leaderboard entries to update them
     const myEntries = await getDocs(query(collection(db, "leaderboard_entries"), where("ninja_id", "==", ninjaID)));
@@ -1233,7 +1249,7 @@ async function loadPage() {
         showAddCustomPointsPopup(currentlyViewingNinja);
     })
     singleNinjaBeltSet.addEventListener("click", (event) => {
-        showEditBeltLevelPopup(currentlyViewingNinja);
+        showEditNinjaInfoPopup(currentlyViewingNinja);
     });
     singleNinjaManualLogin.addEventListener("click", (event) => {
         // Set the login credentials to the ninja's credentials and open the dashboard app

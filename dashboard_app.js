@@ -15,11 +15,15 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore();
+const db = getFirestore(app);
 
 // Page references
 const ninjaNameDisplay = document.getElementById("ninja_name_display");
 const ninjaPointsDisplay = document.getElementById("ninja_points_display");
+const singleShopItemDisplay = document.getElementById("single_shop_item");
+const shopItemBackButton = document.getElementById("shop_item_back_button");
+const purchaseItemButton = document.getElementById("purchase_item");
+const shopCatalog = document.getElementById("shop_catalog");
 const shopContainer = document.getElementById("shop_container");
 const welcomeText = document.getElementById("welcome_text");
 
@@ -34,6 +38,7 @@ let myProfile = {};
 // Element tracking
 let currentPopup = null;
 let inputIntervalFunction;
+let currentShopItemFocused = null;
 
 async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
@@ -45,23 +50,36 @@ async function loadShop() {
         item.innerHTML = `
             <img src='${shopItem.imageBase64 || "Images/EmptyImage.jpg"}' class='shop_image'>
             <div class='shop_info'>
-                <h3>${shopItem.name} (${shopItem.cost} points)</h3>
-                <p>${shopItem.description}</p>
-                <button class="purchase_button">PURCHASE</button>
+                <h3>${shopItem.name}</h3>
+                <p>${shopItem.cost} points</p>
             </div>
         `;
 
-        item.querySelector(".purchase_button").addEventListener("click", (event) => {
-            // buy item
-            if (myProfile.points >= shopItem.cost) {
-                showPurchasePopup("admin_part", {...shopItem, id: doc.id});
-            } else {
-                showWarningPopup("You do not have enough points to make this purchase!");
-            }
+        item.addEventListener("click", (event) => {
+            // open item
+            currentShopItemFocused = {...shopItem, id: doc.id};
+            updateShopView();
         })
 
         shopContainer.appendChild(item);
     });
+}
+
+// Shop item viewing
+function updateShopView() {
+    if (currentShopItemFocused == null) {
+        shopCatalog.style.display = "flex";
+        singleShopItemDisplay.style.display = "none";
+    } else {
+        shopCatalog.style.display = "none";
+        singleShopItemDisplay.style.display = "flex";
+
+        // update ui
+        singleShopItemDisplay.querySelector("h2").innerText = currentShopItemFocused.name;
+        singleShopItemDisplay.querySelector("div > p").innerText = currentShopItemFocused.description;
+        singleShopItemDisplay.querySelector("div > h6").innerText = `Cost: ${currentShopItemFocused.cost} points`;
+        singleShopItemDisplay.querySelector("img").src = currentShopItemFocused.imageBase64 || "Images/EmptyImage.jpg";
+    }
 }
 
 // Popup functionality
@@ -414,7 +432,18 @@ async function loadPage() {
 
     document.querySelector("#transfer_belt_button").addEventListener("click", event => {
         showBeltTransferPopup("admin_part");
-    })
+    });
+    shopItemBackButton.addEventListener("click", event => {
+        currentShopItemFocused = null;
+        updateShopView();
+    });
+    purchaseItemButton.addEventListener("click", event => {
+        if (myProfile.points >= currentShopItemFocused.cost) {
+            showPurchasePopup("admin_part", currentShopItemFocused);
+        } else {
+            showWarningPopup("You do not have enough points to make this purchase!");
+        }
+    });
 }
 
 
