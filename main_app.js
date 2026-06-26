@@ -5,6 +5,7 @@ const nfcInput = document.querySelector("#nfc_input");
 nfcInput.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
         if (e.target.value === "admin6699") {
+            localStorage.setItem("isAdminSignedIn", true);
             window.location.href = "admin_panel.html";
             return;
         }

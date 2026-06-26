@@ -3,6 +3,14 @@ import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, co
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
+// check that we are signed in
+if (localStorage.getItem("isAdminSignedIn") == "true") {
+    localStorage.setItem("isAdminSignedIn", false);
+} else {
+    window.location.href = "/";
+    throw new Error("Redirecting");
+}
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD4Ji7FYEOi0IseOh4b8FCGtj5gw1UQu34",
