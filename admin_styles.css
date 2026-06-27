@@ -11,6 +11,27 @@ body {
     border-radius: 1rem;
 }
 
+.registered_ninja {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.registered_ninja > h3 {
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+.registered_ninja > p {
+    margin: 0;
+}
+
+.registered_ninja > button {
+    width: 100%;
+    min-width: 0;
+}
+
 .home_item {
     background-color: #0005;
     box-sizing: border-box;
@@ -83,6 +104,7 @@ body {
     flex-direction: column;
     flex: 1;
     height: 100vh;
+    min-width: 0;
 }
 
 .top_bar {
@@ -141,10 +163,12 @@ body {
 
 #ninja_grid_container {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 2rem;
     width: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 #ninja_sessions_container {
@@ -187,6 +211,9 @@ body {
     align-items: center;
     gap: 1rem;
     max-height: 100%;
+    min-width: 0;
+    flex: 1;
+    box-sizing: border-box;
 }
 
 #ninja_container.active_view {

@@ -4,7 +4,7 @@ import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper
 import { lang, belts } from "./data.js";
 
 // check that we are signed in
-if (localStorage.getItem("isAdminSignedIn") == "true") {
+if (localStorage.getItem("isAdminSignedIn") == "true" || localStorage.getItem("devMode") == "true") {
     localStorage.setItem("isAdminSignedIn", false);
 } else {
     window.location.href = "/";
@@ -1016,12 +1016,53 @@ async function loadPage() {
                     let view_ninja = createEmptyButtonHelper("More Info");
                     ninjaElement.appendChild(view_ninja);
 
+                    let base_session = createEmptyButtonHelper("Add Base Session");
+                    ninjaElement.appendChild(base_session);
+
                     // Add event listeners
                     view_ninja.addEventListener("click", (event) => {
                         showNinjaView(ninja.doc.id);
                         document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
                         singleNinjaStats.classList.add("active_ninja_tab");
                         updateDynamicNavbar(`Ninjas > ${value.firstname} ${value.lastname} > Stats`);
+                    });
+
+                    base_session.addEventListener("click", async (event) => {
+                        // add base session
+                        let ninjaID = ninja.doc.id;
+                        const ninjaData = ninjas[ninjaID];
+                        let sessionData = {
+                            date_added: Date.now(), 
+                            good_behaviour_points: pointReasons["good_behaviour"]
+                        };
+                        let ninjaUpdates = {
+                            total_good_behaviour_points: increment(pointReasons["good_behaviour"])
+                        }; // Storing a dictionary that will only hold CHANGES for the ninja
+                        let pointsGotten = basePointsPerSession + pointReasons["good_behaviour"];
+                        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_good_behaviour`), {
+                            ninja_id: ninjaID, 
+                            reason: "good_behaviour", 
+                            points: increment(pointReasons["good_behaviour"]), 
+                            ninja_belt_level: ninjaData.belt
+                        }, { merge: true })
+
+                        sessionData.total_points_gotten = pointsGotten;
+
+                        await addDoc(collection(db, "ninjas", ninjaID, "sessions"), sessionData);
+
+                        // Update the ninja's stats in their regular account for easy access
+                        ninjaUpdates.points = increment(pointsGotten);
+                        ninjaUpdates.points_in_history = increment(pointsGotten);
+                        
+                        await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+
+                        // Add info to leaderboard_entries
+                        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+                            ninja_id: ninjaID, 
+                            reason: "history", 
+                            points: increment(pointsGotten), 
+                            ninja_belt_level: ninjaData.belt
+                        }, { merge: true })
                     });
 
                     // Save value for editing purposes
