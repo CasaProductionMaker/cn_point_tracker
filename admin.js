@@ -7,7 +7,7 @@ import { lang, belts } from "./data.js";
 if (localStorage.getItem("isAdminSignedIn") == "true" || localStorage.getItem("devMode") == "true") {
     localStorage.setItem("isAdminSignedIn", false);
 } else {
-    window.location.href = "/";
+    window.location.href = "/cn_point_tracker/";
     throw new Error("Redirecting");
 }
 
@@ -1274,7 +1274,7 @@ async function loadPage() {
         updateDynamicNavbar("Settings > Shop Items");
     })
     sidebarLogoutButton.addEventListener("click", (event) => {
-        window.location.href = "/";
+        window.location.href = "/cn_point_tracker/";
     })
 
     // Ninja view buttons
