@@ -134,7 +134,7 @@ body {
     flex: 1;
     flex-direction: row;
     gap: 1rem;
-    /* align-items: stretch; */
+    align-items: stretch;
 }
 
 #shop_item_container > img {
@@ -142,6 +142,7 @@ body {
     width: 100%;
     border-radius: 0.3em;
     object-fit: cover;
+    min-height: 0;
 }
 
 #shop_item_actions {
@@ -154,6 +155,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-height: 0;
 }
 
 #shop_item_info > h6 {

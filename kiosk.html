@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="kiosk_styles.css">
+		<link rel="stylesheet" href="styles.css">
+        <link rel="icon" type="image/x-icon" href="./Images/logo.svg">
+        <title>Code Ninjas Point Tracker</title>
+    </head>
+    <body>
+        <div class="header">
+            <img src="Images/logo-full.svg" id="header-icon">
+        </div>     
+        <div class="body-no-header">
+            <img src="Images/logo.svg" id="main_icon">
+            <h1 id="name_text">Name: N/A</h1>
+            <h1 id="points_text">Points: N/A</h1>
+            <input id="nfc_input" autofocus class="invisible_input" type="text" autocomplete="off">
+        </div>   
+        <script src="kiosk_app.js" type="module"></script>
+    </body>
+</html>

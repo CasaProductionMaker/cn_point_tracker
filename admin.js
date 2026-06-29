@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
@@ -509,7 +509,7 @@ function showSessionPopup(ninjaID) {
 
         // Update the ninja's stats in their regular account for easy access
         ninjaUpdates.points = increment(pointsGotten);
-        ninjaUpdates.points_in_history = increment(pointsGotten);
+        ninjaUpdates.total_history_points = increment(pointsGotten);
         
         await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
 
@@ -536,7 +536,7 @@ function showSessionPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
-function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel") {
+function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel", infoText = "This action is irriversible.") {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -553,7 +553,7 @@ function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Ca
     let title = createElementHelper("h2", null, titleText);
     actualPopup.appendChild(title);
 
-    let info = createElementHelper("p", null, "This action is irriversible.");
+    let info = createElementHelper("p", null, infoText);
     actualPopup.appendChild(info);
 
     // Buttons
@@ -873,7 +873,7 @@ function showNinjaView(ninjaID) {
     singleNinjaView.classList.add("active_view");
 }
 
-function updateNinjaView(ninjaID) {
+async function updateNinjaView(ninjaID) {
     // Setup ALL the ninjas's stuff
     const ninjaData = ninjas[ninjaID];
 
@@ -883,7 +883,18 @@ function updateNinjaView(ninjaID) {
     singleNinjaStats.querySelector(".ninja_points").textContent = `Current Points: ${ninjaData.points}`;
     singleNinjaStats.querySelector(".ninja_uid").textContent = `UID: ${ninjaID}`;
     singleNinjaStats.querySelector(".ninja_nfc_id").textContent = `NFC ID: ${ninjaData.nfc_id}`;
-    singleNinjaStats.querySelector(".ninja_history_points").textContent = `Points in History: ${ninjaData.points_in_history}`;
+    singleNinjaStats.querySelector(".ninja_history_points").textContent = `Points in History: ${ninjaData.total_history_points}`;
+
+    // quick fix
+    if (ninjaData.total_history_points == undefined) {
+        let newTotal = 0;
+        if (ninjaData.points_in_history) {
+            newTotal = ninjaData.points_in_history;
+        }
+        await updateDoc(doc(db, "ninjas", ninjaID), {
+            total_history_points: newTotal
+        }, { merge: true })
+    }
 
     // Sessions:
     singleNinjaSessions.querySelector(".ninja_title").textContent = `${ninjaData.firstname} ${ninjaData.lastname}'s Sessions`;
@@ -1027,42 +1038,44 @@ async function loadPage() {
                         updateDynamicNavbar(`Ninjas > ${value.firstname} ${value.lastname} > Stats`);
                     });
 
-                    base_session.addEventListener("click", async (event) => {
-                        // add base session
-                        let ninjaID = ninja.doc.id;
-                        const ninjaData = ninjas[ninjaID];
-                        let sessionData = {
-                            date_added: Date.now(), 
-                            good_behaviour_points: pointReasons["good_behaviour"]
-                        };
-                        let ninjaUpdates = {
-                            total_good_behaviour_points: increment(pointReasons["good_behaviour"])
-                        }; // Storing a dictionary that will only hold CHANGES for the ninja
-                        let pointsGotten = basePointsPerSession + pointReasons["good_behaviour"];
-                        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_good_behaviour`), {
-                            ninja_id: ninjaID, 
-                            reason: "good_behaviour", 
-                            points: increment(pointReasons["good_behaviour"]), 
-                            ninja_belt_level: ninjaData.belt
-                        }, { merge: true })
+                    base_session.addEventListener("click", () => {
+                        showConfirmPopup(async (event) => {
+                            // add base session
+                            let ninjaID = ninja.doc.id;
+                            const ninjaData = ninjas[ninjaID];
+                            let sessionData = {
+                                date_added: Date.now(), 
+                                good_behaviour_points: pointReasons["good_behaviour"]
+                            };
+                            let ninjaUpdates = {
+                                total_good_behaviour_points: increment(pointReasons["good_behaviour"])
+                            }; // Storing a dictionary that will only hold CHANGES for the ninja
+                            let pointsGotten = basePointsPerSession + pointReasons["good_behaviour"];
+                            await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_good_behaviour`), {
+                                ninja_id: ninjaID, 
+                                reason: "good_behaviour", 
+                                points: increment(pointReasons["good_behaviour"]), 
+                                ninja_belt_level: ninjaData.belt
+                            }, { merge: true })
 
-                        sessionData.total_points_gotten = pointsGotten;
+                            sessionData.total_points_gotten = pointsGotten;
 
-                        await addDoc(collection(db, "ninjas", ninjaID, "sessions"), sessionData);
+                            await addDoc(collection(db, "ninjas", ninjaID, "sessions"), sessionData);
 
-                        // Update the ninja's stats in their regular account for easy access
-                        ninjaUpdates.points = increment(pointsGotten);
-                        ninjaUpdates.points_in_history = increment(pointsGotten);
-                        
-                        await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+                            // Update the ninja's stats in their regular account for easy access
+                            ninjaUpdates.points = increment(pointsGotten);
+                            ninjaUpdates.total_history_points = increment(pointsGotten);
+                            
+                            await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
 
-                        // Add info to leaderboard_entries
-                        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
-                            ninja_id: ninjaID, 
-                            reason: "history", 
-                            points: increment(pointsGotten), 
-                            ninja_belt_level: ninjaData.belt
-                        }, { merge: true })
+                            // Add info to leaderboard_entries
+                            await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+                                ninja_id: ninjaID, 
+                                reason: "history", 
+                                points: increment(pointsGotten), 
+                                ninja_belt_level: ninjaData.belt
+                            }, { merge: true })
+                        }, `Add a Base Session to ${value.firstname}?`, "Confirm", "Cancel", "A base session includes base points for hour and good behaviour points.");
                     });
 
                     // Save value for editing purposes
@@ -1352,10 +1365,9 @@ async function loadPage() {
 }
 
 // Database functions
-async function editPoints(ninja, amount) {
+async function editPoints(ninja, amount) { // does not affect leaderboard
     await updateDoc(doc(db, "ninjas", ninja), {
-        points: increment(amount), 
-        total_history_points: increment(amount)
+        points: increment(amount)
     });
 }
 
@@ -1368,7 +1380,44 @@ async function removeShopItem(itemID) {
 }
 
 async function removeSession(ninjaID, sessionID) {
-    await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
+    // asdsa
+    const session = await getDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
+    const sessionData = session.data();
+    const ninjaData = ninjas[ninjaID];
+    console.log(session.data());
+
+    // remove points
+    let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+    let pointsGotten = sessionData.total_points_gotten;
+    Object.keys(pointReasons).forEach(async key => {
+        if (sessionData[`${key}_points`] != null) {
+            ninjaUpdates[`total_${key}_points`] = increment(-sessionData[`${key}_points`]);
+
+            // Add info to leaderboard_entries
+            await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_${key}`), {
+                ninja_id: ninjaID, 
+                reason: key, 
+                points: increment(-sessionData[`${key}_points`]), 
+                ninja_belt_level: ninjaData.belt
+            }, { merge: true })
+        }
+    });
+
+    // Update the ninja's stats in their regular account for easy access
+    ninjaUpdates.points = increment(-pointsGotten);
+    ninjaUpdates.total_history_points = increment(-pointsGotten);
+    
+    await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+
+    // Add info to leaderboard_entries
+    await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+        ninja_id: ninjaID, 
+        reason: "history", 
+        points: increment(-pointsGotten), 
+        ninja_belt_level: ninjaData.belt
+    }, { merge: true })
+
+    // await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
 }
 
 async function fulfillPurchase(ninjaID, purchaseID) {
