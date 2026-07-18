@@ -1319,7 +1319,12 @@ async function loadPage() {
         window.location.href = "dashboard.html";
     })
     removeSingleNinja.addEventListener("click", (event) => {
-        showConfirmPopup(async () => await deleteNinja(currentlyViewingNinja), "Are you sure you want to delete this Ninja?");
+        showConfirmPopup(async () => {
+            await deleteNinja(currentlyViewingNinja);
+            removeActiveView();
+            ninjaContainer.classList.add("active_view");
+            updateDynamicNavbar("Ninjas");
+        }, "Are you sure you want to delete this Ninja?");
     })
     singleNinjaAddSession.addEventListener("click", (event) => {
         showSessionPopup(currentlyViewingNinja);

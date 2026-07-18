@@ -469,6 +469,7 @@ async function registerNinja() {
     const fname = document.querySelector("#fname").value;
     const lname = document.querySelector("#lname").value;
     const belt = belts.indexOf(document.querySelector("#belts").value);
+    if (isNullOrWhitespace(fname) || isNullOrWhitespace(lname)) return;
     const docRef = await addDoc(collection(db, "ninjas"), {
         firstname: fname,
         lastname: lname, 
@@ -481,6 +482,10 @@ async function registerNinja() {
 
     removePopup();
     loadPage();
+}
+
+function isNullOrWhitespace(str) {
+    return !str || str.trim().length === 0;
 }
 
 // Start app
