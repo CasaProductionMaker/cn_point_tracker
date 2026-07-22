@@ -433,6 +433,10 @@ async function loadPage() {
     document.querySelector("#transfer_belt_button").addEventListener("click", event => {
         showBeltTransferPopup("admin_part");
     });
+
+    document.querySelector("#log_out_button").addEventListener("click", event => {
+        window.location.href = "/cn_point_tracker/";
+    });
     shopItemBackButton.addEventListener("click", event => {
         currentShopItemFocused = null;
         updateShopView();

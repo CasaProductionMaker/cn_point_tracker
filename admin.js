@@ -536,7 +536,7 @@ function showSessionPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
-function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel", infoText = "This action is irriversible.") {
+function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel", infoText = "This action is irriversible.", invertColors = false) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -560,10 +560,10 @@ function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Ca
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
 
-    let submit_button = createEmptyButtonHelper(button1, "danger_button");
+    let submit_button = createEmptyButtonHelper(button1, invertColors ? "" : "danger_button");
     button_bar.appendChild(submit_button);
 
-    let cancel_button = createEmptyButtonHelper(button2);
+    let cancel_button = createEmptyButtonHelper(button2, invertColors ? "danger_button" : "");
     button_bar.appendChild(cancel_button);
 
     // Event listeners
@@ -1075,7 +1075,7 @@ async function loadPage() {
                                 points: increment(pointsGotten), 
                                 ninja_belt_level: ninjaData.belt
                             }, { merge: true })
-                        }, `Add a Base Session to ${value.firstname}?`, "Confirm", "Cancel", "A base session includes base points for hour and good behaviour points.");
+                        }, `Add a Base Session to ${value.firstname}?`, "Confirm", "Cancel", "A base session includes base points for hour and good behaviour points.", true);
                     });
 
                     // Save value for editing purposes
