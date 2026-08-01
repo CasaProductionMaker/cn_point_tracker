@@ -536,6 +536,146 @@ function showSessionPopup(ninjaID) {
     document.body.appendChild(currentPopup);
 }
 
+async function showEditSessionPopup(ninjaID, sessionID) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Load data from cache
+    const ninjaData = ninjas[ninjaID];
+    const session = await getDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
+    const sessionData = session.data();
+    console.log(session.data());
+    const time = new Date(sessionData.date_added);
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "add_session_popup";
+    actualPopup.classList.add("popup");
+
+    let title = createElementHelper("h2", null, `Edit ${ninjaData.firstname}'s ${time.toLocaleDateString()} Session:`);
+    actualPopup.appendChild(title);
+
+    // Go through all the possible reasons to get points and add a checkbox to select
+    Object.keys(pointReasons).forEach(key => {
+        let pointReward = pointReasons[key];
+
+        if (pointReward <= 0) return;
+
+        let inputHolder = document.createElement("div");
+
+        // Create both the checkbox and label and put into div so flex doesn't change its layout
+        let checkboxInput = createInputHelper("checkbox", `${key}_checkbox`);
+        if (sessionData[`${key}_points`]) checkboxInput.checked = true;
+        let labelElement = createLabelHelper(`${lang[key]} (${pointReward} points)`, `${key}_checkbox`);
+        inputHolder.appendChild(checkboxInput);
+        inputHolder.appendChild(labelElement);
+
+        actualPopup.appendChild(inputHolder);
+    });
+
+    // Custom points UI
+    let customInputHolder = document.createElement("div");
+
+    let checkboxInput = createInputHelper("checkbox", "custom_points_checkbox");
+    let labelElement = createLabelHelper(`Custom: `, "custom_points_checkbox");
+    let custom_pts = createInputHelper("number", `custom_points_input`);
+    if (sessionData[`custom_points`]) {
+        checkboxInput.checked = true;
+        custom_pts.value = (Number)(sessionData[`custom_points`]);
+    }
+    custom_pts.setAttribute("placeholder", "Custom Amount...");
+    customInputHolder.appendChild(checkboxInput);
+    customInputHolder.appendChild(labelElement);
+    customInputHolder.appendChild(custom_pts);
+
+    actualPopup.appendChild(customInputHolder);
+
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
+    let submit_button = createEmptyButtonHelper("Apply Changes");
+    button_bar.appendChild(submit_button);
+
+    let cancel_button = createEmptyButtonHelper("Cancel");
+    button_bar.appendChild(cancel_button);
+    
+    // Add event listeners
+    submit_button.addEventListener("click", async (e) => {
+        // COPY PAST FROM DELETE
+
+        // save stuff
+        let updatedSessionData = {};
+
+        // remove points
+        let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+        let pointsGotten = 0;
+        Object.keys(pointReasons).forEach(async key => {
+            let pointReward = pointReasons[key];
+
+            if (pointReward <= 0) return;
+
+            if (document.querySelector(`#${key}_checkbox`).checked) {
+                updatedSessionData[`${key}_points`] = pointReward;
+            }
+            if (sessionData[`${key}_points`] != null) {
+                ninjaUpdates[`total_${key}_points`] = increment(-sessionData[`${key}_points`] + pointReward);
+                pointsGotten += pointReward;
+
+                // Add info to leaderboard_entries
+                await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_${key}`), {
+                    ninja_id: ninjaID, 
+                    reason: key, 
+                    points: increment(-sessionData[`${key}_points`] + pointReward), 
+                    ninja_belt_level: ninjaData.belt
+                }, { merge: true })
+            }
+        });
+        if (document.querySelector(`#custom_points_checkbox`).checked) {
+            const inputVal = Number(document.querySelector(`#custom_points_input`).value);
+            pointsGotten += inputVal;
+            updatedSessionData[`custom_points`] = inputVal;
+            ninjaUpdates[`total_custom_points`] = increment(-sessionData[`custom_points`] + inputVal);
+        }
+        updatedSessionData.total_points_gotten = pointsGotten;
+
+        // Update the ninja's stats in their regular account for easy access
+        ninjaUpdates.points = increment(pointsGotten);
+        ninjaUpdates.total_history_points = increment(pointsGotten);
+        
+        await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
+
+        // Add info to leaderboard_entries
+        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+            ninja_id: ninjaID, 
+            reason: "history", 
+            points: increment(-pointsGotten), 
+            ninja_belt_level: ninjaData.belt
+        }, { merge: true })
+
+        // edit the sessoion stuff
+        await updateDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID), updatedSessionData);
+
+        // Close popup after done
+        removePopup();
+    })
+    cancel_button.addEventListener("click", async (e) => {
+        removePopup();
+    })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
 function showConfirmPopup(callback, titleText, button1 = "Delete", button2 = "Cancel", infoText = "This action is irriversible.", invertColors = false) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -933,10 +1073,17 @@ async function updateNinjaView(ninjaID) {
             let button_bar = document.createElement("div");
             button_bar.classList.add("popup_button_bar");
 
-            let delete_button = createEmptyButtonHelper("DELETE SESSION", "danger_button");
+            let edit_button = createEmptyButtonHelper("Edit Session");
+            button_bar.appendChild(edit_button);
+
+            let delete_button = createEmptyButtonHelper("Delete Session", "danger_button");
             button_bar.appendChild(delete_button);
             
             // Add event listeners
+            edit_button.addEventListener("click", async (e) => {
+                showEditSessionPopup(ninjaID, session.id);
+            })
+
             delete_button.addEventListener("click", async (e) => {
                 showConfirmPopup(async () => await removeSession(ninjaID, session.id), "Are you sure you want to delete this session?")
             })
@@ -1422,7 +1569,7 @@ async function removeSession(ninjaID, sessionID) {
         ninja_belt_level: ninjaData.belt
     }, { merge: true })
 
-    // await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
+    await deleteDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID));
 }
 
 async function fulfillPurchase(ninjaID, purchaseID) {
