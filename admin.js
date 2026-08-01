@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage } from "./util.js"; 
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
 // check that we are signed in
@@ -23,7 +23,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getFirestore(app);   
 
 // Page references
 const homeContainer = document.querySelector("#home_container");
@@ -61,7 +61,7 @@ const settingsLeaderboards = document.querySelector("#settings_leaderboards");
 // Shortcuts
 const ninjasShortcut = document.querySelector("#ninjas_shortcut");
 const leaderboardsShortcut = document.querySelector("#leaderboards_shortcut");
-const comingSoonShortcut = document.querySelector("#coming_soon_shortcut");
+const wristbandShortcut = document.querySelector("#wristband_shortcut");
 
 // Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
@@ -71,6 +71,9 @@ const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_
 const addShopItemButton = document.querySelector("#add_shop_item_button");
 const addLeaderboardButton = document.querySelector("#add_leaderboard_button");
 const dynamicNavbar = document.querySelector("#navbar_header");
+
+// interval func
+let inputIntervalFunction;
 
 // Element tracking
 let ninjaElements = {};
@@ -410,7 +413,7 @@ function showLeaderboardPopup(type, editID = null) {
     }
 }
 
-function showSessionPopup(ninjaID) {
+function showSessionPopup(ninjaID, isBase = false) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
         return;
@@ -440,6 +443,7 @@ function showSessionPopup(ninjaID) {
 
         // Create both the checkbox and label and put into div so flex doesn't change its layout
         let checkboxInput = createInputHelper("checkbox", `${key}_checkbox`);
+        if (isBase && key == "good_behaviour") checkboxInput.checked = true;
         let labelElement = createLabelHelper(`${lang[key]} (${pointReward} points)`, `${key}_checkbox`);
         inputHolder.appendChild(checkboxInput);
         inputHolder.appendChild(labelElement);
@@ -839,6 +843,104 @@ function showEditNinjaInfoPopup(ninjaID) {
     })
     close_button.addEventListener("click", async (e) => {
         removePopup();
+    })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
+function showWarningPopup(warningText) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "popup_container";
+    actualPopup.classList.add("popup", "small_popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", warningText));
+
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+    let cancel_button = createEmptyButtonHelper("OK");
+    button_bar.appendChild(cancel_button);
+
+    cancel_button.addEventListener("click", (event) => {
+        removePopup();
+    })
+
+    actualPopup.appendChild(button_bar);
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
+function showWristbandPopup() {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "custom_points_popup";
+    actualPopup.classList.add("popup", "small_popup");
+
+    actualPopup.appendChild(createSimpleElementHelper("h2", "Scan a Ninja's wristband to add a session to them:"));
+
+    // Buttons
+    let button_bar = document.createElement("div");
+    button_bar.classList.add("popup_button_bar");
+
+    let close_button = createEmptyButtonHelper("Close");
+    button_bar.appendChild(close_button);
+
+    close_button.addEventListener("click", async (e) => {
+        clearInterval(inputIntervalFunction);
+        removePopup();
+    })
+
+    let tap_band_input = document.createElement("div");
+    const tap_band_input_field = createInputHelper("text", `tap_band_input`);
+    tap_band_input.appendChild(tap_band_input_field);
+    actualPopup.appendChild(tap_band_input);
+
+    // Set to constantly track
+    inputIntervalFunction = setInterval(() => {
+        tap_band_input_field.focus();
+    }, 500);
+    
+    tap_band_input_field.addEventListener("keydown", async (e) => {
+        if (e.key != "Enter") {
+            return;
+        }
+
+        clearInterval(inputIntervalFunction);
+        removePopup();
+
+        // scan for if this ninja exists
+        const ninjaData = Object.keys(ninjas).find(val =>  ninjas[val].nfc_id == convertInputToKey(e.target.value));
+
+        if (ninjaData) {
+            showSessionPopup(ninjaData, true);
+        } else {
+            showWarningPopup("User does not exist yet!");
+        }
     })
 
     actualPopup.appendChild(button_bar);
@@ -1513,6 +1615,9 @@ async function loadPage() {
     })
     leaderboardsShortcut.addEventListener("click", (event) => {
         window.location.href = "Leaderboard/"
+    })
+    wristbandShortcut.addEventListener("click", (event) => {
+        showWristbandPopup();
     })
 }
 

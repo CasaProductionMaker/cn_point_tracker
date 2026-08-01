@@ -325,3 +325,8 @@ body {
 .resolved_purchase {
     color: #0E0;
 }
+
+#tap_band_input {
+    position: absolute;
+    opacity: 0;
+}
