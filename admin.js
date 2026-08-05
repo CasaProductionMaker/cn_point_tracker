@@ -611,33 +611,32 @@ async function showEditSessionPopup(ninjaID, sessionID) {
     
     // Add event listeners
     submit_button.addEventListener("click", async (e) => {
-        // COPY PAST FROM DELETE
+        // BROKEN STUF
 
         // save stuff
-        let updatedSessionData = {};
+        let updatedSessionData = {
+            date_added: sessionData.date_added
+        };
 
-        // remove points
+        // vars
         let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
-        let pointsGotten = 0;
+        let pointsGotten = basePointsPerSession; // to get now
+        let previousSessionPoints = basePointsPerSession; // had before
+
+        // loop
         Object.keys(pointReasons).forEach(async key => {
             let pointReward = pointReasons[key];
 
             if (pointReward <= 0) return;
 
-            if (document.querySelector(`#${key}_checkbox`).checked) {
+            if (document.querySelector(`#${key}_checkbox`).checked) { // if its NOW added
                 updatedSessionData[`${key}_points`] = pointReward;
-            }
-            if (sessionData[`${key}_points`] != null) {
-                ninjaUpdates[`total_${key}_points`] = increment(-sessionData[`${key}_points`] + pointReward);
                 pointsGotten += pointReward;
+            }
 
-                // Add info to leaderboard_entries
-                await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_${key}`), {
-                    ninja_id: ninjaID, 
-                    reason: key, 
-                    points: increment(-sessionData[`${key}_points`] + pointReward), 
-                    ninja_belt_level: ninjaData.belt
-                }, { merge: true })
+            if (sessionData[`${key}_points`] != null) { // if it WAS BEFORE
+                ninjaUpdates[`total_${key}_points`] = increment(-sessionData[`${key}_points`]);
+                previousSessionPoints += pointReward;
             }
         });
         if (document.querySelector(`#custom_points_checkbox`).checked) {
@@ -649,8 +648,8 @@ async function showEditSessionPopup(ninjaID, sessionID) {
         updatedSessionData.total_points_gotten = pointsGotten;
 
         // Update the ninja's stats in their regular account for easy access
-        ninjaUpdates.points = increment(pointsGotten);
-        ninjaUpdates.total_history_points = increment(pointsGotten);
+        ninjaUpdates.points = increment(pointsGotten - previousSessionPoints);
+        ninjaUpdates.total_history_points = increment(pointsGotten - previousSessionPoints);
         
         await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
 
@@ -658,12 +657,12 @@ async function showEditSessionPopup(ninjaID, sessionID) {
         await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
             ninja_id: ninjaID, 
             reason: "history", 
-            points: increment(-pointsGotten), 
+            points: increment(pointsGotten - previousSessionPoints), 
             ninja_belt_level: ninjaData.belt
         }, { merge: true })
 
         // edit the sessoion stuff
-        await updateDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID), updatedSessionData);
+        await setDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID), updatedSessionData);
 
         // Close popup after done
         removePopup();
@@ -1591,7 +1590,7 @@ async function loadPage() {
                 isShown = true;
             }
 
-            ninjaElement.style.display = isShown ? "block" : "none";
+            ninjaElement.style.display = isShown ? "flex" : "none";
         });
     });
 
