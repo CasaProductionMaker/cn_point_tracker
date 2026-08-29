@@ -43,7 +43,7 @@ async function loadPage() {
         ticketBar.classList.add("ticket_bar");
         item.appendChild(ticketBar);
 
-        let name = createElementHelper("h1", "", `${value.name}`);
+        let name = createElementHelper("h1", "", `${value.name} (${value.cost} points)`);
         item.appendChild(name);
 
         // Save value for editing purposes
