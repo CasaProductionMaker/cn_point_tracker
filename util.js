@@ -1,7 +1,7 @@
 // Helper functions
 export function createElementHelper(elem_name, className, text) {
     let child = document.createElement(elem_name);
-    child.classList.add(className);
+    if (className != "") child.classList.add(className);
     child.textContent = text;
 
     return child;
