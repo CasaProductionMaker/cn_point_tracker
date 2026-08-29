@@ -41,6 +41,24 @@ export function createInputHelper(type, id, defaultValue = "") {
     return child;
 };
 
+export function createSelectHelper(id, options, defaultValue = "") {
+    let child = document.createElement("select");
+    child.id = id;
+    child.name = id;
+    
+    Object.keys(options).forEach((key) => {
+        const value = options[key];
+        let option = document.createElement("option");
+        option.value = key;
+        option.textContent = value;
+        if (key == defaultValue) option.selected;
+
+        child.appendChild(option);
+    })
+
+    return child;
+};
+
 export function createRadioInputHelper(name, id, checked, value) {
     let child = document.createElement("input");
     child.type = "radio";

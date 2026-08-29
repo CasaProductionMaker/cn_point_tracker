@@ -43,7 +43,7 @@ async function loadPage() {
         ticketBar.classList.add("ticket_bar");
         item.appendChild(ticketBar);
 
-        let name = createElementHelper("h1", "", `${value.name} (${value.cost} points)`);
+        let name = createElementHelper("h1", "", `${value.name} ${value.category == null || value.category == "normal_item" ? `(${value.cost} points)` : ""}`);
         item.appendChild(name);
 
         // Save value for editing purposes
@@ -55,10 +55,30 @@ async function loadPage() {
 
     // Sidebar buttons
     normalItemsButton.addEventListener("click", (event) => {
-        //
+        Object.keys(shop).forEach((itemKey) => {
+            const itemData = shop[itemKey];
+            const itemElement = shopElements[itemKey];
+            
+            let isShown = false;
+            if (itemData.category == null || itemData.category == "normal_item") {
+                isShown = true;
+            }
+
+            itemElement.style.display = isShown ? "flex" : "none";
+        });
     })
     Print3dItemsButton.addEventListener("click", (event) => {
-        //
+        Object.keys(shop).forEach((itemKey) => {
+            const itemData = shop[itemKey];
+            const itemElement = shopElements[itemKey];
+            
+            let isShown = false;
+            if (itemData.category != null && itemData.category == "3d_print") {
+                isShown = true;
+            }
+
+            itemElement.style.display = isShown ? "flex" : "none";
+        });
     })
 }
 
