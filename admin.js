@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey } from "./util.js"; 
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper } from "./util.js"; 
 import { lang, belts } from "./data.js";
 
 // check that we are signed in
@@ -138,6 +138,13 @@ function showShopPopup(type, editID = null) {
                 <input type="file" id="shop_item_image" name="shop_item_image" accept="image/*">
             </div>
             <div>
+                <label for="shop_item_category_input">Choose Category: </label>
+                <select name="shop_item_category_input" id="shop_item_category_input">
+                    <option value="normal_item">Normal Item</option>
+                    <option value="3d_print">3D Print</option>
+                </select>
+            </div>
+            <div>
                 <label for="shop_item_description_input">Description: </label>
                 <input type="text" name="shop_item_description_input" id="shop_item_description_input">
             </div>
@@ -186,6 +193,12 @@ function showShopPopup(type, editID = null) {
         image_input.appendChild(createLabelHelper("Upload Image: ", `shop_item_image`));
         image_input.appendChild(createInputHelper("file", `shop_item_image`));
         actualPopup.appendChild(image_input);
+
+        // item category input
+        let category_input = document.createElement("div");
+        category_input.appendChild(createLabelHelper("Choose Category", `shop_item_category_input`));
+        category_input.appendChild(createSelectHelper(`shop_item_category_input`, {"normal_item": "Normal Item", "3d_print": "3D Print"}, editInfo.category || ""));
+        actualPopup.appendChild(category_input);
 
         // description item name input
         let description_input = document.createElement("div");
@@ -960,6 +973,7 @@ async function addShopItem() {
     const itemName = document.querySelector("#shop_item_name_input").value;
     const itemCost = Number(document.querySelector("#shop_item_cost_input").value);
     const itemDescription = document.querySelector("#shop_item_description_input").value;
+    const itemCategory = document.querySelector("#shop_item_category_input").value;
     const file = document.querySelector("#shop_item_image").files[0];
     let nameID = itemName.replaceAll(" ", "_").toLowerCase();
 
@@ -967,7 +981,8 @@ async function addShopItem() {
         await setDoc(doc(db, "shop", nameID), {
             name: itemName, 
             cost: itemCost, 
-            description: itemDescription
+            description: itemDescription, 
+            category: itemCategory
         });
     } else {
         const base64 = await compressImage(file, 800, 0.7);
@@ -976,6 +991,7 @@ async function addShopItem() {
             name: itemName, 
             cost: itemCost, 
             description: itemDescription, 
+            category: itemCategory, 
             imageBase64: base64
         });
     }
@@ -1017,13 +1033,15 @@ async function editShopItem(shopItemID) {
     const itemName = document.getElementById("shop_item_name_input").value;
     const itemCost = Number(document.getElementById("shop_item_cost_input").value);
     const file = document.querySelector("#shop_item_image").files[0];
+    const itemCategory = document.querySelector("#shop_item_category_input").value;
     const itemDescription = document.getElementById("shop_item_description_input").value;
 
     if (file == undefined) {
         await updateDoc(doc(db, "shop", shopItemID), {
             name: itemName, 
             cost: itemCost, 
-            description: itemDescription
+            description: itemDescription, 
+            category: itemCategory
         });
     } else {
         const base64 = await compressImage(file, 800, 0.7);
@@ -1031,6 +1049,7 @@ async function editShopItem(shopItemID) {
             name: itemName, 
             cost: itemCost, 
             description: itemDescription, 
+            category: itemCategory, 
             imageBase64: base64
         });
     }

@@ -1,7 +1,7 @@
 // Helper functions
 export function createElementHelper(elem_name, className, text) {
     let child = document.createElement(elem_name);
-    child.classList.add(className);
+    if (className != "") child.classList.add(className);
     child.textContent = text;
 
     return child;
@@ -37,6 +37,24 @@ export function createInputHelper(type, id, defaultValue = "") {
     child.id = id;
     child.name = id;
     child.value = defaultValue;
+
+    return child;
+};
+
+export function createSelectHelper(id, options, defaultValue = "") {
+    let child = document.createElement("select");
+    child.id = id;
+    child.name = id;
+    
+    Object.keys(options).forEach((key) => {
+        const value = options[key];
+        let option = document.createElement("option");
+        option.value = key;
+        option.textContent = value;
+        if (key == defaultValue) option.selected;
+
+        child.appendChild(option);
+    })
 
     return child;
 };
