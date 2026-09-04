@@ -51,7 +51,7 @@ export function createSelectHelper(id, options, defaultValue = "") {
         let option = document.createElement("option");
         option.value = key;
         option.textContent = value;
-        if (key == defaultValue) option.selected;
+        if (key == defaultValue) option.selected = true;
 
         child.appendChild(option);
     })

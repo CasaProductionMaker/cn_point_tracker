@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper } from "./util.js"; 
-import { lang, belts } from "./data.js";
+import { lang, belts, shopTags } from "./data.js";
 
 // check that we are signed in
 if (localStorage.getItem("isAdminSignedIn") == "true" || localStorage.getItem("devMode") == "true") {
@@ -122,44 +122,69 @@ function showShopPopup(type, editID = null) {
         let actualPopup = document.createElement("div");
         actualPopup.id = "shop_item_popup";
         actualPopup.classList.add("popup", "small_popup");
-        
-        actualPopup.innerHTML = `
-            <h2>New Shop Item:</h2>
-            <div>
-                <label for="shop_item_name_input">Name: </label>
-                <input type="text" name="shop_item_name_input" id="shop_item_name_input">
-            </div>
-            <div>
-                <label for="shop_item_cost_input">Cost: </label>
-                <input type="number" name="shop_item_cost_input" id="shop_item_cost_input">
-            </div>
-            <div>
-                <label for="shop_item_image">Upload Image: </label>
-                <input type="file" id="shop_item_image" name="shop_item_image" accept="image/*">
-            </div>
-            <div>
-                <label for="shop_item_category_input">Choose Category: </label>
-                <select name="shop_item_category_input" id="shop_item_category_input">
-                    <option value="normal_item">Normal Item</option>
-                    <option value="3d_print">3D Print</option>
-                </select>
-            </div>
-            <div>
-                <label for="shop_item_description_input">Description: </label>
-                <input type="text" name="shop_item_description_input" id="shop_item_description_input">
-            </div>
-            <div class="button_bar">
-                <button class="submit_popup_button">Add</button>
-                <button class="cancel_popup_button">Cancel</button>
-            </div>
-        `;
 
-        actualPopup.querySelector(".submit_popup_button").addEventListener("click", async (e) => {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "New Shop Item: "));
+
+        // shop item name input
+        let name_input = document.createElement("div");
+        name_input.appendChild(createLabelHelper("Name: ", `shop_item_name_input`));
+        name_input.appendChild(createInputHelper("text", `shop_item_name_input`));
+        actualPopup.appendChild(name_input);
+
+        // item cost input
+        let cost_input = document.createElement("div");
+        cost_input.appendChild(createLabelHelper("Cost: ", `shop_item_cost_input`));
+        cost_input.appendChild(createInputHelper("number", `shop_item_cost_input`));
+        actualPopup.appendChild(cost_input);
+
+        // item image input
+        let image_input = document.createElement("div");
+        image_input.appendChild(createLabelHelper("Upload Image: ", `shop_item_image`));
+        image_input.appendChild(createInputHelper("file", `shop_item_image`));
+        actualPopup.appendChild(image_input);
+
+        // item category input
+        let category_input = document.createElement("div");
+        category_input.appendChild(createLabelHelper("Choose Category", `shop_item_category_input`));
+        category_input.appendChild(createSelectHelper(`shop_item_category_input`, {"normal_item": "Normal Item", "3d_print": "3D Print"}));
+        actualPopup.appendChild(category_input);
+
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Tags: "));
+        let tags_holder = document.createElement("div");
+        tags_holder.classList.add("long_tile_list");
+        Object.keys(shopTags).forEach(key => {
+            const tag = shopTags[key];
+            let tag_input_holder = document.createElement("div");
+            tag_input_holder.appendChild(createInputHelper("checkbox", `shop_item_${key}_tag_input`));
+            tag_input_holder.appendChild(createLabelHelper(tag, `shop_item_${key}_tag_input`));
+            tags_holder.appendChild(tag_input_holder);
+        });
+        actualPopup.appendChild(tags_holder);
+
+        // description item name input
+        let description_input = document.createElement("div");
+        description_input.appendChild(createLabelHelper("Description: ", `shop_item_description_input`));
+        description_input.appendChild(createInputHelper("text", `shop_item_description_input`));
+        actualPopup.appendChild(description_input);
+
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let submit_button = createEmptyButtonHelper("Add");
+        button_bar.appendChild(submit_button);
+
+        let close_button = createEmptyButtonHelper("Cancel");
+        button_bar.appendChild(close_button);
+
+        submit_button.addEventListener("click", async (e) => {
             await addShopItem();
         })
-        actualPopup.querySelector(".cancel_popup_button").addEventListener("click", async (e) => {
+        close_button.addEventListener("click", async (e) => {
             removePopup();
         })
+
+        actualPopup.appendChild(button_bar);
 
         // Add the popup to the blur container
         currentPopup.appendChild(actualPopup);
@@ -200,6 +225,20 @@ function showShopPopup(type, editID = null) {
         category_input.appendChild(createSelectHelper(`shop_item_category_input`, {"normal_item": "Normal Item", "3d_print": "3D Print"}, editInfo.category || ""));
         actualPopup.appendChild(category_input);
 
+        actualPopup.appendChild(createSimpleElementHelper("h3", "Tags: "));
+        let tags_holder = document.createElement("div");
+        tags_holder.classList.add("long_tile_list");
+        Object.keys(shopTags).forEach(key => {
+            const tag = shopTags[key];
+            let tag_input_holder = document.createElement("div");
+            let box = createInputHelper("checkbox", `shop_item_${key}_tag_input`);
+            box.checked = editInfo.itemTags && editInfo.itemTags.includes(key);
+            tag_input_holder.appendChild(box);
+            tag_input_holder.appendChild(createLabelHelper(tag, `shop_item_${key}_tag_input`));
+            tags_holder.appendChild(tag_input_holder);
+        });
+        actualPopup.appendChild(tags_holder);
+
         // description item name input
         let description_input = document.createElement("div");
         description_input.appendChild(createLabelHelper("Description: ", `shop_item_description_input`));
@@ -210,10 +249,10 @@ function showShopPopup(type, editID = null) {
         let button_bar = document.createElement("div");
         button_bar.classList.add("popup_button_bar");
 
-        let submit_button = createEmptyButtonHelper("APPLY");
+        let submit_button = createEmptyButtonHelper("Apply");
         button_bar.appendChild(submit_button);
 
-        let close_button = createEmptyButtonHelper("CANCEL");
+        let close_button = createEmptyButtonHelper("Cancel");
         button_bar.appendChild(close_button);
         
         // Add event listeners
@@ -977,12 +1016,21 @@ async function addShopItem() {
     const file = document.querySelector("#shop_item_image").files[0];
     let nameID = itemName.replaceAll(" ", "_").toLowerCase();
 
+    let tags = [];
+
+    Object.keys(shopTags).forEach(key => {
+        if (document.querySelector(`#shop_item_${key}_tag_input`).checked) {
+            tags.push(key);
+        }
+    });
+
     if (file == undefined) {
         await setDoc(doc(db, "shop", nameID), {
             name: itemName, 
             cost: itemCost, 
             description: itemDescription, 
-            category: itemCategory
+            category: itemCategory, 
+            itemTags: tags
         });
     } else {
         const base64 = await compressImage(file, 800, 0.7);
@@ -992,7 +1040,8 @@ async function addShopItem() {
             cost: itemCost, 
             description: itemDescription, 
             category: itemCategory, 
-            imageBase64: base64
+            imageBase64: base64, 
+            itemTags: tags
         });
     }
 
@@ -1036,12 +1085,21 @@ async function editShopItem(shopItemID) {
     const itemCategory = document.querySelector("#shop_item_category_input").value;
     const itemDescription = document.getElementById("shop_item_description_input").value;
 
+    let tags = [];
+
+    Object.keys(shopTags).forEach(key => {
+        if (document.querySelector(`#shop_item_${key}_tag_input`).checked) {
+            tags.push(key);
+        }
+    });
+
     if (file == undefined) {
         await updateDoc(doc(db, "shop", shopItemID), {
             name: itemName, 
             cost: itemCost, 
             description: itemDescription, 
-            category: itemCategory
+            category: itemCategory, 
+            itemTags: tags
         });
     } else {
         const base64 = await compressImage(file, 800, 0.7);
@@ -1050,7 +1108,8 @@ async function editShopItem(shopItemID) {
             cost: itemCost, 
             description: itemDescription, 
             category: itemCategory, 
-            imageBase64: base64
+            imageBase64: base64, 
+            itemTags: tags
         });
     }
 
@@ -1240,7 +1299,7 @@ async function updateNinjaView(ninjaID) {
             let item = createSimpleElementHelper("p", `Item Bought: ${shop[value.item].name}`);
             purchaseElement.appendChild(item);
             
-            let cost = createSimpleElementHelper("p", `Amount Payed: ${value.amount_payed}`);
+            let cost = createSimpleElementHelper("p", `Amount Paid: ${value.amount_payed}`);
             purchaseElement.appendChild(cost);
             
             let resolved = createSimpleElementHelper("p", `${value.fulfilled ? "Fulfilled" : "Not Fulfilled"}`);
@@ -1605,7 +1664,7 @@ async function loadPage() {
             const ninjaElement = ninjaElements[ninjaKey];
             
             let isShown = false;
-            if (ninjaData.firstname.toLowerCase().includes(ninjaSearchFilter)) {
+            if (ninjaData.firstname.toLowerCase().includes(ninjaSearchFilter) || ninjaData.lastname.toLowerCase().includes(ninjaSearchFilter)) {
                 isShown = true;
             }
 

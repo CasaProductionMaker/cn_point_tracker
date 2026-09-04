@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createEmptyButtonHelper } from "./util.js";
+import { shopTags } from "./data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -29,7 +30,6 @@ let shopElements = {};
 async function loadPage() {
     const shopItems = await getDocs(collection(db, "shop"));
     shopItems.forEach(async (doc) => {
-        // replace the belt level
         let value = doc.data();
 
         let item = document.createElement("div");
@@ -41,10 +41,19 @@ async function loadPage() {
         
         let ticketBar = document.createElement("div");
         ticketBar.classList.add("ticket_bar");
+        if (value.itemTags) {
+            value.itemTags.forEach((tag) => {
+                ticketBar.appendChild(createElementHelper("h2", "", shopTags[tag]));
+            });
+        }
         item.appendChild(ticketBar);
 
         let name = createElementHelper("h1", "", `${value.name} ${value.category == null || value.category == "normal_item" ? `(${value.cost} points)` : ""}`);
         item.appendChild(name);
+
+        item.addEventListener("click", (event) => {
+            // click
+        });
 
         // Save value for editing purposes
         shop[doc.id] = doc.data();
@@ -79,7 +88,19 @@ async function loadPage() {
 
             itemElement.style.display = isShown ? "flex" : "none";
         });
-    })
+    });
+
+    Object.keys(shop).forEach((itemKey) => {
+        const itemData = shop[itemKey];
+        const itemElement = shopElements[itemKey];
+        
+        let isShown = false;
+        if (itemData.category == null || itemData.category == "normal_item") {
+            isShown = true;
+        }
+
+        itemElement.style.display = isShown ? "flex" : "none";
+    });
 }
 
 

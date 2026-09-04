@@ -37,6 +37,7 @@ body {
     grid-auto-rows: 20rem;
     padding: 1rem;
     gap: 1rem;
+    overflow: auto;
 }
 
 .shop_item {
@@ -46,6 +47,7 @@ body {
     flex-direction: column;
     padding: 1rem;
     gap: 1rem;
+    cursor: pointer;
 }
 
 .shop_item > img {

@@ -13,7 +13,7 @@ export const lang = {
 
 export const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Red", "Black", "Bronze", "Silver", "Platinum", 'Gold'];
 
-export const shopTickets = {
+export const shopTags = {
     "time_1h": "1h Print", 
     "time_30m": "30m Print", 
     "time_1h30": "1h30m Print", 
