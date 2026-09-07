@@ -19,6 +19,15 @@
             <h1 id="title_text">Scan your belt wristband to view your profile!</h1>
             <input id="nfc_input" autofocus class="invisible_input" type="text" autocomplete="off">
             <!-- <input id="nfc_input" autofocus type="text" autocomplete="off"> -->
+            <button type="button" id="admin-btn" commandfor="dialog_admin_pw" command="show-modal">Log in as admin</button>
+
+            <!-- NEW: Dialogue popup for admin-->
+            <dialog id="dialog_admin_pw" class="dialog-index">
+                <p>Admin password:</p>
+                <input id="admin-input" type="text" autocomplete="off" />
+                <p id="admin-incorrect-pw"></p>
+                <button commandfor="dialog_admin_pw" command="close">Close</button>
+            </dialog>
         </div>   
         <script src="main_app.js" type="module"></script>
     </body>

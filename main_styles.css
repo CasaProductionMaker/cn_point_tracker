@@ -33,3 +33,16 @@ h1 {
     opacity: 1;
     transition: top 1s ease-out, opacity 0.5s ease-out;
 }
+
+#dialog_admin_pw {
+/*
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 1rem; 
+*/
+}
+
+#admin-incorrect-pw {
+    color: red;
+}

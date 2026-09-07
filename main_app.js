@@ -24,4 +24,19 @@ nfcInput.addEventListener("keydown", (e) => {
 })
 
 nfcInput.value = "";
-setInterval(() => {nfcInput.focus()}, 500)
+setInterval(() => {nfcInput.focus()}, 500);
+
+const adminInput = document.querySelector("#admin-input");
+const adminDialogue = document.querySelector("#dialog_admin_pw");
+adminDialogue.close();
+const adminInputPara = document.querySelector("#admin-incorrect-pw");
+adminInput.addEventListener("keydown", (e) => {
+    if ((e.key == "Enter") && (e.target.value === "admin6699")) {
+        localStorage.setItem("isAdminSignedIn", true);
+        window.location.href = "admin_panel.html";
+        return; 
+    } else if (e.key == "Enter") {
+        adminInputPara.textContent='Password is incorrect.';
+    }
+});
+
