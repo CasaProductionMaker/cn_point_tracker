@@ -885,6 +885,12 @@ function showEditNinjaInfoPopup(ninjaID) {
     nfc_id_input.appendChild(createInputHelper("text", `edit_ninja_nfc_id_input`, ninjaData.nfc_id));
     actualPopup.appendChild(nfc_id_input);
 
+    // Custom Points
+    const custom_pts_input = document.createElement("div");
+    custom_pts_input.appendChild(createLabelHelper("Custom Points: ", `edit_ninja_custom_pts_input`));
+    custom_pts_input.appendChild(createInputHelper("number", `edit_ninja_custom_pts_input`, 0));
+    actualPopup.appendChild(custom_pts_input);
+
     // Buttons
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
@@ -1166,17 +1172,30 @@ async function applyCustomPoints(ninjaID) {
 }
 
 async function applyNinjaInfoUpdates(ninjaID) {
+    console.log(ninjaID);
     const belt = belts.indexOf(document.querySelector("#belts").value);
     const fname = document.querySelector("#edit_ninja_first_name_input").value;
     const lname = document.querySelector("#edit_ninja_last_name_input").value;
     const n_id = document.querySelector("#edit_ninja_nfc_id_input").value;
+    const custom_pts = document.querySelector("#edit_ninja_custom_pts_input").value;
+    
     await updateDoc(doc(db, "ninjas", ninjaID), {
         belt: belt, 
         firstname: fname, 
         lastname: lname,
         nfc_id: n_id,
+        total_custom_points: increment(custom_pts),
+        total_history_points: increment(custom_pts),
 
     });
+
+    editPoints(ninjaID, custom_pts);
+
+// async function applyCustomPoints(ninjaID) {
+//     const amount = Number(document.querySelector("#custom_points_popup_amount_input").value);
+//     await editPoints(ninjaID, amount);
+//     removePopup();
+// }
     // Find all my leaderboard entries to update them
     const myEntries = await getDocs(query(collection(db, "leaderboard_entries"), where("ninja_id", "==", ninjaID)));
     myEntries.forEach(async (document) => {
