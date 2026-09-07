@@ -838,6 +838,7 @@ function showEditNinjaInfoPopup(ninjaID) {
 
     // Load data from cache
     const ninjaData = ninjas[ninjaID];
+    console.log(ninjaData); //TODO: Delete later: purely for testing
 
     // Create the popup
     currentPopup = document.createElement("div");
@@ -877,6 +878,12 @@ function showEditNinjaInfoPopup(ninjaID) {
     last_name_input.appendChild(createLabelHelper("Last name: ", `edit_ninja_last_name_input`));
     last_name_input.appendChild(createInputHelper("text", `edit_ninja_last_name_input`, ninjaData.lastname));
     actualPopup.appendChild(last_name_input);
+
+    // NFC ID
+    const nfc_id_input = document.createElement("div");
+    nfc_id_input.appendChild(createLabelHelper("NFC ID: ", `edit_ninja_nfc_id_input`));
+    nfc_id_input.appendChild(createInputHelper("text", `edit_ninja_nfc_id_input`, ninjaData.nfc_id));
+    actualPopup.appendChild(nfc_id_input);
 
     // Buttons
     let button_bar = document.createElement("div");
@@ -1162,10 +1169,13 @@ async function applyNinjaInfoUpdates(ninjaID) {
     const belt = belts.indexOf(document.querySelector("#belts").value);
     const fname = document.querySelector("#edit_ninja_first_name_input").value;
     const lname = document.querySelector("#edit_ninja_last_name_input").value;
+    const n_id = document.querySelector("#edit_ninja_nfc_id_input").value;
     await updateDoc(doc(db, "ninjas", ninjaID), {
         belt: belt, 
         firstname: fname, 
-        lastname: lname
+        lastname: lname,
+        nfc_id: n_id,
+
     });
     // Find all my leaderboard entries to update them
     const myEntries = await getDocs(query(collection(db, "leaderboard_entries"), where("ninja_id", "==", ninjaID)));
