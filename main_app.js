@@ -1,8 +1,11 @@
 import { convertInputToKey } from "./util.js";
 
 const nfcInput = document.querySelector("#nfc_input");
+let currentInterval = null;
 
 nfcInput.addEventListener("keydown", (e) => {
+    clearInterval(currentInterval);
+    currentInterval = setInterval(() => {nfcInput.focus()}, 500);
     if (e.key == "Enter") {
         if (e.target.value === "admin6699") {
             localStorage.setItem("isAdminSignedIn", true);
@@ -24,14 +27,17 @@ nfcInput.addEventListener("keydown", (e) => {
 })
 
 nfcInput.value = "";
-setInterval(() => {nfcInput.focus()}, 500);
+currentInterval = setInterval(() => {nfcInput.focus()}, 500);
 
 const adminInput = document.querySelector("#admin-input");
 const adminDialogue = document.querySelector("#dialog_admin_pw");
 adminDialogue.close();
 const adminInputPara = document.querySelector("#admin-incorrect-pw");
 adminInput.addEventListener("keydown", (e) => {
+    clearInterval(currentInterval);
+    currentInterval = null;
     if ((e.key == "Enter") && (e.target.value === "admin6699")) {
+        console.log("noo")
         localStorage.setItem("isAdminSignedIn", true);
         window.location.href = "admin_panel.html";
         return; 
