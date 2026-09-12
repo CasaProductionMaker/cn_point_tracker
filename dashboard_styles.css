@@ -285,6 +285,12 @@ input {
     box-sizing: border-box;
 }
 
+.popup > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 /* Layers */
 
 .layer_2 {
