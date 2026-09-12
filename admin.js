@@ -891,10 +891,10 @@ function showEditNinjaInfoPopup(ninjaID) {
     actualPopup.appendChild(nfc_id_input);
 
     // Custom Points
-    const custom_pts_input = document.createElement("div");
-    custom_pts_input.appendChild(createLabelHelper("Custom Points: ", `edit_ninja_custom_pts_input`));
-    custom_pts_input.appendChild(createInputHelper("number", `edit_ninja_custom_pts_input`, 0));
-    actualPopup.appendChild(custom_pts_input);
+    // const custom_pts_input = document.createElement("div");
+    // custom_pts_input.appendChild(createLabelHelper("Custom Points: ", `edit_ninja_custom_pts_input`));
+    // custom_pts_input.appendChild(createInputHelper("number", `edit_ninja_custom_pts_input`, 0));
+    // actualPopup.appendChild(custom_pts_input);
 
     // Buttons
     let button_bar = document.createElement("div");
@@ -1182,15 +1182,15 @@ async function applyNinjaInfoUpdates(ninjaID) {
     const fname = document.querySelector("#edit_ninja_first_name_input").value;
     const lname = document.querySelector("#edit_ninja_last_name_input").value;
     const n_id = document.querySelector("#edit_ninja_nfc_id_input").value;
-    const custom_pts = document.querySelector("#edit_ninja_custom_pts_input").value;
+    const custom_pts = 0; //document.querySelector("#edit_ninja_custom_pts_input").value;
     
     await updateDoc(doc(db, "ninjas", ninjaID), {
         belt: belt, 
         firstname: fname,  
         lastname: lname, 
         nfc_id: n_id, 
-        total_custom_points: increment(custom_pts), 
-        total_history_points: increment(custom_pts)
+        // total_custom_points: increment(custom_pts), 
+        // total_history_points: increment(custom_pts)
     });
 
     editPoints(ninjaID, custom_pts);
