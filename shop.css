@@ -75,7 +75,7 @@ body {
 .ticket_bar > h2 {
     height: 1.5rem;
     border-radius: 1rem;
-    border: 1px solid white;
+    background-color: #CCF5;
     font-size: 1rem;
     margin: 0;
     padding-left: 1rem;
