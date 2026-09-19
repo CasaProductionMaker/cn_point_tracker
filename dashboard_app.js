@@ -44,6 +44,7 @@ async function loadShop() {
     const gottenShop = await getDocs(collection(db, "shop"));
     gottenShop.forEach((doc) => {
         const shopItem = doc.data();
+        if (shopItem.cost <= 0) return;
         let item = document.createElement("div");
         item.classList.add("shop_option", "layer_3");
 
