@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper } from "./util.js"; 
-import { lang, belts, shopTags } from "./data.js";
+import { lang, belts, shopTags, pointReasons, basePointsPerSession } from "./data.js";
 
 // check that we are signed in
 if (localStorage.getItem("isAdminSignedIn") == "true" || localStorage.getItem("devMode") == "true") {
@@ -86,15 +86,6 @@ let ninjaSearchFilter = "";
 let currentlyViewingNinja = null;
 let sessionUnSub = null;
 let purchaseUnSub = null;
-
-// temp reasons to add
-const pointReasons = {
-    "good_behaviour": 125, 
-    "belt_up": 1000, 
-    "level_up": 250, 
-    "history": 0
-};
-const basePointsPerSession = 125;
 
 const UIPositions = ["top_left", "bottom_left", "main", "top_right", "bottom_right"];
 

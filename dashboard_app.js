@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, doc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createLabelHelper, convertInputToKey } from "./util.js";
-import { belts } from "./data.js";
+import { getFirestore, doc, setDoc, getDocs, addDoc, updateDoc, onSnapshot, collection, query, where, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { createSimpleElementHelper, createElementHelper, createEmptyButtonHelper, createInputHelper, createLabelHelper, convertInputToKey } from "./util.js";
+import { belts, pointReasons, lang, basePointsPerSession } from "./data.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -345,6 +345,167 @@ function showBeltTransferPopup(purchasePopupState) {
     document.body.appendChild(currentPopup);
 }
 
+function showAddSessionPopup(purchasePopupState) {
+    if (currentPopup != null) {
+        console.log("Error: A popup already exists!");
+        return;
+    }
+
+    // Create the popup
+    currentPopup = document.createElement("div");
+    currentPopup.classList.add("popup_container");
+
+    let actualPopup = document.createElement("div");
+    actualPopup.id = "actual_popup";
+    actualPopup.classList.add("popup", "small_popup");
+
+    if (purchasePopupState == "admin_part") {
+        actualPopup.appendChild(createSimpleElementHelper("h2", "Add session to Ninja: "));
+
+        // admin password input
+        let admin_password = document.createElement("div");
+        admin_password.appendChild(createLabelHelper("Admin password: ", `admin_password`));
+        admin_password.appendChild(createInputHelper("password", `admin_password`));
+        actualPopup.appendChild(admin_password);
+
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+
+        let next_button = createEmptyButtonHelper("NEXT");
+        button_bar.appendChild(next_button);
+
+        let cancel_button = createEmptyButtonHelper("CANCEL");
+        button_bar.appendChild(cancel_button);
+
+        next_button.addEventListener("click", (event) => {
+            // TODO :D
+            if (document.querySelector("#admin_password").value == ADMIN_PW) {
+                removePopup();
+                showAddSessionPopup("actual_part");
+            } else {
+                removePopup();
+                showWarningPopup("Incorrect Password!");
+            }
+        })
+
+        cancel_button.addEventListener("click", (event) => {
+            removePopup();
+        })
+
+        actualPopup.appendChild(button_bar);
+    } else if (purchasePopupState == "actual_part") {
+        let title = createElementHelper("h2", null, `Add Session to Ninja:`);
+        actualPopup.appendChild(title);
+    
+        // Go through all the possible reasons to get points and add a checkbox to select
+        Object.keys(pointReasons).forEach(key => {
+            let pointReward = pointReasons[key];
+    
+            if (pointReward <= 0) return;
+    
+            let inputHolder = document.createElement("div");
+    
+            // Create both the checkbox and label and put into div so flex doesn't change its layout
+            let checkboxInput = createInputHelper("checkbox", `${key}_checkbox`);
+            if (key == "good_behaviour") checkboxInput.checked = true;
+            let labelElement = createLabelHelper(`${lang[key]} (${pointReward} points)`, `${key}_checkbox`);
+            inputHolder.appendChild(checkboxInput);
+            inputHolder.appendChild(labelElement);
+    
+            actualPopup.appendChild(inputHolder);
+        });
+    
+        // Custom points UI
+        let customInputHolder = document.createElement("div");
+    
+        let checkboxInput = createInputHelper("checkbox", "custom_points_checkbox");
+        let labelElement = createLabelHelper(`Custom: `, "custom_points_checkbox");
+        let custom_pts = createInputHelper("number", `custom_points_input`);
+        custom_pts.setAttribute("placeholder", "Custom Amount...");
+        customInputHolder.appendChild(checkboxInput);
+        customInputHolder.appendChild(labelElement);
+        customInputHolder.appendChild(custom_pts);
+    
+        actualPopup.appendChild(customInputHolder);
+    
+        // Buttons
+        let button_bar = document.createElement("div");
+        button_bar.classList.add("popup_button_bar");
+    
+        let submit_button = createEmptyButtonHelper("Add Session");
+        button_bar.appendChild(submit_button);
+    
+        let cancel_button = createEmptyButtonHelper("Cancel");
+        button_bar.appendChild(cancel_button);
+        
+        // Add event listeners
+        submit_button.addEventListener("click", async (e) => {
+            // Add session to ninja as subcollection
+            let sessionData = {
+                date_added: Date.now()
+            };
+            let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+            let pointsGotten = basePointsPerSession;
+            Object.keys(pointReasons).forEach(async key => {
+                let pointReward = pointReasons[key];
+    
+                if (pointReward <= 0) return;
+    
+                if (document.querySelector(`#${key}_checkbox`).checked) {
+                    pointsGotten += pointReward;
+                    sessionData[`${key}_points`] = pointReward;
+                    ninjaUpdates[`total_${key}_points`] = increment(pointReward);
+    
+                    // Add info to leaderboard_entries
+                    await setDoc(doc(db, "leaderboard_entries", `${userKey}_${key}`), {
+                        ninja_id: userKey, 
+                        reason: key, 
+                        points: increment(pointReward), 
+                        ninja_belt_level: myProfile.belt
+                    }, { merge: true })
+                }
+            });
+            if (document.querySelector(`#custom_points_checkbox`).checked) {
+                const inputVal = Number(document.querySelector(`#custom_points_input`).value);
+                pointsGotten += inputVal;
+                sessionData[`custom_points`] = inputVal;
+                ninjaUpdates[`total_custom_points`] = increment(inputVal);
+            }
+            sessionData.total_points_gotten = pointsGotten;
+    
+            await addDoc(collection(db, "ninjas", userKey, "sessions"), sessionData);
+    
+            // Update the ninja's stats in their regular account for easy access
+            ninjaUpdates.points = increment(pointsGotten);
+            ninjaUpdates.total_history_points = increment(pointsGotten);
+            
+            await updateDoc(doc(db, "ninjas", userKey), ninjaUpdates);
+    
+            // Add info to leaderboard_entries
+            await setDoc(doc(db, "leaderboard_entries", `${userKey}_history`), {
+                ninja_id: userKey, 
+                reason: "history", 
+                points: increment(pointsGotten), 
+                ninja_belt_level: myProfile.belt
+            }, { merge: true })
+    
+            // Close popup after done
+            removePopup();
+        })
+        cancel_button.addEventListener("click", async (e) => {
+            removePopup();
+        })
+
+        actualPopup.appendChild(button_bar);
+    }
+
+    // Add the popup to the blur container
+    currentPopup.appendChild(actualPopup);
+
+    document.body.appendChild(currentPopup);
+}
+
 function showWarningPopup(warningText) {
     if (currentPopup != null) {
         console.log("Error: A popup already exists!");
@@ -433,6 +594,10 @@ async function loadPage() {
 
     document.querySelector("#transfer_belt_button").addEventListener("click", event => {
         showBeltTransferPopup("admin_part");
+    });
+
+    document.querySelector("#add_session_button").addEventListener("click", event => {
+        showAddSessionPopup("admin_part");
     });
 
     document.querySelector("#log_out_button").addEventListener("click", event => {

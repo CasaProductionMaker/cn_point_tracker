@@ -20,3 +20,13 @@ export const shopTags = {
     "time_2h": "2h Print", 
     "articulated": "Articulated"
 }
+
+// temp reasons to add
+export const basePointsPerSession = 125;
+
+export const pointReasons = {
+    "good_behaviour": 125, 
+    "belt_up": 1000, 
+    "level_up": 250, 
+    "history": 0
+};
