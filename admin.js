@@ -210,6 +210,11 @@ function showShopPopup(type, editID = null) {
         image_input.appendChild(createInputHelper("file", `shop_item_image`));
         actualPopup.appendChild(image_input);
 
+        let image_preview = document.createElement("img");
+        image_preview.src = editInfo.imageBase64 || "Images/EmptyImage.jpg";
+        image_preview.classList.add("preview_image");
+        actualPopup.appendChild(image_preview);
+
         // item category input
         let category_input = document.createElement("div");
         category_input.appendChild(createLabelHelper("Choose Category", `shop_item_category_input`));

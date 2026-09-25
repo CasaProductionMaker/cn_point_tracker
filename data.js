@@ -1,6 +1,7 @@
 export const lang = {
     "good_behaviour": "Good Behaviour", 
     "completed_goal": "Completed Goal", 
+    "unity_belt_project": "Completed Unity Project", 
     "belt_up": "Belt Up", 
     "level_up": "Level Up", 
     "history": "Total",
@@ -18,6 +19,7 @@ export const shopTags = {
     "time_30m": "30m Print", 
     "time_1h30": "1h30m Print", 
     "time_2h": "2h Print", 
+    "fidget": "Fidget Toy", 
     "articulated": "Articulated"
 }
 
@@ -28,5 +30,6 @@ export const pointReasons = {
     "good_behaviour": 125, 
     "belt_up": 1000, 
     "level_up": 250, 
+    "unity_belt_project": 1000, 
     "history": 0
 };

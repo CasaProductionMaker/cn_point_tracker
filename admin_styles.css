@@ -295,6 +295,11 @@ body {
     gap: 1rem;
 }
 
+.preview_image {
+    width: 8rem;
+    border-radius: 0.5rem;
+}
+
 #shop_editor_container, #leaderboards_editor_container {
     display: flex;
     flex-direction: column;
