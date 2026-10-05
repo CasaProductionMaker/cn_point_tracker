@@ -528,7 +528,9 @@ function showSessionPopup(ninjaID, isBase = false) {
         let sessionData = {
             date_added: Date.now()
         };
-        let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+        let ninjaUpdates = {
+            last_session: Date.now()
+        }; // Storing a dictionary that will only hold CHANGES for the ninja
         let pointsGotten = basePointsPerSession;
         Object.keys(pointReasons).forEach(async key => {
             let pointReward = pointReasons[key];
@@ -1356,11 +1358,11 @@ async function updateNinjaView(ninjaID) {
 async function loadPage() {
     // Load Ninjas
     onSnapshot(collection(db, "ninjas"), (snapshot) => {
-        snapshot.docChanges().forEach((ninja) => {
+        snapshot.docChanges().forEach(async (ninja) => {
             const value = ninja.doc.data();
 
             switch (ninja.type) {
-                case "added":
+                case "added":                    
                     // Create DOM
                     let ninjaElement = document.createElement("div");
                     ninjaElement.classList.add("registered_ninja");
@@ -1373,6 +1375,22 @@ async function loadPage() {
 
                     let belt = createElementHelper("p", "ninja_belt", `${belts[value.belt]} Belt`);
                     ninjaElement.appendChild(belt);
+
+                    // session stuf
+                    let hadSessionToday = false;
+                    if (value.last_session != undefined) {
+                        const lastSession = new Date(value.last_session);
+                        const today = new Date();
+                        hadSessionToday = lastSession.getDate() === today.getDate() && lastSession.getMonth() === today.getMonth() && lastSession.getFullYear() === today.getFullYear();
+                    }
+                    
+                    let sessionsToday = createElementHelper("p", "sessions_today", `Session Registered Today: ${hadSessionToday ? "Yes" : "No"}`);
+                    if (hadSessionToday) {
+                        sessionsToday.style.color = "#0E0";
+                    } else {
+                        sessionsToday.style.color = "#E00";
+                    }
+                    ninjaElement.appendChild(sessionsToday);
 
                     let view_ninja = createEmptyButtonHelper("More Info");
                     ninjaElement.appendChild(view_ninja);
@@ -1398,7 +1416,8 @@ async function loadPage() {
                                 good_behaviour_points: pointReasons["good_behaviour"]
                             };
                             let ninjaUpdates = {
-                                total_good_behaviour_points: increment(pointReasons["good_behaviour"])
+                                total_good_behaviour_points: increment(pointReasons["good_behaviour"]), 
+                                last_session: Date.now()
                             }; // Storing a dictionary that will only hold CHANGES for the ninja
                             let pointsGotten = basePointsPerSession + pointReasons["good_behaviour"];
                             await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_good_behaviour`), {
@@ -1439,6 +1458,21 @@ async function loadPage() {
                     ninjaElements[ninja.doc.id].querySelector(".ninja_name").textContent = `${value.firstname} ${value.lastname}`;
                     ninjaElements[ninja.doc.id].querySelector(".ninja_points").textContent = `Points: ${value.points}`;
                     ninjaElements[ninja.doc.id].querySelector(".ninja_belt").textContent = `${belts[value.belt]} Belt`;
+                    
+                    // session stuf
+                    let updatedHadSessionToday = false;
+                    if (value.last_session != undefined) {
+                        const lastSession = new Date(value.last_session);
+                        const today = new Date();
+                        updatedHadSessionToday = lastSession.getDate() === today.getDate() && lastSession.getMonth() === today.getMonth() && lastSession.getFullYear() === today.getFullYear();
+                    }
+                    
+                    ninjaElements[ninja.doc.id].querySelector(".sessions_today").textContent = `Session Registered Today: ${updatedHadSessionToday ? "Yes" : "No"}`;
+                    if (updatedHadSessionToday) {
+                        ninjaElements[ninja.doc.id].querySelector(".sessions_today").style.color = "#0E0";
+                    } else {
+                        ninjaElements[ninja.doc.id].querySelector(".sessions_today").style.color = "#E00";
+                    }
 
                     // Update value for editing purposes
                     ninjas[ninja.doc.id] = value;
@@ -1692,7 +1726,7 @@ async function loadPage() {
                 isShown = true;
             }
 
-            ninjaElement.style.display = isShown ? "flex" : "none";
+            if (ninjaElement) ninjaElement.style.display = isShown ? "flex" : "none";
         });
     });
 
