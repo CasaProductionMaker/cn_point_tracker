@@ -445,7 +445,7 @@ function showAddSessionPopup(purchasePopupState) {
             let sessionData = {
                 date_added: Date.now()
             };
-            let ninjaUpdates = {}; // Storing a dictionary that will only hold CHANGES for the ninja
+            let ninjaUpdates = { last_session: Date.now() }; // Storing a dictionary that will only hold CHANGES for the ninja
             let pointsGotten = basePointsPerSession;
             Object.keys(pointReasons).forEach(async key => {
                 let pointReward = pointReasons[key];

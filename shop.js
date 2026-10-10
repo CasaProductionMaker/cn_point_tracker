@@ -19,8 +19,15 @@ const db = getFirestore(app);
 
 // Page references
 const mainContent = document.querySelector(".main_content");
+const backButton = document.querySelector(".back_button");
+const gridView = document.querySelector(".grid_view");
+const itemLargeView = document.querySelector(".item_large_view");
 const normalItemsButton = document.querySelector("#normal_items_button");
 const Print3dItemsButton = document.querySelector("#print_3d_items_button");
+const largeName = document.querySelector(".large_name");
+const largeCost = document.querySelector(".large_cost");
+const largeImage = document.querySelector(".large_image");
+const largeDescription = document.querySelector(".large_description");
 
 // shop tracking
 let shop = {};
@@ -52,14 +59,20 @@ async function loadPage() {
         item.appendChild(name);
 
         item.addEventListener("click", (event) => {
-            // click
+            itemLargeView.style.display = "flex";
+            gridView.style.display = "none";
+
+            largeName.textContent = value.name;
+            largeCost.textContent = `${value.category == null || value.category == "normal_item" ? `(${value.cost} points)` : "2000 points"}`;
+            largeDescription.textContent = value.description;
+            largeImage.src = value.imageBase64 || "Images/EmptyImage.jpg";
         });
 
         // Save value for editing purposes
         shop[doc.id] = doc.data();
 
         shopElements[doc.id] = item;
-        mainContent.appendChild(item);
+        gridView.appendChild(item);
     })
 
     // Sidebar buttons
@@ -100,6 +113,11 @@ async function loadPage() {
         }
 
         itemElement.style.display = isShown ? "flex" : "none";
+    });
+
+    backButton.addEventListener("click", (event) => {
+        itemLargeView.style.display = "none";
+        gridView.style.display = "grid";
     });
 }
 
