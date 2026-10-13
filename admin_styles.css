@@ -156,7 +156,7 @@ body {
 
 #home_items_container {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
     width: 100%;
 }

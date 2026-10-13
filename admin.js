@@ -512,6 +512,16 @@ function showSessionPopup(ninjaID, isBase = false) {
 
     actualPopup.appendChild(customInputHolder);
 
+    // had today?
+    let updatedHadSessionToday = false;
+    if (ninjaData.last_session != undefined) {
+        const lastSession = new Date(ninjaData.last_session);
+        const today = new Date();
+        updatedHadSessionToday = lastSession.getDate() === today.getDate() && lastSession.getMonth() === today.getMonth() && lastSession.getFullYear() === today.getFullYear();
+    }
+    let hadToday = createElementHelper("div", null, `${ninjaData.firstname} has ${updatedHadSessionToday ? "had at least 1 session added today." : "not had any sessions added today."}`);
+    actualPopup.appendChild(hadToday);
+
     // Buttons
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
@@ -958,7 +968,6 @@ function showWristbandPopup() {
         console.log("Error: A popup already exists!");
         return;
     }
-
 
     // Create the popup
     currentPopup = document.createElement("div");

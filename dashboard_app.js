@@ -428,6 +428,16 @@ function showAddSessionPopup(purchasePopupState) {
         customInputHolder.appendChild(custom_pts);
     
         actualPopup.appendChild(customInputHolder);
+
+        // had today?
+        let updatedHadSessionToday = false;
+        if (myProfile.last_session != undefined) {
+            const lastSession = new Date(myProfile.last_session);
+            const today = new Date();
+            updatedHadSessionToday = lastSession.getDate() === today.getDate() && lastSession.getMonth() === today.getMonth() && lastSession.getFullYear() === today.getFullYear();
+        }
+        let hadToday = createElementHelper("div", null, `${myProfile.firstname} has ${updatedHadSessionToday ? "had at least 1 session added today." : "not had any sessions added today."}`);
+        actualPopup.appendChild(hadToday);
     
         // Buttons
         let button_bar = document.createElement("div");
