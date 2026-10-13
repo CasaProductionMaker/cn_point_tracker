@@ -46,7 +46,7 @@ body {
     cursor: pointer;
 }
 
-#coming_soon_shortcut:hover {
+.coming_soon_shortcut:hover {
     cursor: not-allowed;
     background-color: #0005;
     box-shadow: none;
