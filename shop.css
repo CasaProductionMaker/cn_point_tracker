@@ -7,7 +7,7 @@ body {
     height: 4rem;
     width: 100%;
     display: flex;
-    align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -15,7 +15,13 @@ body {
     background-color: #0006;
 }
 
-.top_bar > h1 {
+.top_bar > div {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.top_bar h1 {
     margin: 0;
     margin-right: 4rem;
     font-size: 2rem;
@@ -23,12 +29,45 @@ body {
     padding-bottom: 0.5rem;
 }
 
-.top_bar > button {
+.top_bar button {
     border-radius: 0;
     box-shadow: none;
     background-color: transparent;
     height: 100%;
+    transition: background-color 300ms ease-in-out;
 }
+
+.hidden {
+    display: none !important;
+}
+
+.top_bar button:hover {
+    background-color: #FFF2;
+}
+
+.right_one {
+    gap: 1rem;
+}
+
+.color_token {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 1rem;
+}
+
+.gold_color {
+    background-color: rgb(236, 200, 38);
+}
+
+.silver_color {
+    background-color: rgb(125, 125, 125);
+}
+
+.orange_color {
+    background-color: rgb(255, 94, 0);
+}
+
+
 
 .main_content {
     flex: 1;

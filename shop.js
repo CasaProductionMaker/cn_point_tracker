@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Page references
-const mainContent = document.querySelector(".main_content");
+const rightPart = document.querySelector(".right_one");
 const backButton = document.querySelector(".back_button");
 const gridView = document.querySelector(".grid_view");
 const itemLargeView = document.querySelector(".item_large_view");
@@ -77,6 +77,7 @@ async function loadPage() {
 
     // Sidebar buttons
     normalItemsButton.addEventListener("click", (event) => {
+        rightPart.classList.toggle("hidden", true);
         Object.keys(shop).forEach((itemKey) => {
             const itemData = shop[itemKey];
             const itemElement = shopElements[itemKey];
@@ -90,6 +91,7 @@ async function loadPage() {
         });
     })
     Print3dItemsButton.addEventListener("click", (event) => {
+        rightPart.classList.toggle("hidden", false);
         Object.keys(shop).forEach((itemKey) => {
             const itemData = shop[itemKey];
             const itemElement = shopElements[itemKey];

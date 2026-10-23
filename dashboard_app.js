@@ -636,6 +636,8 @@ async function editPoints(amount) {
 async function purchaseItem(shopItem) {
     await editPoints(-shopItem.cost);
 
+    // await updateDoc(doc(db, "ninjas", userKey))
+
     // Add to ninja's purchase log
     await addDoc(collection(db, "ninjas", userKey, "purchases"), {
         date: Date.now(), 
