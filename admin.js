@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper } from "./util.js"; 
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper, createButtonHelper } from "./util.js"; 
 import { lang, belts, shopTags, pointReasons, basePointsPerSession } from "./data.js";
 
 // check that we are signed in
@@ -71,6 +71,8 @@ const leaderboardEditorContainer = document.querySelector("#leaderboards_editor_
 const addShopItemButton = document.querySelector("#add_shop_item_button");
 const addLeaderboardButton = document.querySelector("#add_leaderboard_button");
 const dynamicNavbar = document.querySelector("#navbar_header");
+const pendingList = document.querySelector("#ninja_list");
+const pendingText = document.querySelector(".pending_text");
 
 // interval func
 let inputIntervalFunction;
@@ -1499,6 +1501,31 @@ async function loadPage() {
             }
         });
         document.querySelector("#ninjas_shortcut > p").textContent = `${Object.keys(ninjas).length} ${Object.keys(ninjas).length == 1 ? "ninja" : "ninjas"} registered.`;
+
+        // update uncomplete purchases
+        // <li class="pending_purchase_ninja">Ninja 1<button>View</button></li>
+        pendingText.textContent = "Review any pending purchases made by ninjas. There are no Ninjas with unfulfilled purchases.";
+        Object.keys(ninjas).forEach(key => {
+            const ninjaInfo = ninjas[key];
+            if (ninjaInfo.pendingPurchases > 0) {
+                console.log(ninjaInfo)
+                const listElement = document.createElement("li");
+                listElement.classList.add("pending_purchase_ninja");
+                listElement.innerText = `${ninjaInfo.firstname} ${ninjaInfo.lastname}`;
+
+                const buttonElement = createEmptyButtonHelper("View");
+                buttonElement.addEventListener("click", (e) => {
+                    showNinjaView(key);
+                    document.querySelector(".active_ninja_tab").classList.remove("active_ninja_tab");
+                    singleNinjaPurchases.classList.add("active_ninja_tab");
+                    updateDynamicNavbar(`Ninjas > ${ninjaInfo.firstname} ${ninjaInfo.lastname} > Purchases`);
+                });
+                listElement.appendChild(buttonElement);
+
+                pendingList.appendChild(listElement);
+                pendingText.textContent = "Review any pending purchases made by ninjas. The following Ninjas have unfulfilled purchases:";
+            }
+        });
     });
 
     // Load Shop Editor
@@ -1824,6 +1851,9 @@ async function removeSession(ninjaID, sessionID) {
 async function fulfillPurchase(ninjaID, purchaseID) {
     await updateDoc(doc(db, "ninjas", ninjaID, "purchases", purchaseID), {
         fulfilled: true
+    });
+    await updateDoc(doc(db, "ninjas", ninjaID), {
+        pendingPurchases: increment(-1)
     });
 }
 
