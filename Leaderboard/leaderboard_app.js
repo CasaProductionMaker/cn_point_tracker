@@ -105,27 +105,25 @@ async function loadPage() {
     //     });
     // });
 
-    onSnapshot(query(collection(db, "leaderboard_entries"), orderBy("points", "desc"), limit(15)), (snapshot) => {
+    onSnapshot(query(collection(db, "ninjas"), orderBy("points", "desc"), limit(15)), (snapshot) => {
         const leaderboardContainer = document.querySelector(`#main_leaderboard_container`);
         
         // Reset Leaderboard
         leaderboardContainer.innerHTML = `<h2>Leaderboard</h2>`;
         let place = 1;
         snapshot.forEach(async (ninja) => {
-            const docData = ninja.data();
-
             // Get user profile
-            const ninjaProfile = await getDoc(doc(db, "ninjas", docData.ninja_id));
+            const ninjaProfile = ninja.data();
 
             // Create element
             const newElement = document.createElement("div");
             newElement.classList.add("leaderboard_member");
 
             newElement.innerHTML = `
-                <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
+                <h3>#${place}: ${ninjaProfile.firstname} ${ninjaProfile.lastname}</h3>
                 <div class="leaderboard_member_flex">
-                    <p>${docData.points} Points</p>
-                    <p class="belt_color_${ninjaProfile.data().belt} belt_color">${belts[ninjaProfile.data().belt]} Belt</p>
+                    <p>${ninjaProfile.points} Points</p>
+                    <p class="belt_color_${ninjaProfile.belt} belt_color">${belts[ninjaProfile.belt]} Belt</p>
                 </div>
             `;
 
