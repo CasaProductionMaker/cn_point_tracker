@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, limit, onSnapshot, doc, getDoc, collection, where, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, limit, onSnapshot, doc, getDoc, getDocs, collection, where, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { lang, belts } from "../data.js";
 
 // Your web app's Firebase configuration
@@ -17,121 +17,68 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 let subscribeFunctions = {};
+let leaderboardScroller = {};
+
+function autoScrollLoop(containerID) {
+    if (!leaderboardScroller[containerID]) {
+        leaderboardScroller[containerID] = {speed: 1, direction: 1, paused: false}
+    }
+
+    if (!leaderboardScroller[containerID].paused) {
+        const container = document.querySelector(containerID);
+        container.scrollTop += leaderboardScroller[containerID].speed * leaderboardScroller[containerID].direction;
+
+        const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+        const isAtTop = container.scrollTop <= 0;
+
+        if (isAtBottom && leaderboardScroller[containerID].direction === 1) {
+            leaderboardScroller[containerID].direction = -2; 
+        } else if (isAtTop && leaderboardScroller[containerID].direction === -2) {
+            leaderboardScroller[containerID].direction = 1;
+        }
+    }
+
+    requestAnimationFrame(() => autoScrollLoop(containerID));
+}
 
 async function loadPage() {
-    // onSnapshot(collection(db, "leaderboards"), (snapshot) => {
-    //     snapshot.docChanges().forEach(changedLeaderboard => {
-    //         const value = changedLeaderboard.doc.data();
+    const leaderboards = await getDocs(collection(db, "leaderboards"));
+    leaderboards.forEach(leaderboard => {
+        const data = leaderboard.data();
+        const leaderboardContainer = document.querySelector(`#${data.ui_position}_leaderboard_container`);
+        leaderboardContainer.addEventListener("mouseover", () => leaderboardScroller[`#${data.ui_position}_leaderboard_container`].paused = true);
+        leaderboardContainer.addEventListener("mouseout", () => leaderboardScroller[`#${data.ui_position}_leaderboard_container`].paused = false);
+        autoScrollLoop(`#${data.ui_position}_leaderboard_container`);
 
-    //         switch (changedLeaderboard.type) {
-    //             case "added":
-    //                 if (value.belt_filters.length > 0) {
-    //                     subscribeFunctions[changedLeaderboard.doc.id] = onSnapshot(query(collection(db, "leaderboard_entries"), where("reason", "==", value.reason_filter), where("ninja_belt_level", "in", value.belt_filters), orderBy("points", "desc"), limit(value.slots)), (snapshot) => {
-    //                         const leaderboardContainer = document.querySelector(`#${value.ui_position}_leaderboard_container`);
-                            
-    //                         // Reset Leaderboard
-    //                         leaderboardContainer.innerHTML = `<h2>${value.name}</h2>`;
-    //                         let place = 1;
-    //                         snapshot.forEach(async (ninja) => {
-    //                             const docData = ninja.data();
-
-    //                             // Get user profile
-    //                             const ninjaProfile = await getDoc(doc(db, "ninjas", docData.ninja_id));
-
-    //                             // Create element
-    //                             const newElement = document.createElement("div");
-    //                             newElement.classList.add("leaderboard_member");
-
-    //                             newElement.innerHTML = `
-    //                                 <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
-    //                                 <div class="leaderboard_member_flex">
-    //                                     <p>${docData.points} ${lang[value.reason_filter]} Points</p>
-    //                                     <p class="belt_color_${ninjaProfile.data().belt} belt_color">${belts[ninjaProfile.data().belt]} Belt</p>
-    //                                 </div>
-    //                             `;
-
-    //                             leaderboardContainer.appendChild(newElement);
-    //                             place++;
-    //                         });
-    //                     });
-    //                 }
-
-    //                 break;
-    //             case "modified":
-    //                 if (subscribeFunctions[changedLeaderboard.doc.id] != null) {
-    //                     subscribeFunctions[changedLeaderboard.doc.id]();
-    //                     delete subscribeFunctions[changedLeaderboard.doc.id];
-    //                 }
-
-    //                 if (value.belt_filters.length > 0) {
-    //                     subscribeFunctions[changedLeaderboard.doc.id] = onSnapshot(query(collection(db, "leaderboard_entries"), where("reason", "==", value.reason_filter), where("ninja_belt_level", "in", value.belt_filters), orderBy("points", "desc"), limit(value.slots)), (snapshot) => {
-    //                         const leaderboardContainer = document.querySelector(`#${value.ui_position}_leaderboard_container`);
-                            
-    //                         // Reset Leaderboard
-    //                         leaderboardContainer.innerHTML = `<h2>${value.name}</h2>`;
-    //                         let place = 1;
-    //                         snapshot.forEach(async (ninja) => {
-    //                             const docData = ninja.data();
-
-    //                             // Get user profile
-    //                             const ninjaProfile = await getDoc(doc(db, "ninjas", docData.ninja_id));
-
-    //                             // Create element
-    //                             const newElement = document.createElement("div");
-    //                             newElement.classList.add("leaderboard_member");
-
-    //                             newElement.innerHTML = `
-    //                                 <h3>#${place}: ${ninjaProfile.data().firstname} ${ninjaProfile.data().lastname}</h3>
-    //                                 <p>${docData.points} ${lang[value.reason_filter]} Points</p>
-    //                             `;
-
-    //                             leaderboardContainer.appendChild(newElement);
-    //                             place++;
-    //                         });
-    //                     });
-    //                 }
-
-    //                 break;
-    //             case "removed":
-    //                 if (subscribeFunctions[changedLeaderboard.doc.id] != null) {
-    //                     subscribeFunctions[changedLeaderboard.doc.id]();
-    //                     delete subscribeFunctions[changedLeaderboard.doc.id];
-    //                 }
-
-    //                 const leaderboardContainer = document.querySelector(`#${value.ui_position}_leaderboard_container`);
-    //                 leaderboardContainer.innerHTML = ``;
-    //                 break;
-    //         }
-    //     });
-    // });
-
-    onSnapshot(query(collection(db, "ninjas"), orderBy("points", "desc"), limit(15)), (snapshot) => {
-        const leaderboardContainer = document.querySelector(`#main_leaderboard_container`);
+        onSnapshot(query(collection(db, "ninjas"), where("belt", "in", data.belt_filters), orderBy("points", "desc"), limit(data.slots)), (snapshot) => {
         
-        // Reset Leaderboard
-        leaderboardContainer.innerHTML = `<h2>Leaderboard</h2>`;
-        let place = 1;
-        snapshot.forEach(async (ninja) => {
-            // Get user profile
-            const ninjaProfile = ninja.data();
+            // Reset Leaderboard
+            leaderboardContainer.innerHTML = `<h2>${data.name}</h2>`;
+            let place = 1;
+            snapshot.forEach(async (ninja) => {
+                // Get user profile
+                const ninjaProfile = ninja.data();
 
-            // Create element
-            const newElement = document.createElement("div");
-            newElement.classList.add("leaderboard_member");
+                // Create element
+                const newElement = document.createElement("div");
+                newElement.classList.add("leaderboard_member");
 
-            newElement.innerHTML = `
-                <h3>#${place}: ${ninjaProfile.firstname} ${ninjaProfile.lastname}</h3>
-                <div class="leaderboard_member_flex">
-                    <p>${ninjaProfile.points} Points</p>
-                    <p class="belt_color_${ninjaProfile.belt} belt_color">${belts[ninjaProfile.belt]} Belt</p>
-                </div>
-            `;
+                newElement.innerHTML = `
+                    <h3>#${place}: ${ninjaProfile.firstname} ${ninjaProfile.lastname}</h3>
+                    <div class="leaderboard_member_flex">
+                        <p>${ninjaProfile.points} Points</p>
+                        <p class="belt_color_${ninjaProfile.belt} belt_color">${belts[ninjaProfile.belt]} Belt</p>
+                    </div>
+                `;
 
-            leaderboardContainer.appendChild(newElement);
-            place++;
-        });
-    });
+                leaderboardContainer.appendChild(newElement);
+                place++;
+            });
+        })
+
+    })
 }
 
 // Start app
 loadPage();
+
