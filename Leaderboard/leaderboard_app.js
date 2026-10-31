@@ -32,9 +32,9 @@ function autoScrollLoop(containerID) {
         const isAtTop = container.scrollTop <= 0;
 
         if (isAtBottom && leaderboardScroller[containerID].direction === 1) {
-            leaderboardScroller[containerID].direction = -2; 
+            setTimeout(() => leaderboardScroller[containerID].direction = -2, 2000); 
         } else if (isAtTop && leaderboardScroller[containerID].direction === -2) {
-            leaderboardScroller[containerID].direction = 1;
+            setTimeout(() => leaderboardScroller[containerID].direction = 1, 2000); 
         }
     }
 
