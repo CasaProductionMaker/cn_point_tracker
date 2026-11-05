@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, increment, arrayUnion, arrayRemove, query, orderBy, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper, createButtonHelper } from "./util.js"; 
+import { createElementHelper, createSimpleElementHelper, createEmptyButtonHelper, createInputHelper, createRadioInputHelper, createLabelHelper, compressImage, convertInputToKey, createSelectHelper, createButtonHelper, createTextAreaHelper } from "./util.js"; 
 import { lang, belts, shopTags, pointReasons, basePointsPerSession } from "./data.js";
 
 // check that we are signed in
@@ -514,6 +514,10 @@ function showSessionPopup(ninjaID, isBase = false) {
 
     actualPopup.appendChild(customInputHolder);
 
+    // extra info
+    let extraInfoInput = createTextAreaHelper("extra_info_input", "Enter any extra info...");
+    actualPopup.appendChild(extraInfoInput);
+
     // had today?
     let updatedHadSessionToday = false;
     if (ninjaData.last_session != undefined) {
@@ -538,7 +542,8 @@ function showSessionPopup(ninjaID, isBase = false) {
     submit_button.addEventListener("click", async (e) => {
         // Add session to ninja as subcollection
         let sessionData = {
-            date_added: Date.now()
+            date_added: Date.now(), 
+            extra_info: document.querySelector(`#extra_info_input`).value
         };
         let ninjaUpdates = {
             last_session: Date.now()
@@ -580,12 +585,12 @@ function showSessionPopup(ninjaID, isBase = false) {
         await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
 
         // Add info to leaderboard_entries
-        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
-            ninja_id: ninjaID, 
-            reason: "history", 
-            points: increment(pointsGotten), 
-            ninja_belt_level: ninjaData.belt
-        }, { merge: true })
+        // await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+        //     ninja_id: ninjaID, 
+        //     reason: "history", 
+        //     points: increment(pointsGotten), 
+        //     ninja_belt_level: ninjaData.belt
+        // }, { merge: true })
 
         // Close popup after done
         removePopup();
@@ -661,6 +666,10 @@ async function showEditSessionPopup(ninjaID, sessionID) {
 
     actualPopup.appendChild(customInputHolder);
 
+    // extra info
+    let extraInfoInput = createTextAreaHelper("extra_info_input", "Enter any extra info...", sessionData.extra_info || "");
+    actualPopup.appendChild(extraInfoInput);
+
     // Buttons
     let button_bar = document.createElement("div");
     button_bar.classList.add("popup_button_bar");
@@ -677,7 +686,8 @@ async function showEditSessionPopup(ninjaID, sessionID) {
 
         // save stuff
         let updatedSessionData = {
-            date_added: sessionData.date_added
+            date_added: sessionData.date_added, 
+            extra_info: document.querySelector(`#extra_info_input`).value
         };
 
         // vars
@@ -701,12 +711,17 @@ async function showEditSessionPopup(ninjaID, sessionID) {
                 previousSessionPoints += pointReward;
             }
         });
-        if (document.querySelector(`#custom_points_checkbox`).checked) {
-            const inputVal = Number(document.querySelector(`#custom_points_input`).value);
-            pointsGotten += inputVal;
-            updatedSessionData[`custom_points`] = inputVal;
-            ninjaUpdates[`total_custom_points`] = increment(-sessionData[`custom_points`] + inputVal);
+        const customInputVal = Number(document.querySelector(`#custom_points_input`).value);
+        if (document.querySelector(`#custom_points_checkbox`).checked) { // if its NOW added
+            updatedSessionData[`custom_points`] = customInputVal;
+            pointsGotten += customInputVal;
         }
+        // if it WAS BEFORE
+        if (sessionData[`custom_points`] != null) { // if it WAS BEFORE
+            ninjaUpdates[`total_custom_points`] = increment(-sessionData[`custom_points`]);
+            previousSessionPoints += sessionData[`custom_points`];
+        }
+
         updatedSessionData.total_points_gotten = pointsGotten;
 
         // Update the ninja's stats in their regular account for easy access
@@ -716,12 +731,12 @@ async function showEditSessionPopup(ninjaID, sessionID) {
         await updateDoc(doc(db, "ninjas", ninjaID), ninjaUpdates);
 
         // Add info to leaderboard_entries
-        await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
-            ninja_id: ninjaID, 
-            reason: "history", 
-            points: increment(pointsGotten - previousSessionPoints), 
-            ninja_belt_level: ninjaData.belt
-        }, { merge: true })
+        // await setDoc(doc(db, "leaderboard_entries", `${ninjaID}_history`), {
+        //     ninja_id: ninjaID, 
+        //     reason: "history", 
+        //     points: increment(pointsGotten - previousSessionPoints), 
+        //     ninja_belt_level: ninjaData.belt
+        // }, { merge: true })
 
         // edit the sessoion stuff
         await setDoc(doc(db, "ninjas", ninjaID, "sessions", sessionID), updatedSessionData);
@@ -1285,6 +1300,16 @@ async function updateNinjaView(ninjaID) {
                 }
             });
 
+            if (value[`custom_points`]) {
+                let pointReason = createSimpleElementHelper("p", `Custom Points: ${value[`custom_points`]}`);
+                sessionElement.appendChild(pointReason);
+            }
+
+            if (value["extra_info"]) {
+                let extra = createSimpleElementHelper("p", `Extra Info: ${value[`extra_info`]}`);
+                sessionElement.appendChild(extra);
+            }
+
             // Buttons
             let button_bar = document.createElement("div");
             button_bar.classList.add("popup_button_bar");
@@ -1505,6 +1530,7 @@ async function loadPage() {
         // update uncomplete purchases
         // <li class="pending_purchase_ninja">Ninja 1<button>View</button></li>
         pendingText.textContent = "Review any pending purchases made by ninjas. There are no Ninjas with unfulfilled purchases.";
+        pendingList.innerHTML = "";
         Object.keys(ninjas).forEach(key => {
             const ninjaInfo = ninjas[key];
             if (ninjaInfo.pendingPurchases > 0) {

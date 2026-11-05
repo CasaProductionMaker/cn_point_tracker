@@ -41,6 +41,16 @@ export function createInputHelper(type, id, defaultValue = "") {
     return child;
 };
 
+export function createTextAreaHelper(id, placeholder, defaultValue = "") {
+    let child = document.createElement("textarea");
+    child.id = id;
+    child.name = id;
+    child.placeholder = placeholder;
+    child.value = defaultValue;
+
+    return child;
+};
+
 export function createSelectHelper(id, options, defaultValue = "") {
     let child = document.createElement("select");
     child.id = id;
