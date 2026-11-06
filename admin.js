@@ -62,6 +62,7 @@ const settingsLeaderboards = document.querySelector("#settings_leaderboards");
 const ninjasShortcut = document.querySelector("#ninjas_shortcut");
 const leaderboardsShortcut = document.querySelector("#leaderboards_shortcut");
 const wristbandShortcut = document.querySelector("#wristband_shortcut");
+const shopShortcut = document.querySelector("#shop_shortcut");
 
 // Other
 const ninjaGridContainer = document.querySelector("#ninja_grid_container");
@@ -1812,10 +1813,13 @@ async function loadPage() {
     })
     leaderboardsShortcut.addEventListener("click", (event) => {
         window.location.href = "Leaderboard/"
-    })
+    });
     wristbandShortcut.addEventListener("click", (event) => {
         showWristbandPopup();
-    })
+    });
+    shopShortcut.addEventListener("click", (event) => {
+        window.location.href = "shop.html"
+    });
 }
 
 // Database functions

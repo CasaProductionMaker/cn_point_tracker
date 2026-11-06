@@ -55,7 +55,7 @@ async function loadPage() {
         }
         item.appendChild(ticketBar);
 
-        let name = createElementHelper("h1", "", `${value.name} ${value.category == null || value.category == "normal_item" ? `(${value.cost} points)` : ""}`);
+        let name = createElementHelper("h1", "", `${value.name} ${value.cost > 0 ? `(${value.cost} points)` : ""}`);
         item.appendChild(name);
 
         item.addEventListener("click", (event) => {
@@ -63,7 +63,7 @@ async function loadPage() {
             gridView.style.display = "none";
 
             largeName.textContent = value.name;
-            largeCost.textContent = `${value.category == null || value.category == "normal_item" ? `(${value.cost} points)` : "2000 points"}`;
+            largeCost.textContent = `${value.cost > 0 ? `(${value.cost} points)` : "2000 points"}`;
             largeDescription.textContent = value.description;
             largeImage.src = value.imageBase64 || "Images/EmptyImage.jpg";
         });
